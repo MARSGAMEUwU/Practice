@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "name": "PlayerInputActions",
+    "name": "PlayerInputs",
     "maps": [
         {
             "name": "Player",
@@ -28,6 +28,15 @@
                     "name": "Jump",
                     "type": "Button",
                     "id": "75ac34cf-82be-4382-abfb-31156645f0c5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Sprint",
+                    "type": "Button",
+                    "id": "ffc55d68-cf44-42dc-9a48-5df9d0386762",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -109,6 +118,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0bdfb7a1-10b3-4ff5-a2f0-33b99854056a",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

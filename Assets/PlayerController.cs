@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Ссылки на компоненты")]
     [SerializeField] private Transform cameraTransform;
-    [SerializeField] private RectTransform staminaBarUI; // Ссылка на RectTransform полоски стамины
+    [SerializeField] private Image staminaBarImage; // Изменено с RectTransform на Image
 
     [Header("Input Actions (Перетащите сюда действия из Input Action Asset)")]
     [SerializeField] private InputAction moveAction;
@@ -25,8 +25,13 @@ public class PlayerController : MonoBehaviour
 
     [Header("Настройки стамины")]
     [SerializeField] private float maxStamina = 100f;
-    [SerializeField] private float staminaDrainRate = 20f; // Сколько убывает в секунду
-    [SerializeField] private float staminaRegenRate = 15f; // Сколько прибавляется в секунду
+    [SerializeField] private float staminaDrainRate = 20f;
+    [SerializeField] private float staminaRegenRate = 15f;
+    [SerializeField] private float cooldownThreshold = 30f; // Порог снятия кулдауна
+
+    [Header("Цвета стамины")]
+    [SerializeField] private Color normalStaminaColor = Color.white;
+    [SerializeField] private Color cooldownStaminaColor = Color.red;
 
     // Приватные переменные
     private CharacterController controller;
@@ -34,19 +39,19 @@ public class PlayerController : MonoBehaviour
     private float xRotation;
     private float currentStamina;
     private float maxStaminaBarWidth;
+    private bool isOnCooldown = false; // Флаг кулдауна
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
 
-        // Блокируем курсор
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Запоминаем максимальную ширину полоски стамины при старте
-        if (staminaBarUI != null)
+        if (staminaBarImage != null)
         {
-            maxStaminaBarWidth = staminaBarUI.rect.width;
+            maxStaminaBarWidth = staminaBarImage.rectTransform.rect.width;
+            staminaBarImage.color = normalStaminaColor; // Устанавливаем начальный цвет
         }
 
         currentStamina = maxStamina;
@@ -89,21 +94,32 @@ public class PlayerController : MonoBehaviour
     private void HandleStaminaAndSprint()
     {
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
-
-        // Проверка: двигаемся ли мы вперед (от -90 до +90 градусов относительно камеры)
-        // В локальных координатах ввода Y - это вперед, X - вправо.
-        // Если Y > 0, значит угол находится в диапазоне от -90 до +90 градусов.
         bool isMovingForward = moveInput.y >= 0f;
 
-        bool wantsToSprint = sprintAction.IsPressed() && isMovingForward && currentStamina > 0f;
+        // Спринт возможен только если НЕ в кулдауне
+        bool wantsToSprint = sprintAction.IsPressed() && isMovingForward && !isOnCooldown && currentStamina > 0f;
 
         if (wantsToSprint)
         {
             currentStamina -= staminaDrainRate * Time.deltaTime;
+
+            // Проверяем, не закончилась ли стамина
+            if (currentStamina <= 0f)
+            {
+                currentStamina = 0f;
+                isOnCooldown = true; // Активируем кулдаун
+            }
         }
         else
         {
+            // Регенерация стамины
             currentStamina += staminaRegenRate * Time.deltaTime;
+
+            // Если в кулдауне и стамина достигла порога - снимаем кулдаун
+            if (isOnCooldown && currentStamina >= cooldownThreshold)
+            {
+                isOnCooldown = false;
+            }
         }
 
         currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
@@ -112,7 +128,7 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateStaminaUI()
     {
-        if (staminaBarUI == null) return;
+        if (staminaBarImage == null) return;
 
         // Вычисляем процент оставшейся стамины
         float staminaPercent = currentStamina / maxStamina;
@@ -120,9 +136,11 @@ public class PlayerController : MonoBehaviour
         // Вычисляем новую ширину
         float targetWidth = maxStaminaBarWidth * staminaPercent;
 
-        // Изменяем размер. Так как Pivot установлен в (0.5, 0.5), 
-        // полоска будет уменьшаться симметрично с двух краев к центру.
-        staminaBarUI.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, targetWidth);
+        // Изменяем размер бара
+        staminaBarImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, targetWidth);
+
+        // Изменяем цвет в зависимости от состояния кулдауна
+        staminaBarImage.color = isOnCooldown ? cooldownStaminaColor : normalStaminaColor;
     }
 
     private void HandleMovement()
@@ -130,27 +148,35 @@ public class PlayerController : MonoBehaviour
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         Vector3 moveDir = transform.right * moveInput.x + transform.forward * moveInput.y;
 
+        // Убеждаемся, что гравитация всегда отрицательная
+        if (gravity > 0) gravity = -Mathf.Abs(gravity);
+
         // Определяем текущую скорость (с спринтом или без)
         bool isMovingForward = moveInput.y > 0.01f;
-        bool isSprinting = sprintAction.IsPressed() && isMovingForward && currentStamina > 0f;
+        bool isSprinting = sprintAction.IsPressed() && isMovingForward && !isOnCooldown && currentStamina > 0f;
         float currentSpeed = isSprinting ? walkSpeed * sprintMultiplier : walkSpeed;
 
-        // Применяем движение
-        controller.Move(moveDir.normalized * currentSpeed * Time.deltaTime);
-
         // Гравитация и прыжок
-        if (controller.isGrounded && velocity.y < 0f)
+        if (controller.isGrounded)
         {
-            velocity.y = -2f; // Небольшая сила вниз, чтобы персонаж не "соскальзывал" с рельефа
+            velocity.y = -2f;
+
+            if (jumpAction.WasPressedThisFrame())
+            {
+                velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            }
+        }
+        else
+        {
+            velocity.y += gravity * Time.deltaTime;
         }
 
-        if (jumpAction.WasPressedThisFrame() && controller.isGrounded)
-        {
-            // Формула высоты прыжка: v = sqrt(2 * h * -g)
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
+        velocity.y = Mathf.Max(velocity.y, -50f);
 
-        velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        // Разделяем горизонтальное и вертикальное движение
+        Vector3 horizontalMove = moveDir.normalized * currentSpeed * Time.deltaTime;
+        Vector3 verticalMove = new Vector3(0, velocity.y * Time.deltaTime, 0);
+
+        controller.Move(horizontalMove + verticalMove);
     }
 }

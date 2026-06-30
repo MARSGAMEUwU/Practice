@@ -20,7 +20,7 @@ MonoBehaviour:
   - damage: 10
     fireRate: 0.15
     range: 100
-    magazineSize: 30
+    magazineSize: 7
     reloadTime: 2
     baseRecoil: 4
     recoilPerShot: 2

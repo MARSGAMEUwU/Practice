@@ -3,8 +3,9 @@ using UnityEngine;
 public class Damageable : MonoBehaviour
 {
     [SerializeField] private float maxHealth = 100f;
-    private float currentHealth;
-    private bool isDead = false;
+    public float currentHealth;
+    public bool isDead = false;
+    public GameObject prefab;
 
     private void Awake() => currentHealth = maxHealth;
 
@@ -26,7 +27,12 @@ public class Damageable : MonoBehaviour
 
     private void Die()
     {
+        Vector3 spawnPosition = transform.position + new Vector3(0f, 72.95f, 0f);
         Debug.Log($"{gameObject.name} уничтожен!");
-        Destroy(gameObject);
+        if (prefab != null)
+        {
+            Instantiate(prefab, spawnPosition, transform.rotation);
+        }
+        
     }
 }

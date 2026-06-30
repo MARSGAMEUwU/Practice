@@ -6,6 +6,7 @@ TagManager:
   tags:
   - WeaponPickup
   - PickUpPrompt
+  - Enemy
   layers:
   - Default
   - TransparentFX

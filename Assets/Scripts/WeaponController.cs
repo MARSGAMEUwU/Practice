@@ -162,7 +162,7 @@ public class WeaponController : MonoBehaviour
                 }
             }
 
-            if (bloodHitEffectPrefab != null && hit.transform.name == "Capsule")
+            if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out Damageable enemy))
             {
                 // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
@@ -172,7 +172,7 @@ public class WeaponController : MonoBehaviour
             if (holeHitEffectPrefab != null)
             {
                 GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                bulletHole.transform.position += hit.normal * 0.01f;
+                bulletHole.transform.position += hit.normal * 0.1f;
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(bulletHole, 10f);
             }

@@ -1,71 +1,206 @@
-using System;
 using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : Damageable
 {
-    [Header("Настройки ИИ")]
-    public float attackRange = 2f;
-    public float attackDamage = 10f;
-    public float attackRate = 1.5f;
+    [Header("Ссылки")]
+    [SerializeField] private Transform player; // Ссылка на игрока
+    [SerializeField] private Animator animator;
+    [SerializeField] private NavMeshAgent agent;
 
-    [Header("Трупы")]
-    public GameObject upperCorpsePrefab;   // префаб верхнего трупа (с LootEnemy)
-    public GameObject lowerCorpsePrefab;   // префаб нижнего трупа (просто модель)
+    [Header("Настройки преследования")]
+    [SerializeField] private float detectionRange = 20f; // Дальность обнаружения
+    [SerializeField] private float attackRange = 1.5f; // Дистанция атаки
+    [SerializeField] private float stopDistance = 1.2f; // Останавливаться на этом расстоянии
+    [SerializeField] private float attackCooldown = 1.5f; // Пауза между атаками
 
-    private Transform player;
-    private NavMeshAgent agent;
-    private float nextAttackTime = 0f;
+    [Header("Характеристики")]
+    [SerializeField] private float damage = 10f;
+    [SerializeField] private float moveSpeed = 3.5f;
 
-    void Start()
+    [Header("Анимации")]
+    [SerializeField] private string speedParam = "Speed";
+    [SerializeField] private string attackTrigger = "Attack";
+    [SerializeField] private string deathTrigger = "Die";
+
+    // Состояние
+    private float nextAttackTime;
+    private bool isAttacking;
+
+    protected override void Awake()
     {
+        base.Awake();
+
         agent = GetComponent<NavMeshAgent>();
-        GameObject playerObject = GameObject.FindWithTag("Player");
-        if (playerObject != null) player = playerObject.transform;
-        else Debug.LogError("Внимание! На сцене не найден объект с тегом 'Player'!");
-    }
+        agent.stoppingDistance = stopDistance;
+        agent.speed = moveSpeed;
 
-    void Update()
-    {
-        if (isDead || player == null) return;
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
 
-        agent.SetDestination(player.position);
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        if (distanceToPlayer <= attackRange && Time.time >= nextAttackTime)
+        // Автоматический поиск игрока по тегу
+        if (player == null)
         {
-            nextAttackTime = Time.time + attackRate;
-            Attack();
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
         }
     }
 
-    void Attack()
+    private void Update()
     {
-        Debug.Log("Враг нанес урон игроку!");
-        // Здесь будет вызов урона игроку
+        if (isDead) return;
+
+        if (player == null) return;
+
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+        // Проверяем, в зоне ли обнаружения игрок
+        if (distanceToPlayer <= detectionRange)
+        {
+            // Если достаточно близко для атаки
+            if (distanceToPlayer <= attackRange)
+            {
+                Attack();
+                StopMovement();
+            }
+            else
+            {
+                ChasePlayer();
+            }
+        }
+        else
+        {
+            StopMovement();
+        }
+
+        UpdateAnimator(distanceToPlayer);
     }
 
-    // Переопределяем смерть
+    private void ChasePlayer()
+    {
+        if (agent.isOnNavMesh && !isAttacking)
+        {
+            agent.SetDestination(player.position);
+        }
+    }
+
+    private void StopMovement()
+    {
+        if (agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+        }
+    }
+
+    private void Attack()
+    {
+        if (Time.time >= nextAttackTime && !isAttacking)
+        {
+            isAttacking = true;
+            nextAttackTime = Time.time + attackCooldown;
+
+            // Запускаем анимацию атаки
+            if (animator != null)
+            {
+                animator.SetTrigger(attackTrigger);
+            }
+
+            // Здесь будет урон игроку (пока заглушка)
+            Debug.Log($"<color=red>{gameObject.name} атакует игрока!</color>");
+
+            // Сбрасываем флаг атаки через время (должно совпадать с длиной анимации)
+            Invoke(nameof(ResetAttack), 0.8f);
+        }
+    }
+
+    private void ResetAttack()
+    {
+        isAttacking = false;
+    }
+
+    private void UpdateAnimator(float distanceToPlayer)
+    {
+        if (animator == null) return;
+
+        bool isMoving = distanceToPlayer > attackRange &&
+                        distanceToPlayer <= detectionRange &&
+                        !isAttacking;
+
+        if (isMoving && agent.velocity != Vector3.zero)
+        {
+            // Получаем направление движения в локальных координатах врага
+            Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
+
+            // Нормализуем для blend tree
+            float inputX = localVelocity.x;
+            float inputY = localVelocity.z;
+
+            animator.SetFloat("InputX", inputX);
+            animator.SetFloat("InputY", inputY);
+            animator.SetFloat(speedParam, 1f);
+        }
+        else
+        {
+            animator.SetFloat(speedParam, 0f);
+            animator.SetFloat("InputX", 0f);
+            animator.SetFloat("InputY", 0f);
+        }
+    }
+
     protected override void Die()
     {
-        // 1. Спавним верхний труп (на 73 выше)
-        Vector3 upperPos = transform.position + Vector3.up * 72.9f;
-        GameObject upper = Instantiate(upperCorpsePrefab, upperPos, transform.rotation);
+        Debug.Log($"<color=red>{gameObject.name} убит!</color>");
 
-        // Добавляем LootEnemy (если ещё нет)
-        LootEnemy loot = upper.GetComponent<LootEnemy>();
-        if (loot == null) loot = upper.AddComponent<LootEnemy>();
+        // Останавливаем агента
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.ResetPath();
+            agent.enabled = false;
+        }
 
-        // Настраиваем MeshCollider как триггер
-        MeshCollider mc = upper.GetComponent<MeshCollider>();
-        if (mc == null) mc = upper.AddComponent<MeshCollider>();
-        mc.isTrigger = true;
+        // Запускаем анимацию смерти
+        if (animator != null)
+        {
+            animator.SetTrigger(deathTrigger);
+        }
 
-        // 2. Спавним нижний труп (на месте врага)
-        Vector3 lowerPos = transform.position;
-        GameObject lower = Instantiate(lowerCorpsePrefab, lowerPos, transform.rotation);
+        // Отключаем коллайдеры чтобы не мешал
+        foreach (var col in GetComponentsInChildren<Collider>())
+        {
+            col.enabled = false;
+        }
 
-        // 3. Отключаем врага (не уничтожаем, чтобы не сломать ссылки)
-        gameObject.SetActive(false);
+        // Уничтожаем после завершения анимации смерти
+        Destroy(gameObject, 3f);
+    }
+
+    // === Метод для события анимации (Animation Event) ===
+    // Можно вызвать из анимации атаки в момент удара
+    public void OnAttackHit()
+    {
+        if (player == null) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+        if (distance <= attackRange)
+        {
+            // Здесь будет урон игроку
+            Debug.Log($"Удар достиг игрока! Урон: {damage}");
+
+            // Когда добавите TakeDamage игроку:
+            // var playerDamageable = player.GetComponent<Damageable>();
+            // if (playerDamageable != null) playerDamageable.TakeDamage(damage);
+        }
+    }
+
+    // Визуализация в редакторе
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

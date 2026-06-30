@@ -2,14 +2,13 @@ using UnityEngine;
 
 public class Damageable : MonoBehaviour
 {
-    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] protected float maxHealth = 100f;
     public float currentHealth;
     public bool isDead = false;
-    public GameObject prefab;
 
-    private void Awake() => currentHealth = maxHealth;
+    protected virtual void Awake() => currentHealth = maxHealth;
 
-    public void TakeDamage(float damage)
+    public virtual void TakeDamage(float damage)
     {
         if (isDead) return;
 
@@ -25,14 +24,9 @@ public class Damageable : MonoBehaviour
 
     public bool IsDead() => isDead;
 
-    // Теперь виртуальный, чтобы Enemy мог переопределить
     protected virtual void Die()
     {
-        Vector3 spawnPosition = transform.position + new Vector3(0f, 72.95f, 0f);
         Debug.Log($"{gameObject.name} уничтожен!");
-        if (prefab != null)
-        {
-            Instantiate(prefab, spawnPosition, transform.rotation);
-        }
+        Destroy(gameObject);
     }
 }

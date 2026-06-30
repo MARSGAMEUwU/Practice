@@ -25,7 +25,8 @@ public class Damageable : MonoBehaviour
 
     public bool IsDead() => isDead;
 
-    private void Die()
+    // Теперь виртуальный, чтобы Enemy мог переопределить
+    protected virtual void Die()
     {
         Vector3 spawnPosition = transform.position + new Vector3(0f, 72.95f, 0f);
         Debug.Log($"{gameObject.name} уничтожен!");
@@ -33,6 +34,5 @@ public class Damageable : MonoBehaviour
         {
             Instantiate(prefab, spawnPosition, transform.rotation);
         }
-        
     }
 }

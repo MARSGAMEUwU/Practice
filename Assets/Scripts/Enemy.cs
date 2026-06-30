@@ -4,45 +4,34 @@ using UnityEngine.AI;
 
 public class Enemy : Damageable
 {
-    
     [Header("Настройки ИИ")]
-    public float attackRange = 2f;          // Дистанция атаки (насколько близко подойти)
-    public float attackDamage = 10f;        // Урон, который враг наносит игроку
-    public float attackRate = 1.5f;         // Задержка между атаками (в секундах)
+    public float attackRange = 2f;
+    public float attackDamage = 10f;
+    public float attackRate = 1.5f;
 
-    private Transform player;               // Ссылка на трансформ игрока
-    private NavMeshAgent agent;             // Компонент "умного" движения
+    [Header("Трупы")]
+    public GameObject upperCorpsePrefab;   // префаб верхнего трупа (с LootEnemy)
+    public GameObject lowerCorpsePrefab;   // префаб нижнего трупа (просто модель)
+
+    private Transform player;
+    private NavMeshAgent agent;
     private float nextAttackTime = 0f;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-
-        // Находим игрока на сцене по тегу (помните про важность тегов?)
         GameObject playerObject = GameObject.FindWithTag("Player");
-        if (playerObject != null)
-        {
-            player = playerObject.transform;
-        }
-        else
-        {
-            Debug.LogError("Внимание! На сцене не найден объект с тегом 'Player'!");
-        }
+        if (playerObject != null) player = playerObject.transform;
+        else Debug.LogError("Внимание! На сцене не найден объект с тегом 'Player'!");
     }
 
     void Update()
     {
-        Debug.Log(isDead);
-        // Если враг мертв или игрок пропал — ничего не делаем
         if (isDead || player == null) return;
 
-        // Приказываем ИИ бежать строго к координатам игрока
         agent.SetDestination(player.position);
-
-        // Считаем расстояние до игрока
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Если подошли вплотную и пришло время кусать/бить
         if (distanceToPlayer <= attackRange && Time.time >= nextAttackTime)
         {
             nextAttackTime = Time.time + attackRate;
@@ -53,38 +42,30 @@ public class Enemy : Damageable
     void Attack()
     {
         Debug.Log("Враг нанес урон игроку!");
-
-        // Сюда вы вставите скрипт урона вашего игрока, например:
-        // if (player.TryGetComponent<PlayerHealth>(out var playerHealth)) {
-        //     playerHealth.TakeDamage(attackDamage);
-        // }
+        // Здесь будет вызов урона игроку
     }
 
-    // Переопределяем метод смерти. 
-    // (Я пишу 'public override void Die()', предполагая, что ваш коллега сделал этот метод виртуальным 'virtual' в классе Damageable)
-    //public override void Die()
-    //{
-    //    if (isDead) return; // Чтобы код не сработал дважды
-    //    isDead = true;
+    // Переопределяем смерть
+    protected override void Die()
+    {
+        // 1. Спавним верхний труп (на 73 выше)
+        Vector3 upperPos = transform.position + Vector3.up * 72.9f;
+        GameObject upper = Instantiate(upperCorpsePrefab, upperPos, transform.rotation);
 
-    //    Debug.Log($"Враг {gameObject.name} уничтожен!");
+        // Добавляем LootEnemy (если ещё нет)
+        LootEnemy loot = upper.GetComponent<LootEnemy>();
+        if (loot == null) loot = upper.AddComponent<LootEnemy>();
 
-    //    // Отключаем ИИ-навигацию, чтобы труп не скользил за игроком
-    //    if (agent != null)
-    //    {
-    //        agent.enabled = false;
-    //    }
+        // Настраиваем MeshCollider как триггер
+        MeshCollider mc = upper.GetComponent<MeshCollider>();
+        if (mc == null) mc = upper.AddComponent<MeshCollider>();
+        mc.isTrigger = true;
 
-    //    // Выключаем коллайдер, чтобы мертвый враг не мешал ходить и в него нельзя было стрелять
-    //    if (TryGetComponent<Collider>(out var col))
-    //    {
-    //        col.enabled = false;
-    //    }
+        // 2. Спавним нижний труп (на месте врага)
+        Vector3 lowerPos = transform.position;
+        GameObject lower = Instantiate(lowerCorpsePrefab, lowerPos, transform.rotation);
 
-    //    // Уничтожаем объект врага через 1 секунду (чтобы успела проиграться анимация или эффект)
-    //    Destroy(gameObject, 1f);
-    //}
+        // 3. Отключаем врага (не уничтожаем, чтобы не сломать ссылки)
+        gameObject.SetActive(false);
+    }
 }
-
-
-

@@ -7,9 +7,9 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Ссылки на компоненты")]
     [SerializeField] private Transform cameraTransform;
-    [SerializeField] private Image staminaBarImage; // Изменено с RectTransform на Image
+    [SerializeField] private Image staminaBarImage;
 
-    [Header("Input Actions (Перетащите сюда действия из Input Action Asset)")]
+    [Header("Input Actions")]
     [SerializeField] private InputAction moveAction;
     [SerializeField] private InputAction lookAction;
     [SerializeField] private InputAction jumpAction;
@@ -27,11 +27,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxStamina = 100f;
     [SerializeField] private float staminaDrainRate = 20f;
     [SerializeField] private float staminaRegenRate = 15f;
-    [SerializeField] private float cooldownThreshold = 30f; // Порог снятия кулдауна
+    [SerializeField] private float cooldownThreshold = 30f;
 
     [Header("Цвета стамины")]
     [SerializeField] private Color normalStaminaColor = Color.white;
     [SerializeField] private Color cooldownStaminaColor = Color.red;
+
+    [Header("Настройки отдачи")]
+    [SerializeField] private float recoilRecoverySpeed = 8f; // Скорость восстановления отдачи
 
     // Приватные переменные
     private CharacterController controller;
@@ -39,7 +42,11 @@ public class PlayerController : MonoBehaviour
     private float xRotation;
     private float currentStamina;
     private float maxStaminaBarWidth;
-    private bool isOnCooldown = false; // Флаг кулдауна
+    private bool isOnCooldown = false;
+
+    // === НОВОЕ: Система отдачи ===
+    private float currentRecoilX = 0f; // Накопленная отдача по вертикали
+    private float currentRecoilY = 0f; // Накопленная отдача по горизонтали
 
     private void Awake()
     {
@@ -51,7 +58,7 @@ public class PlayerController : MonoBehaviour
         if (staminaBarImage != null)
         {
             maxStaminaBarWidth = staminaBarImage.rectTransform.rect.width;
-            staminaBarImage.color = normalStaminaColor; // Устанавливаем начальный цвет
+            staminaBarImage.color = normalStaminaColor;
         }
 
         currentStamina = maxStamina;
@@ -78,6 +85,7 @@ public class PlayerController : MonoBehaviour
         HandleLook();
         HandleStaminaAndSprint();
         HandleMovement();
+        UpdateRecoil(); // === НОВОЕ: восстановление отдачи ===
     }
 
     private void HandleLook()
@@ -87,8 +95,34 @@ public class PlayerController : MonoBehaviour
         xRotation -= lookInput.y * mouseSensitivity;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        // === ИЗМЕНЕНО: учитываем отдачу при вращении камеры ===
+        cameraTransform.localRotation = Quaternion.Euler(xRotation + currentRecoilX, currentRecoilY, 0f);
         transform.Rotate(Vector3.up * lookInput.x * mouseSensitivity);
+    }
+
+    // === НОВОЕ: Метод для WeaponController, чтобы передавать отдачу ===
+    public void AddRecoil(float vertical, float horizontal)
+    {
+        currentRecoilX += vertical;
+        currentRecoilY += horizontal;
+
+        // Ограничиваем вертикальную отдачу, чтобы не перевернуть камеру
+        currentRecoilX = Mathf.Clamp(currentRecoilX, -15f, 15f);
+        currentRecoilY = Mathf.Clamp(currentRecoilY, -5f, 5f);
+    }
+
+    // === НОВОЕ: Плавное восстановление отдачи ===
+    private void UpdateRecoil()
+    {
+        if (currentRecoilX != 0f || currentRecoilY != 0f)
+        {
+            currentRecoilX = Mathf.Lerp(currentRecoilX, 0f, recoilRecoverySpeed * Time.deltaTime);
+            currentRecoilY = Mathf.Lerp(currentRecoilY, 0f, recoilRecoverySpeed * Time.deltaTime);
+
+            // Обнуляем очень маленькие значения, чтобы не было "дрожания"
+            if (Mathf.Abs(currentRecoilX) < 0.01f) currentRecoilX = 0f;
+            if (Mathf.Abs(currentRecoilY) < 0.01f) currentRecoilY = 0f;
+        }
     }
 
     private void HandleStaminaAndSprint()
@@ -96,26 +130,22 @@ public class PlayerController : MonoBehaviour
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         bool isMovingForward = moveInput.y >= 0f;
 
-        // Спринт возможен только если НЕ в кулдауне
         bool wantsToSprint = sprintAction.IsPressed() && isMovingForward && !isOnCooldown && currentStamina > 0f;
 
         if (wantsToSprint)
         {
             currentStamina -= staminaDrainRate * Time.deltaTime;
 
-            // Проверяем, не закончилась ли стамина
             if (currentStamina <= 0f)
             {
                 currentStamina = 0f;
-                isOnCooldown = true; // Активируем кулдаун
+                isOnCooldown = true;
             }
         }
         else
         {
-            // Регенерация стамины
             currentStamina += staminaRegenRate * Time.deltaTime;
 
-            // Если в кулдауне и стамина достигла порога - снимаем кулдаун
             if (isOnCooldown && currentStamina >= cooldownThreshold)
             {
                 isOnCooldown = false;
@@ -130,16 +160,10 @@ public class PlayerController : MonoBehaviour
     {
         if (staminaBarImage == null) return;
 
-        // Вычисляем процент оставшейся стамины
         float staminaPercent = currentStamina / maxStamina;
-
-        // Вычисляем новую ширину
         float targetWidth = maxStaminaBarWidth * staminaPercent;
 
-        // Изменяем размер бара
         staminaBarImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, targetWidth);
-
-        // Изменяем цвет в зависимости от состояния кулдауна
         staminaBarImage.color = isOnCooldown ? cooldownStaminaColor : normalStaminaColor;
     }
 
@@ -148,15 +172,12 @@ public class PlayerController : MonoBehaviour
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         Vector3 moveDir = transform.right * moveInput.x + transform.forward * moveInput.y;
 
-        // Убеждаемся, что гравитация всегда отрицательная
         if (gravity > 0) gravity = -Mathf.Abs(gravity);
 
-        // Определяем текущую скорость (с спринтом или без)
         bool isMovingForward = moveInput.y > 0.01f;
         bool isSprinting = sprintAction.IsPressed() && isMovingForward && !isOnCooldown && currentStamina > 0f;
         float currentSpeed = isSprinting ? walkSpeed * sprintMultiplier : walkSpeed;
 
-        // Гравитация и прыжок
         if (controller.isGrounded)
         {
             velocity.y = -2f;
@@ -173,7 +194,6 @@ public class PlayerController : MonoBehaviour
 
         velocity.y = Mathf.Max(velocity.y, -50f);
 
-        // Разделяем горизонтальное и вертикальное движение
         Vector3 horizontalMove = moveDir.normalized * currentSpeed * Time.deltaTime;
         Vector3 verticalMove = new Vector3(0, velocity.y * Time.deltaTime, 0);
 

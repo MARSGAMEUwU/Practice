@@ -22,6 +22,9 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private float decalSize = 0.5f;
     [SerializeField] private float decalLifetime = 10f;
     [SerializeField] private LayerMask impactLayers;
+    [SerializeField] private GameObject bloodHitEffectPrefab;  // Префаб искр/дыма при попадании (необязательно)
+    [SerializeField] private GameObject holeHitEffectPrefab;
+    [SerializeField] private GameObject dustEffectPrefab;
 
     [Header("Прицел")]
     [SerializeField] private CrosshairController crosshairController;
@@ -159,7 +162,29 @@ public class WeaponController : MonoBehaviour
                 }
             }
 
-            CreateDecal(hit);
+            if (bloodHitEffectPrefab != null && hit.transform.name == "Capsule")
+            {
+                // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
+                GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                // Уничтожаем эффект через 1 секунду, чтобы не засорять память
+                Destroy(hitEffect, 1f);
+            }
+            if (holeHitEffectPrefab != null)
+            {
+                GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                bulletHole.transform.position += hit.normal * 0.01f;
+                // Уничтожаем эффект через 1 секунду, чтобы не засорять память
+                Destroy(bulletHole, 10f);
+            }
+            if (dustEffectPrefab != null && hit.transform.name != "Capsule")
+            {
+                // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
+                GameObject[] dustParticles = new GameObject[4];
+                for (int i = 0; i < 4; i++)
+                { dustParticles[i] = Instantiate(dustEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal)); }
+                // Уничтожаем эффект через 1 секунду, чтобы не засорять память
+                for (int i = 0; i < 4; i++) { Destroy(dustParticles[i], 1f); }
+            }
         }
 
         SpawnMuzzleFlash();
@@ -178,6 +203,7 @@ public class WeaponController : MonoBehaviour
         if (muzzlePoint != null)
         {
             Instantiate(weapons[currentWeaponIndex].muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
+
         }
     }
 
@@ -209,48 +235,6 @@ public class WeaponController : MonoBehaviour
         if (weapons[currentWeaponIndex] == null) return;
         currentRecoil = Mathf.Lerp(currentRecoil, 0, currentStats.recoilRecovery * Time.deltaTime);
         currentSpread = Mathf.Lerp(currentSpread, 0, currentStats.spreadRecovery * Time.deltaTime);
-    }
-
-    private void CreateDecal(RaycastHit hit)
-    {
-        Debug.Log($"=== Создание декали ===");
-
-        if (weapons[currentWeaponIndex].impactDecals == null)
-        {
-            Debug.LogError($"❌ impactDecals = null!");
-            return;
-        }
-
-        if (weapons[currentWeaponIndex].impactDecals.Length == 0)
-        {
-            Debug.LogError($"❌ impactDecals пустой!");
-            return;
-        }
-
-        Debug.Log($"Количество декалей: {weapons[currentWeaponIndex].impactDecals.Length}");
-
-        Sprite decal = weapons[currentWeaponIndex].impactDecals[
-            Random.Range(0, weapons[currentWeaponIndex].impactDecals.Length)];
-
-        Debug.Log($"Выбрана декаль: {decal.name}");
-
-        GameObject decalObj = new GameObject("Decal");
-        decalObj.transform.position = hit.point + hit.normal * 0.01f;
-        decalObj.transform.rotation = Quaternion.LookRotation(-hit.normal);
-
-        SpriteRenderer sr = decalObj.AddComponent<SpriteRenderer>();
-        sr.sprite = decal;
-        sr.sortingOrder = 100;
-        decalObj.transform.localScale = Vector3.one * decalSize;
-
-        Debug.Log($"✅ Декаль создана!");
-        Debug.Log($"Позиция: {decalObj.transform.position}");
-        Debug.Log($"Поворот: {decalObj.transform.rotation.eulerAngles}");
-        Debug.Log($"Масштаб: {decalObj.transform.localScale}");
-        Debug.Log($"Sorting Order: {sr.sortingOrder}");
-
-        Destroy(decalObj, decalLifetime);
-        Debug.Log($"Декаль будет уничтожена через {decalLifetime} сек");
     }
 
     // === ПУБЛИЧНЫЕ МЕТОДЫ ДЛЯ ИНВЕНТАРЯ ===

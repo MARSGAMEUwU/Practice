@@ -81,6 +81,26 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 9204792854340590600}
     m_Modifications:
+    - target: {fileID: 5796732389692146251, guid: 22c998f6d87c8374e95d5ee73840d986, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5796732389692146251, guid: 22c998f6d87c8374e95d5ee73840d986, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5796732389692146251, guid: 22c998f6d87c8374e95d5ee73840d986, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5796732389692146251, guid: 22c998f6d87c8374e95d5ee73840d986, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5796732389692146251, guid: 22c998f6d87c8374e95d5ee73840d986, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
     - target: {fileID: 8166091601751503308, guid: 22c998f6d87c8374e95d5ee73840d986, type: 3}
       propertyPath: m_Name
       value: makarov sketchfab

@@ -55,7 +55,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Attack
-  m_Speed: 1
+  m_Speed: 2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -8387443545282682903}
@@ -101,7 +101,7 @@ BlendTree:
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: c1ef4f752fe02bc428176b344d43333c, type: 3}
     m_Threshold: 0.6666667
-    m_Position: {x: -1, y: 0}
+    m_Position: {x: 1, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: Speed
@@ -109,7 +109,7 @@ BlendTree:
   - serializedVersion: 2
     m_Motion: {fileID: -203655887218126122, guid: 891ace379223d72409d9682a4f46ba81, type: 3}
     m_Threshold: 1
-    m_Position: {x: 1, y: 0}
+    m_Position: {x: -1, y: 0}
     m_TimeScale: 1
     m_CycleOffset: 0
     m_DirectBlendParameter: Speed
@@ -135,7 +135,7 @@ AnimatorStateMachine:
     m_Position: {x: 370, y: -40, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 6460428335703498918}
-    m_Position: {x: 589.75024, y: -166.36017, z: 0}
+    m_Position: {x: 590, y: -170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6523172171584576769}
     m_Position: {x: 370, y: 70, z: 0}
@@ -334,7 +334,7 @@ AnimatorState:
   m_SpeedParameter: Speed
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
-  m_TimeParameter: 
+  m_TimeParameter: Speed
 --- !u!1102 &8715142339248464821
 AnimatorState:
   serializedVersion: 6

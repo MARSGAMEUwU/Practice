@@ -128,22 +128,25 @@ public class Enemy : Damageable
                         distanceToPlayer <= detectionRange &&
                         !isAttacking;
 
-        if (isMoving && agent.velocity != Vector3.zero)
+        if (isMoving && agent.velocity.magnitude > 0.1f)
         {
-            // Получаем направление движения в локальных координатах врага
+            // Получаем направление движения в локальных координатах
             Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
 
-            // Нормализуем для blend tree
-            float inputX = localVelocity.x;
-            float inputY = localVelocity.z;
+            // Нормализуем
+            float inputX = Mathf.Clamp(localVelocity.x, -1f, 1f);
+            float inputY = Mathf.Clamp(localVelocity.z, -1f, 1f);
 
+            // Устанавливаем параметры
             animator.SetFloat("InputX", inputX);
             animator.SetFloat("InputY", inputY);
-            animator.SetFloat(speedParam, 1f);
+            animator.SetFloat("Speed", 1f);
+
+            Debug.Log($"InputX: {inputX:F2}, InputY: {inputY:F2}");
         }
         else
         {
-            animator.SetFloat(speedParam, 0f);
+            animator.SetFloat("Speed", 0f);
             animator.SetFloat("InputX", 0f);
             animator.SetFloat("InputY", 0f);
         }

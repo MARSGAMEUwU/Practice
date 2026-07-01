@@ -32,7 +32,7 @@ public class InventoryManager : PlayerWeaponInventory
     public int GetHandles() => materialsAmount[2];
     public int GetScopes() => materialsAmount[3];
 
-    public void Craft(int slot1, int amount1, int slot2, int amount2, WeaponData weaponToCraft)
+    public void Craft(int slot1, int amount1, int slot2, int amount2, WeaponData weaponToCraft, WeaponRarity rarity)
     {
         // Сразу списываем материалы, так как крафт в любом случае состоится (в руки, в карман или на землю)
         materialsAmount[slot1] -= amount1;

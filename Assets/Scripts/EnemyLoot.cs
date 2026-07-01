@@ -1,18 +1,19 @@
-using UnityEngine;
+п»їusing UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class EnemyLoot : MonoBehaviour
 {
-    [Header("Настройки лутинга")]
+    [Header("РќР°СЃС‚СЂРѕР№РєРё Р»СѓС‚Р°РЅРёСЏ")]
     [SerializeField] private float lootTime = 3f;
-    [SerializeField] private KeyCode lootKey = KeyCode.E;
+    [SerializeField] private InputAction lootAction;
 
-    [Header("UI элементы")]
+    [Header("UI СЌР»РµРјРµРЅС‚С‹ (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)")]
     [SerializeField] private GameObject lootTextUI;
-    [SerializeField] private Image progressBarFill;
-    [SerializeField] private Image progressBarBackground;
+    [SerializeField] private Image progressBar;
+    [SerializeField] private Image progressBarBG;
 
-    [Header("Верхний труп")]
+    [Header("РўСЂСѓРїС‹")]
     [SerializeField] private GameObject upperCorpse;
 
     private bool isPlayerNear = false;
@@ -22,18 +23,66 @@ public class EnemyLoot : MonoBehaviour
 
     private void Start()
     {
-        if (lootTextUI != null) lootTextUI.SetActive(false);
-        if (progressBarFill != null)
-        {
-            progressBarFill.fillAmount = 0f;
-            progressBarFill.gameObject.SetActive(false);
-        }
-        if (progressBarBackground != null) progressBarBackground.gameObject.SetActive(false);
+        // === РђР’РўРћРњРђРўРР§Р•РЎРљРР™ РџРћРРЎРљ UI ===
+        FindUIElements();
 
-        // Если upperCorpse не назначен, используем этот объект
-        if (upperCorpse == null)
+        // РЎРєСЂС‹РІР°РµРј UI РїСЂРё СЃС‚Р°СЂС‚Рµ
+        HideUI();
+
+        // РќР°СЃС‚СЂР°РёРІР°РµРј РїСЂРѕРіСЂРµСЃСЃ-Р±Р°СЂ
+        if (progressBar != null)
         {
-            upperCorpse = gameObject;
+            progressBar.fillAmount = 0f;
+            progressBar.type = Image.Type.Filled;
+            progressBar.fillMethod = Image.FillMethod.Horizontal;
+            progressBar.fillOrigin = (int)Image.OriginHorizontal.Left;
+        }
+
+        if (lootAction != null) lootAction.Enable();
+    }
+
+    // === РќРћР’Р«Р™ РњР•РўРћР”: РїРѕРёСЃРє UI РІ СЃС†РµРЅРµ ===
+    private void FindUIElements()
+    {
+        // РС‰РµРј Canvas
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("Canvas РЅРµ РЅР°Р№РґРµРЅ!");
+            return;
+        }
+
+        // РС‰РµРј LootText
+        if (lootTextUI == null)
+        {
+            Transform t = canvas.transform.Find("LootText");
+            if (t != null)
+            {
+                lootTextUI = t.gameObject;
+                Debug.Log("LootText РЅР°Р№РґРµРЅ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё");
+            }
+        }
+
+        // РС‰РµРј ProgressBarBG
+        if (progressBarBG == null)
+        {
+            Transform t = canvas.transform.Find("LootProgressBarBG");
+            if (t != null)
+            {
+                progressBarBG = t.GetComponent<Image>();
+                Debug.Log("LootProgressBarBG РЅР°Р№РґРµРЅ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё");
+            }
+        }
+
+        // РС‰РµРј ProgressBar
+        if (progressBar == null)
+        {
+            Transform t = canvas.transform.Find("LootProgressBar");
+            if (t != null)
+            {
+                progressBar = t.GetComponent<Image>();
+                Debug.Log("LootProgressBar РЅР°Р№РґРµРЅ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё");
+            }
         }
     }
 
@@ -41,85 +90,56 @@ public class EnemyLoot : MonoBehaviour
     {
         if (isLooted) return;
 
+        bool isHoldingE = lootAction != null && lootAction.IsPressed();
+
         if (isPlayerNear)
         {
-            if (Input.GetKey(lootKey))
+            if (isHoldingE)
             {
-                StartLooting();
-                UpdateLootProgress();
+                isLooting = true;
+                lootProgress += Time.deltaTime;
+
+                if (progressBar != null)
+                {
+                    progressBar.fillAmount = lootProgress / lootTime;
+                    progressBar.gameObject.SetActive(true);
+                }
+
+                if (lootProgress >= lootTime)
+                {
+                    CompleteLooting();
+                }
             }
             else
             {
-                StopLooting();
+                isLooting = false;
+                lootProgress = 0f;
+                if (progressBar != null) progressBar.fillAmount = 0f;
             }
         }
         else
         {
-            StopLooting();
+            isLooting = false;
+            lootProgress = 0f;
+            if (progressBar != null) progressBar.fillAmount = 0f;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerNear = true;
-            if (lootTextUI != null) lootTextUI.SetActive(true);
-        }
+        if (!other.CompareTag("Player")) return;
+        isPlayerNear = true;
+        if (lootTextUI != null) lootTextUI.SetActive(true);
+        if (progressBarBG != null) progressBarBG.gameObject.SetActive(true);
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            isPlayerNear = false;
-            if (lootTextUI != null) lootTextUI.SetActive(false);
-            StopLooting();
-        }
-    }
-
-    private void StartLooting()
-    {
-        if (isLooting) return;
-
-        isLooting = true;
-        if (progressBarFill != null) progressBarFill.gameObject.SetActive(true);
-        if (progressBarBackground != null) progressBarBackground.gameObject.SetActive(true);
-        if (lootTextUI != null) lootTextUI.SetActive(false);
-    }
-
-    private void StopLooting()
-    {
-        if (!isLooting) return;
-
+        if (!other.CompareTag("Player")) return;
+        isPlayerNear = false;
         isLooting = false;
         lootProgress = 0f;
-
-        if (progressBarFill != null)
-        {
-            progressBarFill.fillAmount = 0f;
-            progressBarFill.gameObject.SetActive(false);
-        }
-        if (progressBarBackground != null) progressBarBackground.gameObject.SetActive(false);
-        if (lootTextUI != null && isPlayerNear) lootTextUI.SetActive(true);
-    }
-
-    private void UpdateLootProgress()
-    {
-        if (!isLooting) return;
-
-        lootProgress += Time.deltaTime;
-        float progress = Mathf.Clamp01(lootProgress / lootTime);
-
-        if (progressBarFill != null)
-        {
-            progressBarFill.fillAmount = progress;
-        }
-
-        if (lootProgress >= lootTime)
-        {
-            CompleteLooting();
-        }
+        HideUI();
     }
 
     private void CompleteLooting()
@@ -127,19 +147,30 @@ public class EnemyLoot : MonoBehaviour
         isLooted = true;
         isLooting = false;
 
-        // === ЗАГЛУШКА: функция лутинга ===
-        Debug.Log($"<color=green>Лутинг завершён! Получено: золото, зелья, оружие</color>");
+        Debug.Log($"<color=green>вњ… Р›РЈРў Р—РђР’Р•Р РЁРЃРќ!</color>");
 
-        // Скрываем UI
-        if (progressBarFill != null) progressBarFill.gameObject.SetActive(false);
-        if (progressBarBackground != null) progressBarBackground.gameObject.SetActive(false);
-        if (lootTextUI != null) lootTextUI.SetActive(false);
+        HideUI();
 
-        // Удаляем верхний труп
         if (upperCorpse != null)
         {
-            Destroy(upperCorpse);
-            Debug.Log("Верхний труп удалён");
+            upperCorpse.SetActive(false);
         }
+        else
+        {
+            Renderer renderer = GetComponentInChildren<Renderer>();
+            if (renderer != null) renderer.gameObject.SetActive(false);
+        }
+    }
+
+    private void HideUI()
+    {
+        if (lootTextUI != null) lootTextUI.SetActive(false);
+        if (progressBar != null) progressBar.gameObject.SetActive(false);
+        if (progressBarBG != null) progressBarBG.gameObject.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        if (lootAction != null) lootAction.Disable();
     }
 }

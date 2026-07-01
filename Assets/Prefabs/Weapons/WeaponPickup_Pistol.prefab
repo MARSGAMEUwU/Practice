@@ -72,7 +72,7 @@ MonoBehaviour:
   rotationSpeed: 50
   floatAmplitude: 0.2
   floatSpeed: 2
-  pickupPromptUI: {fileID: 0}
+  pickupPromptUI: {fileID: 6698009506288601536, guid: 6056c44629de70c40b29ed1332fe3a7d, type: 3}
 --- !u!1001 &282099296318260789
 PrefabInstance:
   m_ObjectHideFlags: 0

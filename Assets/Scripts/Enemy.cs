@@ -9,10 +9,6 @@ public class Enemy : Damageable
     [SerializeField] private Animator animator;
     [SerializeField] private NavMeshAgent agent;
 
-    [Header("Префаб верхнего трупа")]
-    [SerializeField] private GameObject upperCorpsePrefab; // Префаб трупа для лутинга
-    [SerializeField] private float corpseSpawnOffset = 0.73f; // Смещение по Y (73 пункта = 0.73 метра)
-
     [Header("Настройки преследования")]
     [SerializeField] private float detectionRange = 20f;
     [SerializeField] private float attackRange = 1.5f;
@@ -28,27 +24,24 @@ public class Enemy : Damageable
     [SerializeField] private string attackTrigger = "Attack";
     [SerializeField] private string deathTrigger = "Die";
 
-    // Состояние
+    [Header("Лут трупа")]
+    [SerializeField] private GameObject corpsePrefab; // Префаб трупа
+    [SerializeField] private float corpseSpawnHeight = 73f; // Смещение по Y
+
     private float nextAttackTime;
     private bool isAttacking;
-    private GameObject spawnedCorpse; // Ссылка на спавненный труп
 
     protected override void Awake()
     {
         base.Awake();
-
         agent = GetComponent<NavMeshAgent>();
         agent.stoppingDistance = stopDistance;
         agent.speed = moveSpeed;
-
-        if (animator == null)
-            animator = GetComponentInChildren<Animator>();
-
+        if (animator == null) animator = GetComponentInChildren<Animator>();
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null)
-                player = playerObj.transform;
+            if (playerObj != null) player = playerObj.transform;
         }
     }
 
@@ -82,17 +75,12 @@ public class Enemy : Damageable
     private void ChasePlayer()
     {
         if (agent.isOnNavMesh && !isAttacking)
-        {
             agent.SetDestination(player.position);
-        }
     }
 
     private void StopMovement()
     {
-        if (agent.isOnNavMesh)
-        {
-            agent.ResetPath();
-        }
+        if (agent.isOnNavMesh) agent.ResetPath();
     }
 
     private void Attack()
@@ -101,49 +89,23 @@ public class Enemy : Damageable
         {
             isAttacking = true;
             nextAttackTime = Time.time + attackCooldown;
-
-            if (animator != null)
-            {
-                animator.SetTrigger(attackTrigger);
-            }
-
+            if (animator != null) animator.SetTrigger(attackTrigger);
             Debug.Log($"<color=red>{gameObject.name} атакует игрока!</color>");
-
             Invoke(nameof(ResetAttack), 0.8f);
         }
     }
 
-    private void ResetAttack()
-    {
-        isAttacking = false;
-    }
+    private void ResetAttack() => isAttacking = false;
 
     private void UpdateAnimator(float distanceToPlayer)
     {
         if (animator == null) return;
-
-        bool isMoving = distanceToPlayer > attackRange &&
-                        distanceToPlayer <= detectionRange &&
-                        !isAttacking;
-
-        if (isMoving && agent.velocity.magnitude > 0.1f)
-        {
-            Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
-            float inputX = Mathf.Clamp(localVelocity.x, -1f, 1f);
-            float inputY = Mathf.Clamp(localVelocity.z, -1f, 1f);
-
-            animator.SetFloat("InputX", inputX);
-            animator.SetFloat("InputY", inputY);
-            animator.SetFloat(speedParam, 1f);
-        }
-        else
-        {
-            animator.SetFloat(speedParam, 0f);
-            animator.SetFloat("InputX", 0f);
-            animator.SetFloat("InputY", 0f);
-        }
+        bool isMoving = distanceToPlayer > attackRange && distanceToPlayer <= detectionRange && !isAttacking;
+        float speed = isMoving ? 1f : 0f;
+        animator.SetFloat(speedParam, speed);
     }
 
+    // === ИЗМЕНЁННЫЙ МЕТОД СМЕРТИ ===
     protected override void Die()
     {
         Debug.Log($"<color=red>{gameObject.name} убит!</color>");
@@ -155,52 +117,47 @@ public class Enemy : Damageable
             agent.enabled = false;
         }
 
-        // Запускаем анимацию смерти
-        if (animator != null)
-        {
-            animator.applyRootMotion = true;
-            animator.SetTrigger(deathTrigger);
-        }
-
-        // Отключаем коллайдеры чтобы не мешал
+        // Отключаем коллайдеры чтобы не мешал стрельбе
         foreach (var col in GetComponentsInChildren<Collider>())
         {
             col.enabled = false;
         }
 
-        // === НОВОЕ: спавним верхний труп для лутинга ===
-        SpawnCorpseForLooting();
+        // Запускаем анимацию смерти
+        if (animator != null)
+        {
+            animator.SetTrigger(deathTrigger);
+        }
 
-        // === ИЗМЕНЕНО: НЕ уничтожаем врага, он остаётся как нижний труп ===
+        // === НОВОЕ: спавним труп через время анимации смерти ===
+        Invoke(nameof(SpawnCorpse), 2f); // Через 2 секунды (длина анимации смерти)
+
+        // === НЕ уничтожаем объект! ===
         // Destroy(gameObject, 3f); // УДАЛЕНО
-
-        // Отключаем скрипт чтобы не обновлялся
-        enabled = false;
     }
 
-    private void SpawnCorpseForLooting()
+    private void SpawnCorpse()
     {
-        if (upperCorpsePrefab == null)
+        if (corpsePrefab == null)
         {
-            Debug.LogWarning("upperCorpsePrefab не назначен!");
+            Debug.LogWarning("Corpse prefab не назначен!");
             return;
         }
 
-        // Спавним труп на +0.73 по Y
-        Vector3 spawnPosition = transform.position + Vector3.up * corpseSpawnOffset;
-        spawnedCorpse = Instantiate(upperCorpsePrefab, spawnPosition, transform.rotation);
+        // Спавним труп со смещением по Y
+        Vector3 spawnPos = transform.position + Vector3.up * corpseSpawnHeight;
+        GameObject corpse = Instantiate(corpsePrefab, spawnPos, transform.rotation);
 
-        Debug.Log($"Спавнен верхний труп на позиции {spawnPosition}");
+        Debug.Log($"Труп заспавнен: {corpse.name} на позиции {spawnPos}");
     }
 
     public void OnAttackHit()
     {
         if (player == null) return;
-
         float distance = Vector3.Distance(transform.position, player.position);
         if (distance <= attackRange)
         {
-            Debug.Log($" Удар достиг игрока! Урон: {damage}");
+            Debug.Log($"💥 Удар достиг игрока! Урон: {damage}");
         }
     }
 
@@ -208,7 +165,6 @@ public class Enemy : Damageable
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
-
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }

@@ -169,14 +169,14 @@ public class WeaponController : MonoBehaviour
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(hitEffect, 1f);
             }
-            if (holeHitEffectPrefab != null)
+            if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
             {
                 GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 bulletHole.transform.position += hit.normal * 0.1f;
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(bulletHole, 10f);
             }
-            if (dustEffectPrefab != null && hit.transform.name != "Capsule")
+            if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
             {
                 // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject[] dustParticles = new GameObject[4];
@@ -280,6 +280,7 @@ public class WeaponController : MonoBehaviour
     }
 
     public WeaponData GetWeaponInSlot(int i) => weapons[i];
+    public WeaponRarity GetRarityInSlot(int i) => weaponRarities[i];
     public WeaponData GetCurrentWeapon() => weapons[currentWeaponIndex];
     public WeaponRarity GetCurrentRarity() => weaponRarities[currentWeaponIndex];
 

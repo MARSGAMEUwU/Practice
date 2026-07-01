@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: detectionRange
       value: 1000
       objectReference: {fileID: 0}
+    - target: {fileID: 851842373211940605, guid: de72a95101e3c5b44b7a59285f5463e7, type: 3}
+      propertyPath: upperCorpsePrefab
+      value: 
+      objectReference: {fileID: 3083261276358011510}
     - target: {fileID: 899486305287032400, guid: de72a95101e3c5b44b7a59285f5463e7, type: 3}
       propertyPath: m_Name
       value: Enemy 1 Variant
@@ -97,3 +101,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de72a95101e3c5b44b7a59285f5463e7, type: 3}
+--- !u!1 &3083261276358011510 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 899486305287032400, guid: de72a95101e3c5b44b7a59285f5463e7, type: 3}
+  m_PrefabInstance: {fileID: 2788414045252690982}
+  m_PrefabAsset: {fileID: 0}

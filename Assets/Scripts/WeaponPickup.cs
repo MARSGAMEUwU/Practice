@@ -10,6 +10,12 @@ public class WeaponPickup : MonoBehaviour
     [SerializeField] private float floatAmplitude = 0.2f;
     [SerializeField] private float floatSpeed = 2f;
     [SerializeField] private GameObject pickupPromptUI;
+    [SerializeField] private Transform canvasTransform;
+
+    public void SpawnPickupUI()
+    {
+        GameObject PickUpText = Instantiate(pickupPromptUI, canvasTransform);
+    }
 
     private Vector3 startPosition;
     private PlayerWeaponInventory playerInventory;

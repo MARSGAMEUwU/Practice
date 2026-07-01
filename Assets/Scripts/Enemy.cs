@@ -158,6 +158,7 @@ public class Enemy : Damageable
         // Запускаем анимацию смерти
         if (animator != null)
         {
+            animator.applyRootMotion = true;
             animator.SetTrigger(deathTrigger);
         }
 

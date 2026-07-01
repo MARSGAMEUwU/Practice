@@ -1,32 +1,37 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class Enemy : Damageable
 {
-    [Header("Ссылки")]
-    [SerializeField] private Transform player; // Ссылка на игрока
+    [Header("РЎСЃС‹Р»РєРё")]
+    [SerializeField] private Transform player;
     [SerializeField] private Animator animator;
     [SerializeField] private NavMeshAgent agent;
 
-    [Header("Настройки преследования")]
-    [SerializeField] private float detectionRange = 20f; // Дальность обнаружения
-    [SerializeField] private float attackRange = 1.5f; // Дистанция атаки
-    [SerializeField] private float stopDistance = 1.2f; // Останавливаться на этом расстоянии
-    [SerializeField] private float attackCooldown = 1.5f; // Пауза между атаками
+    [Header("РџСЂРµС„Р°Р± РІРµСЂС…РЅРµРіРѕ С‚СЂСѓРїР°")]
+    [SerializeField] private GameObject upperCorpsePrefab; // РџСЂРµС„Р°Р± С‚СЂСѓРїР° РґР»СЏ Р»СѓС‚РёРЅРіР°
+    [SerializeField] private float corpseSpawnOffset = 0.73f; // РЎРјРµС‰РµРЅРёРµ РїРѕ Y (73 РїСѓРЅРєС‚Р° = 0.73 РјРµС‚СЂР°)
 
-    [Header("Характеристики")]
+    [Header("РќР°СЃС‚СЂРѕР№РєРё РїСЂРµСЃР»РµРґРѕРІР°РЅРёСЏ")]
+    [SerializeField] private float detectionRange = 20f;
+    [SerializeField] private float attackRange = 1.5f;
+    [SerializeField] private float stopDistance = 1.2f;
+    [SerializeField] private float attackCooldown = 1.5f;
+
+    [Header("РҐР°СЂР°РєС‚РµСЂРёСЃС‚РёРєРё")]
     [SerializeField] private float damage = 10f;
     [SerializeField] private float moveSpeed = 3.5f;
 
-    [Header("Анимации")]
+    [Header("РђРЅРёРјР°С†РёРё")]
     [SerializeField] private string speedParam = "Speed";
     [SerializeField] private string attackTrigger = "Attack";
     [SerializeField] private string deathTrigger = "Die";
 
-    // Состояние
+    // РЎРѕСЃС‚РѕСЏРЅРёРµ
     private float nextAttackTime;
     private bool isAttacking;
+    private GameObject spawnedCorpse; // РЎСЃС‹Р»РєР° РЅР° СЃРїР°РІРЅРµРЅРЅС‹Р№ С‚СЂСѓРї
 
     protected override void Awake()
     {
@@ -39,7 +44,6 @@ public class Enemy : Damageable
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
 
-        // Автоматический поиск игрока по тегу
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -51,15 +55,12 @@ public class Enemy : Damageable
     private void Update()
     {
         if (isDead) return;
-
         if (player == null) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Проверяем, в зоне ли обнаружения игрок
         if (distanceToPlayer <= detectionRange)
         {
-            // Если достаточно близко для атаки
             if (distanceToPlayer <= attackRange)
             {
                 Attack();
@@ -101,16 +102,13 @@ public class Enemy : Damageable
             isAttacking = true;
             nextAttackTime = Time.time + attackCooldown;
 
-            // Запускаем анимацию атаки
             if (animator != null)
             {
                 animator.SetTrigger(attackTrigger);
             }
 
-            // Здесь будет урон игроку (пока заглушка)
-            Debug.Log($"<color=red>{gameObject.name} атакует игрока!</color>");
+            Debug.Log($"<color=red>{gameObject.name} Р°С‚Р°РєСѓРµС‚ РёРіСЂРѕРєР°!</color>");
 
-            // Сбрасываем флаг атаки через время (должно совпадать с длиной анимации)
             Invoke(nameof(ResetAttack), 0.8f);
         }
     }
@@ -130,23 +128,17 @@ public class Enemy : Damageable
 
         if (isMoving && agent.velocity.magnitude > 0.1f)
         {
-            // Получаем направление движения в локальных координатах
             Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
-
-            // Нормализуем
             float inputX = Mathf.Clamp(localVelocity.x, -1f, 1f);
             float inputY = Mathf.Clamp(localVelocity.z, -1f, 1f);
 
-            // Устанавливаем параметры
             animator.SetFloat("InputX", inputX);
             animator.SetFloat("InputY", inputY);
-            animator.SetFloat("Speed", 1f);
-
-            Debug.Log($"InputX: {inputX:F2}, InputY: {inputY:F2}");
+            animator.SetFloat(speedParam, 1f);
         }
         else
         {
-            animator.SetFloat("Speed", 0f);
+            animator.SetFloat(speedParam, 0f);
             animator.SetFloat("InputX", 0f);
             animator.SetFloat("InputY", 0f);
         }
@@ -154,33 +146,52 @@ public class Enemy : Damageable
 
     protected override void Die()
     {
-        Debug.Log($"<color=red>{gameObject.name} убит!</color>");
+        Debug.Log($"<color=red>{gameObject.name} СѓР±РёС‚!</color>");
 
-        // Останавливаем агента
+        // РћСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р°РіРµРЅС‚Р°
         if (agent != null && agent.isOnNavMesh)
         {
             agent.ResetPath();
             agent.enabled = false;
         }
 
-        // Запускаем анимацию смерти
+        // Р—Р°РїСѓСЃРєР°РµРј Р°РЅРёРјР°С†РёСЋ СЃРјРµСЂС‚Рё
         if (animator != null)
         {
             animator.SetTrigger(deathTrigger);
         }
 
-        // Отключаем коллайдеры чтобы не мешал
+        // РћС‚РєР»СЋС‡Р°РµРј РєРѕР»Р»Р°Р№РґРµСЂС‹ С‡С‚РѕР±С‹ РЅРµ РјРµС€Р°Р»
         foreach (var col in GetComponentsInChildren<Collider>())
         {
             col.enabled = false;
         }
 
-        // Уничтожаем после завершения анимации смерти
-        Destroy(gameObject, 3f);
+        // === РќРћР’РћР•: СЃРїР°РІРЅРёРј РІРµСЂС…РЅРёР№ С‚СЂСѓРї РґР»СЏ Р»СѓС‚РёРЅРіР° ===
+        SpawnCorpseForLooting();
+
+        // === РР—РњР•РќР•РќРћ: РќР• СѓРЅРёС‡С‚РѕР¶Р°РµРј РІСЂР°РіР°, РѕРЅ РѕСЃС‚Р°С‘С‚СЃСЏ РєР°Рє РЅРёР¶РЅРёР№ С‚СЂСѓРї ===
+        // Destroy(gameObject, 3f); // РЈР”РђР›Р•РќРћ
+
+        // РћС‚РєР»СЋС‡Р°РµРј СЃРєСЂРёРїС‚ С‡С‚РѕР±С‹ РЅРµ РѕР±РЅРѕРІР»СЏР»СЃСЏ
+        enabled = false;
     }
 
-    // === Метод для события анимации (Animation Event) ===
-    // Можно вызвать из анимации атаки в момент удара
+    private void SpawnCorpseForLooting()
+    {
+        if (upperCorpsePrefab == null)
+        {
+            Debug.LogWarning("upperCorpsePrefab РЅРµ РЅР°Р·РЅР°С‡РµРЅ!");
+            return;
+        }
+
+        // РЎРїР°РІРЅРёРј С‚СЂСѓРї РЅР° +0.73 РїРѕ Y
+        Vector3 spawnPosition = transform.position + Vector3.up * corpseSpawnOffset;
+        spawnedCorpse = Instantiate(upperCorpsePrefab, spawnPosition, transform.rotation);
+
+        Debug.Log($"РЎРїР°РІРЅРµРЅ РІРµСЂС…РЅРёР№ С‚СЂСѓРї РЅР° РїРѕР·РёС†РёРё {spawnPosition}");
+    }
+
     public void OnAttackHit()
     {
         if (player == null) return;
@@ -188,16 +199,10 @@ public class Enemy : Damageable
         float distance = Vector3.Distance(transform.position, player.position);
         if (distance <= attackRange)
         {
-            // Здесь будет урон игроку
-            Debug.Log($"Удар достиг игрока! Урон: {damage}");
-
-            // Когда добавите TakeDamage игроку:
-            // var playerDamageable = player.GetComponent<Damageable>();
-            // if (playerDamageable != null) playerDamageable.TakeDamage(damage);
+            Debug.Log($" РЈРґР°СЂ РґРѕСЃС‚РёРі РёРіСЂРѕРєР°! РЈСЂРѕРЅ: {damage}");
         }
     }
 
-    // Визуализация в редакторе
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

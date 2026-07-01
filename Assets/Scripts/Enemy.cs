@@ -100,9 +100,33 @@ public class Enemy : Damageable
     private void UpdateAnimator(float distanceToPlayer)
     {
         if (animator == null) return;
-        bool isMoving = distanceToPlayer > attackRange && distanceToPlayer <= detectionRange && !isAttacking;
-        float speed = isMoving ? 1f : 0f;
-        animator.SetFloat(speedParam, speed);
+
+        bool isMoving = distanceToPlayer > attackRange &&
+                        distanceToPlayer <= detectionRange &&
+                        !isAttacking;
+
+        if (isMoving && agent.velocity.magnitude > 0.1f)
+        {
+            // Получаем направление движения в локальных координатах
+            Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
+
+            // Нормализуем
+            float inputX = Mathf.Clamp(localVelocity.x, -1f, 1f);
+            float inputY = Mathf.Clamp(localVelocity.z, -1f, 1f);
+
+            // Устанавливаем параметры
+            animator.SetFloat("InputX", inputX);
+            animator.SetFloat("InputY", inputY);
+            animator.SetFloat("Speed", 1f);
+
+            Debug.Log($"InputX: {inputX:F2}, InputY: {inputY:F2}");
+        }
+        else
+        {
+            animator.SetFloat("Speed", 0f);
+            animator.SetFloat("InputX", 0f);
+            animator.SetFloat("InputY", 0f);
+        }
     }
 
     // === ИЗМЕНЁННЫЙ МЕТОД СМЕРТИ ===
@@ -126,6 +150,7 @@ public class Enemy : Damageable
         // Запускаем анимацию смерти
         if (animator != null)
         {
+            animator.applyRootMotion = true;
             animator.SetTrigger(deathTrigger);
         }
 

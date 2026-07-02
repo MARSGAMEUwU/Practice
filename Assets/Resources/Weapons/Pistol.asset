@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Pistol
   weaponIcon: {fileID: 21300000, guid: 4eeb37b619501db409252ba8529b8ac3, type: 3}
-  weaponPrefab: {fileID: 6682186739148351021, guid: dce2d1c197c16724dab60bb047697ace, type: 3}
+  weaponPrefab: {fileID: 3211722494390839536, guid: bfbdab31a1f461d4599b988018403073, type: 3}
+  pickupPrefab: {fileID: 4399677127681861043, guid: cf6308595185d1a4c82eb00104e0f6b4, type: 3}
   weaponType: 0
   statsByRarity:
   - damage: 10
@@ -30,14 +31,14 @@ MonoBehaviour:
     spreadPerShot: 0.8
     maxSpread: 6
     spreadRecovery: 10
-  - damage: 10
+  - damage: 20
     fireRate: 0.15
     range: 100
-    magazineSize: 30
-    reloadTime: 2
-    baseRecoil: 1
-    recoilPerShot: 0.3
-    maxRecoil: 8
+    magazineSize: 10
+    reloadTime: 3
+    baseRecoil: 3
+    recoilPerShot: 1.5
+    maxRecoil: 16
     recoilRecovery: 5
     baseSpread: 0.5
     spreadPerShot: 0.2
@@ -72,8 +73,8 @@ MonoBehaviour:
   muzzleFlashPrefab: {fileID: 7529913218493613103, guid: bdfebbcc2e9b7e947a4268b16eb8c346, type: 3}
   impactDecals: []
   rarityColors:
-  - {r: 0, g: 0.6226415, b: 0.091674276, a: 1}
-  - {r: 0.2, g: 0.6, b: 1, a: 1}
+  - {r: 0.4717202, g: 0.6415094, b: 0.40245637, a: 1}
+  - {r: 0, g: 0.40727168, b: 0.7075472, a: 1}
   - {r: 0.7, g: 0.2, b: 1, a: 1}
   - {r: 1, g: 0.6, b: 0, a: 1}
   rarityNames:
@@ -83,7 +84,11 @@ MonoBehaviour:
   - Legendary
   descriptionsByRarity:
   - 
-  - 
+  - 'DMG+
+
+    Magazin +3
+
+    Recoil-'
   - 
   - 
   purchaseRecipe: 01000000020000000100000001000000

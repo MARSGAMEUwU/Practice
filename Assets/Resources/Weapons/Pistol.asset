@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pistol
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Pistol
-  weaponIcon: {fileID: 21300000, guid: 4eeb37b619501db409252ba8529b8ac3, type: 3}
+  weaponIcon: {fileID: 21300000, guid: 0be83c9759139144f8ea7020e497a1fe, type: 3}
   weaponPrefab: {fileID: 3211722494390839536, guid: bfbdab31a1f461d4599b988018403073, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: cf6308595185d1a4c82eb00104e0f6b4, type: 3}
   weaponType: 0

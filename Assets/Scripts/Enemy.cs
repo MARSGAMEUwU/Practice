@@ -153,6 +153,11 @@ public class Enemy : Damageable
             animator.applyRootMotion = true;
             animator.SetTrigger(deathTrigger);
         }
+        GameManager gm = FindObjectOfType<GameManager>();
+        if (gm != null)
+        {
+            gm.OnEnemyDied(this);
+        }
 
         // === НОВОЕ: спавним труп через время анимации смерти ===
         Invoke(nameof(SpawnCorpse), 2f); // Через 2 секунды (длина анимации смерти)

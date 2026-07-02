@@ -151,21 +151,21 @@ public class WeaponController : MonoBehaviour
                     if (crosshairController != null) crosshairController.OnHit();
                 }
             }
-            if (bloodHitEffectPrefab != null && hit.transform.name == "Capsule")
+            if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out Damageable enemy))
             {
                 // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(hitEffect, 1f);
             }
-            if (holeHitEffectPrefab != null)
+            if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
             {
                 GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                bulletHole.transform.position += hit.normal * 0.01f;
+                bulletHole.transform.position += hit.normal * 0.1f;
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(bulletHole, 10f);
             }
-            if (dustEffectPrefab != null && hit.transform.name != "Capsule")
+            if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
             {
                 // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject[] dustParticles = new GameObject[4];

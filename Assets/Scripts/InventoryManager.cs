@@ -1,100 +1,182 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
-public class InventoryManager : PlayerWeaponInventory
+public class InventoryManager : MonoBehaviour
 {
-    // Будем использовать твой массив, так гораздо удобнее управлять ресурсами по индексам:
-    // 0 = Ствол, 1 = Магазин, 2 = Рукоять, 3 = Прицел
+    [Header("РЎСЃС‹Р»РєРё")]
+    [SerializeField] private PlayerWeaponInventory playerInventory;
+
+    [Header("Р РµСЃСѓСЂСЃС‹")]
+    [Tooltip("РџРѕСЂСЏРґРѕРє: [0]РЎС‚РІРѕР», [1]РњР°РіР°Р·РёРЅ, [2]Р СѓРєРѕСЏС‚СЊ, [3]РџСЂРёС†РµР»")]
     private int[] materialsAmount = new int[4];
 
-    [Header("Иконки для UI (пригодятся для интерфейса)")]
+    [Header("РРєРѕРЅРєРё СЂРµСЃСѓСЂСЃРѕРІ РґР»СЏ UI")]
     public Sprite barrelIcon;
     public Sprite magazineIcon;
     public Sprite handleIcon;
     public Sprite scopeIcon;
 
-    // Публичный метод, который будут вызывать трупы при лутании
-    public void LootEnemy(int resourceIndex, int amount)
-    {
-        if (resourceIndex >= 0 && resourceIndex < materialsAmount.Length)
-        {
-            materialsAmount[resourceIndex] += amount;
+    public Sprite[] resourceIcons;
 
-            // Массив строк исключительно для красивого вывода в консоль
-            string[] resourceNames = { "Ствол", "Магазин", "Рукоять", "Прицел" };
-            Debug.Log($"[Инвентарь] Получено: {resourceNames[resourceIndex]} x{amount}. " +
-                      $"Всего в наличии: {materialsAmount[resourceIndex]}");
-        }
+    private void Awake()
+    {
+        resourceIcons = new Sprite[] { barrelIcon, magazineIcon, handleIcon, scopeIcon };
+
+        if (playerInventory == null)
+            playerInventory = FindObjectOfType<PlayerWeaponInventory>();
     }
 
-    // Вспомогательные публичные методы, чтобы другие скрипты (например, крафт) могли узнать количество
-    public int GetBarrels() => materialsAmount[0];
-    public int GetMagazines() => materialsAmount[1];
-    public int GetHandles() => materialsAmount[2];
-    public int GetScopes() => materialsAmount[3];
+    // === Р РµСЃСѓСЂСЃС‹ ===
 
-    public void Craft(int slot1, int amount1, int slot2, int amount2, WeaponData weaponToCraft, WeaponRarity rarity)
+    public void AddResource(int resourceIndex, int amount)
     {
-        // Сразу списываем материалы, так как крафт в любом случае состоится (в руки, в карман или на землю)
-        materialsAmount[slot1] -= amount1;
-        materialsAmount[slot2] -= amount2;
+        if (resourceIndex < 0 || resourceIndex >= materialsAmount.Length) return;
+        materialsAmount[resourceIndex] += amount;
+        Debug.Log($"[РРЅРІРµРЅС‚Р°СЂСЊ] +{amount} СЂРµСЃСѓСЂСЃР° #{resourceIndex}. Р’СЃРµРіРѕ: {materialsAmount[resourceIndex]}");
 
-        bool upgradedExisting = false;
-        int emptySlotIndex = -1;
+        // РЈРІРµРґРѕРјР»СЏРµРј UI С‡РµСЂРµР· FindObjectOfType
+        InventoryUI ui = FindObjectOfType<InventoryUI>();
+        if (ui != null) ui.RefreshResources();
+    }
 
-        // 2. Идем по слотам оружия (всего 2 слота: 0 и 1)
-        for (int i = 0; i < 2; i++)
+    public int GetResource(int index)
+    {
+        if (index < 0 || index >= materialsAmount.Length) return 0;
+        return materialsAmount[index];
+    }
+
+    public int[] GetAllResources() => materialsAmount;
+
+    public bool CanAfford(int[] recipe)
+    {
+        if (recipe == null || recipe.Length != 4) return false;
+        for (int i = 0; i < 4; i++)
         {
-            WeaponData weaponInSlot = weaponController.GetWeaponInSlot(i);
+            if (materialsAmount[i] < recipe[i]) return false;
+        }
+        return true;
+    }
 
-            if (weaponInSlot != null)
-            {
-                // ПРАВИЛО 1: Если такое оружие уже есть — повышаем его редкость
-                if (weaponInSlot == weaponToCraft)
-                {
-                    // Получаем текущую редкость из контроллера коллеги
-                    WeaponRarity currentRarity = weaponController.GetRarityInSlot(i);
+    public void SpendResources(int[] recipe)
+    {
+        if (recipe == null) return;
+        for (int i = 0; i < 4; i++)
+        {
+            materialsAmount[i] -= recipe[i];
+        }
+        Debug.Log($"[РРЅРІРµРЅС‚Р°СЂСЊ] РЎРїРёСЃР°РЅС‹ СЂРµСЃСѓСЂСЃС‹: {recipe[0]}|{recipe[1]}|{recipe[2]}|{recipe[3]}");
+    }
 
-                    if (currentRarity < WeaponRarity.Legendary)
-                    {
-                        WeaponRarity nextRarity = (WeaponRarity)((int)currentRarity + 1);
-                        weaponController.SetWeapon(i, weaponToCraft, nextRarity);
+    // === РљСЂР°С„С‚ (РїРѕРєСѓРїРєР°) ===
 
-                        Debug.Log($"[Крафт] {weaponToCraft.weaponName} уже был у игрока! Качество повышено до {nextRarity}");
-                        upgradedExisting = true;
-                        break;
-                    }
-                    else
-                    {
-                        Debug.Log($"[Крафт] {weaponToCraft.weaponName} уже имеет максимальный уровень (Legendary)!");
-                        // В таком случае логика пойдет дальше и скрафтит дубликат Common в свободный слот/на землю
-                    }
-                }
-            }
-            else
-            {
-                // Запоминаем индекс первого пустого слота, если он есть
-                if (emptySlotIndex == -1)
-                {
-                    emptySlotIndex = i;
-                }
-            }
+    public void CraftPurchase(WeaponData weapon)
+    {
+        if (weapon == null) return;
+        if (!CanAfford(weapon.purchaseRecipe))
+        {
+            Debug.Log($"[РљСЂР°С„С‚] РќРµ С…РІР°С‚Р°РµС‚ СЂРµСЃСѓСЂСЃРѕРІ РґР»СЏ РїРѕРєСѓРїРєРё {weapon.weaponName}");
+            return;
         }
 
-        // Если мы успешно улучшили существующее оружие, завершаем метод
-        if (upgradedExisting) return;
-
-        // ПРАВИЛО 2: Если пушки не было, но есть свободное место (в руках или кармане)
-        if (emptySlotIndex != -1)
+        if (HasWeaponOfType(weapon.weaponType))
         {
-            // Добавляем новое оружие базовой редкости (Common) в свободный слот
-            weaponController.SetWeapon(emptySlotIndex, weaponToCraft, WeaponRarity.Common);
-            Debug.Log($"[Крафт] Скрафчен новый {weaponToCraft.weaponName} и добавлен в слот {emptySlotIndex}");
+            Debug.Log($"[РљСЂР°С„С‚] РћСЂСѓР¶РёРµ С‚РёРїР° {weapon.weaponType} СѓР¶Рµ РµСЃС‚СЊ РІ РёРЅРІРµРЅС‚Р°СЂРµ!");
+            return;
+        }
+
+        SpendResources(weapon.purchaseRecipe);
+
+        if (!playerInventory.AddWeapon(weapon, WeaponRarity.Common))
+        {
+            playerInventory.SpawnWeaponPickup(weapon, WeaponRarity.Common);
+            Debug.Log($"[РљСЂР°С„С‚] РќРµС‚ РјРµСЃС‚Р°! {weapon.weaponName} СѓРїР°Р» РЅР° Р·РµРјР»СЋ");
         }
         else
         {
-            // ПРАВИЛО 3: Свободных мест нет — пушка падает на землю
-            SpawnWeaponPickup(weaponToCraft, WeaponRarity.Common);
-            Debug.Log($"[Крафт] Нет свободных мест! Скрафченный {weaponToCraft.weaponName} упал на землю");
+            Debug.Log($"[РљСЂР°С„С‚] РЎРєСЂР°С„С‡РµРЅ {weapon.weaponName} (Common)");
+        }
+
+        RefreshUI();
+    }
+
+    // === РђРїРіСЂРµР№Рґ ===
+
+    public void CraftUpgrade(WeaponData weapon)
+    {
+        if (weapon == null) return;
+
+        int slotIndex = FindWeaponSlot(weapon.weaponType);
+        if (slotIndex == -1)
+        {
+            Debug.Log($"[РђРїРіСЂРµР№Рґ] РћСЂСѓР¶РёРµ С‚РёРїР° {weapon.weaponType} РЅРµ РЅР°Р№РґРµРЅРѕ!");
+            return;
+        }
+
+        WeaponRarity currentRarity = playerInventory.GetRarityInSlot(slotIndex);
+        if (currentRarity >= WeaponRarity.Legendary)
+        {
+            Debug.Log($"[РђРїРіСЂРµР№Рґ] {weapon.weaponName} СѓР¶Рµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ СѓСЂРѕРІРЅСЏ!");
+            return;
+        }
+
+        int[] recipe = weapon.GetUpgradeRecipe(currentRarity);
+        if (recipe == null)
+        {
+            Debug.Log($"[РђРїРіСЂРµР№Рґ] Р РµС†РµРїС‚ РґР»СЏ {currentRarity}в†’{weapon.GetNextRarity(currentRarity)} РЅРµ Р·Р°РґР°РЅ!");
+            return;
+        }
+
+        if (!CanAfford(recipe))
+        {
+            Debug.Log($"[РђРїРіСЂРµР№Рґ] РќРµ С…РІР°С‚Р°РµС‚ СЂРµСЃСѓСЂСЃРѕРІ!");
+            return;
+        }
+
+        SpendResources(recipe);
+        WeaponRarity nextRarity = weapon.GetNextRarity(currentRarity);
+        playerInventory.SetWeaponRarity(slotIndex, nextRarity);
+
+        Debug.Log($"[РђРїРіСЂРµР№Рґ] {weapon.weaponName} СѓР»СѓС‡С€РµРЅ РґРѕ {nextRarity}");
+        RefreshUI();
+    }
+
+    // === Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ ===
+
+    private bool HasWeaponOfType(WeaponType type)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            WeaponData w = playerInventory.GetWeaponInSlot(i);
+            if (w != null && w.weaponType == type) return true;
+        }
+        return false;
+    }
+
+    private int FindWeaponSlot(WeaponType type)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            WeaponData w = playerInventory.GetWeaponInSlot(i);
+            if (w != null && w.weaponType == type) return i;
+        }
+        return -1;
+    }
+
+    public WeaponRarity GetCurrentRarity(WeaponType type)
+    {
+        int slot = FindWeaponSlot(type);
+        if (slot == -1) return WeaponRarity.Common;
+        return playerInventory.GetRarityInSlot(slot);
+    }
+
+    public bool HasWeapon(WeaponType type) => FindWeaponSlot(type) != -1;
+
+    private void RefreshUI()
+    {
+        InventoryUI ui = FindObjectOfType<InventoryUI>();
+        if (ui != null)
+        {
+            ui.RefreshResources();
+            ui.RefreshSlots();
         }
     }
 }

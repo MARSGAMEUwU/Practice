@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Color cooldownStaminaColor = Color.red;
 
     [Header("Настройки отдачи")]
-    [SerializeField] private float recoilRecoverySpeed = 8f; // Скорость восстановления отдачи
+    [SerializeField] private float recoilRecoverySpeed = 8f;
 
     // Приватные переменные
     private CharacterController controller;
@@ -44,9 +44,11 @@ public class PlayerController : MonoBehaviour
     private float maxStaminaBarWidth;
     private bool isOnCooldown = false;
 
-    // === НОВОЕ: Система отдачи ===
-    private float currentRecoilX = 0f; // Накопленная отдача по вертикали
-    private float currentRecoilY = 0f; // Накопленная отдача по горизонтали
+    private float currentRecoilX = 0f;
+    private float currentRecoilY = 0f;
+
+    // Флаг блокировки управления
+    private bool isControlsEnabled = true;
 
     private void Awake()
     {
@@ -82,10 +84,12 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (!isControlsEnabled) return;
+
         HandleLook();
         HandleStaminaAndSprint();
         HandleMovement();
-        UpdateRecoil(); // === НОВОЕ: восстановление отдачи ===
+        UpdateRecoil();
     }
 
     private void HandleLook()
@@ -95,23 +99,19 @@ public class PlayerController : MonoBehaviour
         xRotation -= lookInput.y * mouseSensitivity;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        // === ИЗМЕНЕНО: учитываем отдачу при вращении камеры ===
         cameraTransform.localRotation = Quaternion.Euler(xRotation + currentRecoilX, currentRecoilY, 0f);
         transform.Rotate(Vector3.up * lookInput.x * mouseSensitivity);
     }
 
-    // === НОВОЕ: Метод для WeaponController, чтобы передавать отдачу ===
     public void AddRecoil(float vertical, float horizontal)
     {
         currentRecoilX += vertical;
         currentRecoilY += horizontal;
 
-        // Ограничиваем вертикальную отдачу, чтобы не перевернуть камеру
         currentRecoilX = Mathf.Clamp(currentRecoilX, -15f, 15f);
         currentRecoilY = Mathf.Clamp(currentRecoilY, -5f, 5f);
     }
 
-    // === НОВОЕ: Плавное восстановление отдачи ===
     private void UpdateRecoil()
     {
         if (currentRecoilX != 0f || currentRecoilY != 0f)
@@ -119,7 +119,6 @@ public class PlayerController : MonoBehaviour
             currentRecoilX = Mathf.Lerp(currentRecoilX, 0f, recoilRecoverySpeed * Time.deltaTime);
             currentRecoilY = Mathf.Lerp(currentRecoilY, 0f, recoilRecoverySpeed * Time.deltaTime);
 
-            // Обнуляем очень маленькие значения, чтобы не было "дрожания"
             if (Mathf.Abs(currentRecoilX) < 0.01f) currentRecoilX = 0f;
             if (Mathf.Abs(currentRecoilY) < 0.01f) currentRecoilY = 0f;
         }
@@ -199,4 +198,24 @@ public class PlayerController : MonoBehaviour
 
         controller.Move(horizontalMove + verticalMove);
     }
+
+    // === Публичные методы для InventoryUI ===
+
+    public void LockControls()
+    {
+        isControlsEnabled = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        Debug.Log("[PlayerController] Управление заблокировано, курсор разблокирован");
+    }
+
+    public void UnlockControls()
+    {
+        isControlsEnabled = true;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        Debug.Log("[PlayerController] Управление разблокировано, курсор спрятан");
+    }
+
+    public bool IsControlsEnabled => isControlsEnabled;
 }

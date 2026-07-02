@@ -5,7 +5,10 @@ public class WeaponController : MonoBehaviour
 {
     [Header("Ссылки")]
     [SerializeField] private Transform cameraTransform;
-    [SerializeField] private Transform weaponHolder; // Точка, куда будет помещаться оружие
+    [SerializeField] private Transform weaponHolder;
+    public GameObject bloodHitEffectPrefab;
+    public GameObject holeHitEffectPrefab;
+    public GameObject dustEffectPrefab;
 
     [Header("Input Actions")]
     [SerializeField] private InputAction shootAction;
@@ -22,9 +25,6 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private float decalSize = 0.5f;
     [SerializeField] private float decalLifetime = 10f;
     [SerializeField] private LayerMask impactLayers;
-    [SerializeField] private GameObject bloodHitEffectPrefab;  // Префаб искр/дыма при попадании (необязательно)
-    [SerializeField] private GameObject holeHitEffectPrefab;
-    [SerializeField] private GameObject dustEffectPrefab;
 
     [Header("Прицел")]
     [SerializeField] private CrosshairController crosshairController;
@@ -37,21 +37,11 @@ public class WeaponController : MonoBehaviour
     private int currentAmmo;
     private bool isReloading;
 
-    // Инстансы оружия в руках
     private GameObject[] weaponInstances = new GameObject[2];
-
-    // Добавьте в начало класса ссылку
-    private PlayerController playerController;
 
     private void Awake()
     {
         if (cameraTransform == null) cameraTransform = Camera.main.transform;
-        if (weaponHolder == null)
-        {
-            Debug.LogError("WeaponHolder не назначен!");
-        }
-        // Автоматически находим PlayerController
-        playerController = GetComponent<PlayerController>();
     }
 
     private void OnEnable()
@@ -95,7 +85,6 @@ public class WeaponController : MonoBehaviour
         currentSpread = 0f;
         isReloading = false;
 
-        // Скрываем все инстансы оружия
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (weaponInstances[i] != null)
@@ -141,6 +130,8 @@ public class WeaponController : MonoBehaviour
 
     private void Shoot()
     {
+        if (crosshairController != null) crosshairController.OnShoot();
+
         Vector3 shootDir = GetSpreadDirection();
         Ray ray = new Ray(cameraTransform.position, shootDir);
 
@@ -151,7 +142,6 @@ public class WeaponController : MonoBehaviour
             {
                 damageable.TakeDamage(currentStats.damage);
 
-                // Проверяем, было ли убийство
                 if (damageable.IsDead())
                 {
                     if (crosshairController != null) crosshairController.OnHitKill();
@@ -161,22 +151,21 @@ public class WeaponController : MonoBehaviour
                     if (crosshairController != null) crosshairController.OnHit();
                 }
             }
-
-            if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out Damageable enemy))
+            if (bloodHitEffectPrefab != null && hit.transform.name == "Capsule")
             {
                 // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(hitEffect, 1f);
             }
-            if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
+            if (holeHitEffectPrefab != null)
             {
                 GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                bulletHole.transform.position += hit.normal * 0.1f;
+                bulletHole.transform.position += hit.normal * 0.01f;
                 // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(bulletHole, 10f);
             }
-            if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
+            if (dustEffectPrefab != null && hit.transform.name != "Capsule")
             {
                 // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject[] dustParticles = new GameObject[4];
@@ -203,7 +192,6 @@ public class WeaponController : MonoBehaviour
         if (muzzlePoint != null)
         {
             Instantiate(weapons[currentWeaponIndex].muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
-
         }
     }
 
@@ -220,12 +208,11 @@ public class WeaponController : MonoBehaviour
     {
         float recoilAmount = currentStats.baseRecoil + currentRecoil;
 
+        PlayerController playerController = GetComponent<PlayerController>();
         if (playerController != null)
         {
-            // Отрицательное значение по X = камера поднимается вверх
             float verticalRecoil = -recoilAmount;
             float horizontalRecoil = Random.Range(-recoilAmount * 0.3f, recoilAmount * 0.3f);
-
             playerController.AddRecoil(verticalRecoil, horizontalRecoil);
         }
     }
@@ -237,54 +224,91 @@ public class WeaponController : MonoBehaviour
         currentSpread = Mathf.Lerp(currentSpread, 0, currentStats.spreadRecovery * Time.deltaTime);
     }
 
-    // === ПУБЛИЧНЫЕ МЕТОДЫ ДЛЯ ИНВЕНТАРЯ ===
+    private void CreateDecal(RaycastHit hit)
+    {
+        if (weapons[currentWeaponIndex].impactDecals == null ||
+            weapons[currentWeaponIndex].impactDecals.Length == 0) return;
+
+        Sprite decal = weapons[currentWeaponIndex].impactDecals[
+            Random.Range(0, weapons[currentWeaponIndex].impactDecals.Length)];
+
+        GameObject decalObj = new GameObject("Decal");
+        decalObj.transform.position = hit.point + hit.normal * 0.01f;
+        decalObj.transform.rotation = Quaternion.LookRotation(-hit.normal);
+
+        SpriteRenderer sr = decalObj.AddComponent<SpriteRenderer>();
+        sr.sprite = decal;
+        sr.sortingOrder = 100;
+        decalObj.transform.localScale = Vector3.one * decalSize;
+
+        Destroy(decalObj, decalLifetime);
+    }
+
+    // === ПУБЛИЧНЫЕ МЕТОДЫ ===
 
     public float GetCurrentSpread() => currentSpread + (weapons[currentWeaponIndex] != null ? currentStats.baseSpread : 0f);
     public float GetMaxSpread() => weapons[currentWeaponIndex] != null ? currentStats.maxSpread : 1f;
 
-    // Установить оружие в слот (создаёт инстанс)
     public void SetWeapon(int slotIndex, WeaponData weapon, WeaponRarity rarity)
     {
         if (slotIndex < 0 || slotIndex >= weapons.Length) return;
 
-        // Уничтожаем старое оружие
         if (weaponInstances[slotIndex] != null)
             Destroy(weaponInstances[slotIndex]);
 
         weapons[slotIndex] = weapon;
         weaponRarities[slotIndex] = rarity;
 
-        if (weapon.weaponPrefab == null || weaponHolder == null)
+        if (weapon.weaponPrefab != null && weaponHolder != null)
         {
-            Debug.LogError($"Не указан weaponPrefab или weaponHolder!");
-            return;
+            // Создаём инстанс
+            weaponInstances[slotIndex] = Instantiate(weapon.weaponPrefab);
+            weaponInstances[slotIndex].transform.SetParent(weaponHolder);
+            weaponInstances[slotIndex].transform.localPosition = Vector3.zero;
+            weaponInstances[slotIndex].transform.localRotation = Quaternion.identity;
+            weaponInstances[slotIndex].transform.localScale = Vector3.one;
+            weaponInstances[slotIndex].SetActive(slotIndex == currentWeaponIndex);
+
+            // === НОВОЕ: Принудительно устанавливаем слой WeaponLayer ===
+            int weaponLayer = LayerMask.NameToLayer("WeaponLayer");
+            if (weaponLayer != -1)
+            {
+                SetLayerRecursively(weaponInstances[slotIndex], weaponLayer);
+                Debug.Log($"[WeaponController] Слой оружия установлен на WeaponLayer");
+            }
+            else
+            {
+                Debug.LogError("[WeaponController] Слой 'WeaponLayer' не найден! Создайте его в Edit → Project Settings → Tags and Layers");
+            }
         }
 
-        // Создаём инстанс
-        weaponInstances[slotIndex] = Instantiate(weapon.weaponPrefab, weaponHolder);
-
-        // ВАЖНО: сбрасываем локальные координаты!
-        weaponInstances[slotIndex].transform.localPosition = Vector3.zero;
-        weaponInstances[slotIndex].transform.localRotation = Quaternion.identity;
-        weaponInstances[slotIndex].transform.localScale = Vector3.one;
-
-        // Показываем только текущее оружие
-        for (int i = 0; i < weaponInstances.Length; i++)
-        {
-            if (weaponInstances[i] != null)
-                weaponInstances[i].SetActive(i == slotIndex);
-        }
-
-        if (currentWeaponIndex == slotIndex)
-            SwitchWeapon(slotIndex);
+        if (currentWeaponIndex == slotIndex) SwitchWeapon(slotIndex);
     }
 
-    public WeaponData GetWeaponInSlot(int i) => weapons[i];
-    public WeaponRarity GetRarityInSlot(int i) => weaponRarities[i];
+    public WeaponData GetWeaponInSlot(int i)
+    {
+        if (i < 0 || i >= weapons.Length) return null;
+        return weapons[i];
+    }
     public WeaponData GetCurrentWeapon() => weapons[currentWeaponIndex];
     public WeaponRarity GetCurrentRarity() => weaponRarities[currentWeaponIndex];
+    public int GetCurrentWeaponIndex() => currentWeaponIndex;
 
-    // Очистить слот (уничтожает инстанс)
+    // === НОВЫЕ МЕТОДЫ ДЛЯ INVENTORY MANAGER ===
+
+    public WeaponRarity GetRarityInSlot(int i)
+    {
+        if (i < 0 || i >= weaponRarities.Length) return WeaponRarity.Common;
+        return weaponRarities[i];
+    }
+
+    public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)
+    {
+        if (slotIndex < 0 || slotIndex >= weaponRarities.Length) return;
+        weaponRarities[slotIndex] = rarity;
+        if (currentWeaponIndex == slotIndex) SwitchWeapon(slotIndex);
+    }
+
     public void ClearCurrentWeapon()
     {
         if (weaponInstances[currentWeaponIndex] != null)
@@ -299,13 +323,21 @@ public class WeaponController : MonoBehaviour
         }
     }
 
-    // Очистка при уничтожении игрока
     private void OnDestroy()
     {
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (weaponInstances[i] != null)
                 Destroy(weaponInstances[i]);
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
         }
     }
 }

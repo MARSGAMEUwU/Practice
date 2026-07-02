@@ -6,7 +6,6 @@ public class PlayerWeaponInventory : MonoBehaviour
 {
     [SerializeField] private InputAction pickupAction;
     [SerializeField] private InputAction dropAction;
-
     protected WeaponController weaponController;
     private WeaponPickup currentPickup;
 
@@ -44,7 +43,6 @@ public class PlayerWeaponInventory : MonoBehaviour
     {
         if (weapon == null) return false;
 
-        // Ищем пустой слот
         for (int i = 0; i < 2; i++)
         {
             if (weaponController.GetWeaponInSlot(i) == null)
@@ -53,10 +51,6 @@ public class PlayerWeaponInventory : MonoBehaviour
                 return true;
             }
         }
-
-        // Все слоты заняты - можно заменить текущее оружие (опционально)
-        // weaponController.SetWeapon(weaponController.GetCurrentWeaponIndex(), weapon, rarity);
-        // return true;
 
         return false;
     }
@@ -75,9 +69,10 @@ public class PlayerWeaponInventory : MonoBehaviour
         col.isTrigger = true;
         col.radius = 1f;
 
-        if (weapon.weaponPrefab != null)
+        GameObject modelPrefab = weapon.GetPickupPrefab();
+        if (modelPrefab != null)
         {
-            GameObject model = Instantiate(weapon.weaponPrefab, droppedObj.transform);
+            GameObject model = Instantiate(modelPrefab, droppedObj.transform);
             model.transform.localPosition = Vector3.zero;
             model.transform.localRotation = Quaternion.identity;
 
@@ -99,10 +94,16 @@ public class PlayerWeaponInventory : MonoBehaviour
         WeaponRarity droppedRarity = weaponController.GetCurrentRarity();
         if (droppedWeapon == null) return;
 
-        // Вызываем общую функцию спавна
         SpawnWeaponPickup(droppedWeapon, droppedRarity);
-
         weaponController.ClearCurrentWeapon();
-        Debug.Log($"Выкинуто из рук: {droppedWeapon.weaponName}");
+        Debug.Log($"Выброшено: {droppedWeapon.weaponName}");
+    }
+
+    // === НОВЫЕ МЕТОДЫ ДЛЯ INVENTORY MANAGER ===
+    public WeaponData GetWeaponInSlot(int i) => weaponController.GetWeaponInSlot(i);
+    public WeaponRarity GetRarityInSlot(int i) => weaponController.GetRarityInSlot(i);
+    public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)
+    {
+        weaponController.SetWeaponRarity(slotIndex, rarity);
     }
 }

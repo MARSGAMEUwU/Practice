@@ -184,6 +184,7 @@ public class WeaponSlotUI : MonoBehaviour
 
     public void OnUpgradeClicked()
     {
+        Debug.Log(" ÕŒœ ¿ Õ¿∆¿“¿");
         if (currentWeaponData != null && inventoryManager != null)
         {
             inventoryManager.CraftUpgrade(currentWeaponData);

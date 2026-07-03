@@ -13,7 +13,6 @@ public class Damageable : MonoBehaviour
     [SerializeField][Range(0f, 1f)] private float deathVolume = 1f;
 
     private AudioSource audioSource;
-    private GameManager gameManager;
 
     protected virtual void Awake()
     {
@@ -25,12 +24,6 @@ public class Damageable : MonoBehaviour
             audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
             audioSource.spatialBlend = 1f;
-        }
-
-        // Находим GameManager
-        if (gameManager == null)
-        {
-            gameManager = FindObjectOfType<GameManager>();
         }
     }
 
@@ -57,13 +50,6 @@ public class Damageable : MonoBehaviour
         Debug.Log($"{gameObject.name} уничтожен!");
 
         PlayDeathSound();
-
-        // Уведомляем GameManager о смерти
-        GameManager gm = FindObjectOfType<GameManager>();
-        if (gm != null)
-        {
-            gm.OnEnemyDied(this);
-        }
 
         Destroy(gameObject, 2f);
     }

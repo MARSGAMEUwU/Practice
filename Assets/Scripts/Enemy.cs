@@ -156,11 +156,6 @@ public class Enemy : Damageable
             animator.applyRootMotion = true;
             animator.SetTrigger(deathTrigger);
         }
-        GameManager gm = FindObjectOfType<GameManager>();
-        if (gm != null)
-        {
-            gm.OnEnemyDied(this);
-        }
 
         playerAdrenaline.KillReward();
 

@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gravity = -15f;
     [SerializeField] private float mouseSensitivity = 2f;
     [SerializeField] private float groundCheckDistance = 0.4f;
+    [SerializeField] private float minSpeed = 3f;
+    [SerializeField] private float maxSpeed = 12f;
 
     [Header("Настройки стамины")]
     [SerializeField] private float maxStamina = 100f;
@@ -44,6 +46,8 @@ public class PlayerController : MonoBehaviour
     private float maxStaminaBarWidth;
     private bool isOnCooldown = false;
 
+    private Adrenaline adrenalineSystem;
+
     private float currentRecoilX = 0f;
     private float currentRecoilY = 0f;
 
@@ -64,6 +68,11 @@ public class PlayerController : MonoBehaviour
         }
 
         currentStamina = maxStamina;
+    }
+
+    private void Start()
+    {
+        adrenalineSystem = GetComponent<Adrenaline>();
     }
 
     private void OnEnable()
@@ -175,6 +184,7 @@ public class PlayerController : MonoBehaviour
 
         bool isMovingForward = moveInput.y > 0.01f;
         bool isSprinting = sprintAction.IsPressed() && isMovingForward && !isOnCooldown && currentStamina > 0f;
+        walkSpeed = Mathf.Lerp(minSpeed, maxSpeed, adrenalineSystem.AdrenalinePercentage);
         float currentSpeed = isSprinting ? walkSpeed * sprintMultiplier : walkSpeed;
 
         if (controller.isGrounded)

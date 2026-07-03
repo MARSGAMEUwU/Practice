@@ -30,6 +30,7 @@ public class Enemy : Damageable
 
     private float nextAttackTime;
     private bool isAttacking;
+    Adrenaline playerAdrenaline;
 
     protected override void Awake()
     {
@@ -41,6 +42,7 @@ public class Enemy : Damageable
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            playerAdrenaline = playerObj.GetComponent<Adrenaline>();
             if (playerObj != null) player = playerObj.transform;
         }
     }
@@ -92,6 +94,7 @@ public class Enemy : Damageable
             if (animator != null) animator.SetTrigger(attackTrigger);
             Debug.Log($"<color=red>{gameObject.name} атакует игрока!</color>");
             Invoke(nameof(ResetAttack), 0.8f);
+            playerAdrenaline.TakeDamage(damage);
         }
     }
 
@@ -119,7 +122,7 @@ public class Enemy : Damageable
             animator.SetFloat("InputY", inputY);
             animator.SetFloat("Speed", 1f);
 
-            Debug.Log($"InputX: {inputX:F2}, InputY: {inputY:F2}");
+            //Debug.Log($"InputX: {inputX:F2}, InputY: {inputY:F2}");
         }
         else
         {
@@ -159,6 +162,8 @@ public class Enemy : Damageable
             gm.OnEnemyDied(this);
         }
 
+        playerAdrenaline.KillReward();
+
         // === НОВОЕ: спавним труп через время анимации смерти ===
         Invoke(nameof(SpawnCorpse), 2f); // Через 2 секунды (длина анимации смерти)
 
@@ -188,6 +193,7 @@ public class Enemy : Damageable
         if (distance <= attackRange)
         {
             Debug.Log($"💥 Удар достиг игрока! Урон: {damage}");
+            playerAdrenaline.TakeDamage(damage);
         }
     }
 

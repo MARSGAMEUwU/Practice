@@ -753,64 +753,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &144418951
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 144418953}
-  - component: {fileID: 144418952}
-  m_Layer: 0
-  m_Name: GameManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &144418952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 144418951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f827de6cedf7cfa44961913e4d0ab931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  playerTransform: {fileID: 1410276496}
-  cameraEffect: {fileID: 379500059}
-  notificationPanel: {fileID: 11057622}
-  notificationText: {fileID: 1331587392}
-  timerPanel: {fileID: 1833203207}
-  timerText: {fileID: 1299039017}
-  killCounterText: {fileID: 1471830826}
-  bottomHeight: 2
-  topHeight: 74
-  delayAfterAllDead: 5
-  lootTimerDuration: 30
-  requiredKills: 4
-  bottomLocationMaterial: {fileID: 2100000, guid: 591e216e4fe6b684aae4e778ef172f64, type: 2}
-  topLocationMaterial: {fileID: 2100000, guid: 44826b187c2df2b4cac977cb70a62e39, type: 2}
---- !u!4 &144418953
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 144418951}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1193.5161, y: 478.28485, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &150573218
 GameObject:
   m_ObjectHideFlags: 0
@@ -1588,6 +1530,10 @@ PrefabInstance:
     - target: {fileID: 3083261276358011510, guid: c7005c005628ec14a918ccf52badb365, type: 3}
       propertyPath: m_Name
       value: Enemy 1 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3269672621059556059, guid: c7005c005628ec14a918ccf52badb365, type: 3}
+      propertyPath: maxHealth
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5160,6 +5106,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy 1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 3269672621059556059, guid: c7005c005628ec14a918ccf52badb365, type: 3}
+      propertyPath: maxHealth
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8603,9 +8553,29 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 982163678}
     - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: maxStamina
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
       propertyPath: staminaBarImage
       value: 
       objectReference: {fileID: 1201004389}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: sprintMultiplier
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: staminaDrainRate
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: staminaRegenRate
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: cooldownThreshold
+      value: 9.999
+      objectReference: {fileID: 0}
     - target: {fileID: 5725942346976205030, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.637
@@ -8676,6 +8646,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7889136402741983827, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1410276495}
+    - targetCorrespondingSourceObject: {fileID: 7889136402741983827, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1410276501}
     - targetCorrespondingSourceObject: {fileID: 2383486939572988973, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 379500059}
@@ -9739,11 +9712,24 @@ MonoBehaviour:
   progressBar: {fileID: 562609585}
   progressBarBG: {fileID: 1597069658}
   lootTime: 2.5
---- !u!4 &1410276496 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3102785189920531642, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
-  m_PrefabInstance: {fileID: 1321411318}
+--- !u!114 &1410276501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471654222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c62c821592203b04fa6c807edc22ca4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Adrenaline
+  maxAdrenaline: 100
+  currentAdrenaline: 1
+  decayRate: 5
+  killReward: 30
+  injectionBoost: 50
+  syringeAmount: 1
 --- !u!1 &1414696587 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3533781435667455236, guid: 9fb579ac4ab1f884cbc527e548a5fd5e, type: 3}
@@ -12599,6 +12585,10 @@ PrefabInstance:
     - target: {fileID: 3083261276358011510, guid: c7005c005628ec14a918ccf52badb365, type: 3}
       propertyPath: m_Name
       value: Enemy 1 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3269672621059556059, guid: c7005c005628ec14a918ccf52badb365, type: 3}
+      propertyPath: maxHealth
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -16441,6 +16431,14 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 3269672621059556059, guid: c7005c005628ec14a918ccf52badb365, type: 3}
+      propertyPath: maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3269672621059556059, guid: c7005c005628ec14a918ccf52badb365, type: 3}
+      propertyPath: attackRange
+      value: 2.5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16463,4 +16461,3 @@ SceneRoots:
   - {fileID: 1803522266}
   - {fileID: 7075430127111584528}
   - {fileID: 1213033855}
-  - {fileID: 144418953}

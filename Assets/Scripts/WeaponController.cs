@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class WeaponController : MonoBehaviour
 {
@@ -37,50 +38,133 @@ public class WeaponController : MonoBehaviour
     private int currentAmmo;
     private bool isReloading;
 
+    // Хранение патронов для каждого оружия
+    private int[] currentAmmoPerWeapon = new int[2];
+    private bool[] weaponInitialized = new bool[2];
+
     private GameObject[] weaponInstances = new GameObject[2];
+
+    // Флаг для DontDestroyOnLoad
+    private static WeaponController instance;
+    private bool isInitialized = false;
 
     private void Awake()
     {
+        // === Singleton для сохранения между сценами ===
+        if (instance != null && instance != this)
+        {
+            Debug.Log("[WeaponController] Дубликат уничтожен");
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
         if (cameraTransform == null) cameraTransform = Camera.main.transform;
+
+        // Инициализация по умолчанию
+        currentStats = new RarityStats();
+        currentAmmo = 0;
+        currentRecoil = 0f;
+        currentSpread = 0f;
+        isReloading = false;
+
+        // Подписываемся на событие загрузки сцены
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        isInitialized = true;
+        Debug.Log("[WeaponController] Инициализирован");
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log($"[WeaponController] Загружена сцена: {scene.name}");
+
+        // Восстанавливаем оружие после загрузки сцены
+        RestoreWeapons();
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (instance == this)
+            instance = null;
+
+        for (int i = 0; i < weaponInstances.Length; i++)
+        {
+            if (weaponInstances[i] != null)
+                Destroy(weaponInstances[i]);
+        }
     }
 
     private void OnEnable()
     {
-        shootAction.Enable();
-        reloadAction.Enable();
-        switchWeapon1Action.Enable();
-        switchWeapon2Action.Enable();
+        if (shootAction != null) shootAction.Enable();
+        if (reloadAction != null) reloadAction.Enable();
+        if (switchWeapon1Action != null) switchWeapon1Action.Enable();
+        if (switchWeapon2Action != null) switchWeapon2Action.Enable();
     }
 
     private void OnDisable()
     {
-        shootAction.Disable();
-        reloadAction.Disable();
-        switchWeapon1Action.Disable();
-        switchWeapon2Action.Disable();
+        if (shootAction != null) shootAction.Disable();
+        if (reloadAction != null) reloadAction.Disable();
+        if (switchWeapon1Action != null) switchWeapon1Action.Disable();
+        if (switchWeapon2Action != null) switchWeapon2Action.Disable();
     }
 
     private void Update()
     {
+        if (!isInitialized) return;
+
         HandleWeaponSwitch();
         HandleReload();
         HandleShooting();
         UpdateRecoilAndSpread();
     }
 
+    // === ИСПРАВЛЕНО: Нельзя переключаться во время перезарядки ===
     private void HandleWeaponSwitch()
     {
-        if (switchWeapon1Action.WasPressedThisFrame() && weapons[0] != null) SwitchWeapon(0);
-        if (switchWeapon2Action.WasPressedThisFrame() && weapons[1] != null) SwitchWeapon(1);
+        if (isReloading) return;
+
+        if (switchWeapon1Action.WasPressedThisFrame() && weapons[0] != null)
+            SwitchWeapon(0);
+        if (switchWeapon2Action.WasPressedThisFrame() && weapons[1] != null)
+            SwitchWeapon(1);
     }
 
+    // === ИСПРАВЛЕНО: Сохранение патронов и проверка текущего оружия ===
     private void SwitchWeapon(int index)
     {
         if (weapons[index] == null) return;
 
+        // === ИСПРАВЛЕНО: Убрана проверка на тот же индекс ===
+        // Теперь можно "переключиться" на то же оружие для применения статов
+
+        // Сохраняем текущие патроны
+        if (weaponInitialized[currentWeaponIndex])
+        {
+            currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
+        }
+
         currentWeaponIndex = index;
         currentStats = weapons[index].GetStatsForRarity(weaponRarities[index]);
-        currentAmmo = currentStats.magazineSize;
+
+        // Восстанавливаем патроны для нового оружия
+        if (weaponInitialized[index])
+        {
+            currentAmmo = currentAmmoPerWeapon[index];
+        }
+        else
+        {
+            currentAmmo = currentStats.magazineSize;
+            currentAmmoPerWeapon[index] = currentAmmo;
+            weaponInitialized[index] = true;
+        }
+
         currentRecoil = 0f;
         currentSpread = 0f;
         isReloading = false;
@@ -95,27 +179,38 @@ public class WeaponController : MonoBehaviour
         Color color = w.GetRarityColor(weaponRarities[index]);
         Debug.Log($"<color=#{ColorUtility.ToHtmlStringRGB(color)}>" +
                   $"[{w.GetRarityName(weaponRarities[index])}]</color> {w.weaponName} | " +
-                  $"Урон: {currentStats.damage} | Магазин: {currentStats.magazineSize}");
+                  $"Урон: {currentStats.damage} | Магазин: {currentAmmo}/{currentStats.magazineSize}");
     }
 
+    // === ИСПРАВЛЕНО: Нельзя начать перезарядку, если уже идёт ===
     private void HandleReload()
     {
-        if (reloadAction.WasPressedThisFrame() && !isReloading &&
-            currentAmmo < currentStats.magazineSize && weapons[currentWeaponIndex] != null)
+        if (isReloading) return;
+        if (currentStats == null || weapons[currentWeaponIndex] == null) return;
+
+        if (reloadAction.WasPressedThisFrame() &&
+            currentAmmo < currentStats.magazineSize)
+        {
             StartCoroutine(ReloadRoutine());
+        }
     }
 
     private System.Collections.IEnumerator ReloadRoutine()
     {
+        if (currentStats == null) yield break;
+
         isReloading = true;
         yield return new WaitForSeconds(currentStats.reloadTime);
         currentAmmo = currentStats.magazineSize;
+        currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
         isReloading = false;
     }
 
+    // === ИСПРАВЛЕНО: Проверка перезарядки и корректное уменьшение патронов ===
     private void HandleShooting()
     {
-        if (isReloading || weapons[currentWeaponIndex] == null) return;
+        if (isReloading || weapons[currentWeaponIndex] == null || currentStats == null) return;
+
         if (shootAction.IsPressed() && Time.time >= nextFireTime)
         {
             if (currentAmmo > 0)
@@ -123,7 +218,19 @@ public class WeaponController : MonoBehaviour
                 Shoot();
                 nextFireTime = Time.time + currentStats.fireRate;
                 currentAmmo--;
-                if (currentAmmo <= 0) StartCoroutine(ReloadRoutine());
+                currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
+
+                if (currentAmmo <= 0)
+                {
+                    StartCoroutine(ReloadRoutine());
+                }
+            }
+            else
+            {
+                if (!isReloading)
+                {
+                    StartCoroutine(ReloadRoutine());
+                }
             }
         }
     }
@@ -141,7 +248,6 @@ public class WeaponController : MonoBehaviour
             if (damageable != null)
             {
                 damageable.TakeDamage(currentStats.damage);
-
                 if (damageable.IsDead())
                 {
                     if (crosshairController != null) crosshairController.OnHitKill();
@@ -151,28 +257,29 @@ public class WeaponController : MonoBehaviour
                     if (crosshairController != null) crosshairController.OnHit();
                 }
             }
-            if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out Damageable enemy))
+
+            if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out _))
             {
-                // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(hitEffect, 1f);
             }
-            if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
+            if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out _))
             {
                 GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 bulletHole.transform.position += hit.normal * 0.1f;
-                // Уничтожаем эффект через 1 секунду, чтобы не засорять память
                 Destroy(bulletHole, 10f);
             }
-            if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out enemy))
+            if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out _))
             {
-                // Создаем эффект, разворачиваем его в сторону нормали поверхности (чтобы искры летели от стены)
                 GameObject[] dustParticles = new GameObject[4];
                 for (int i = 0; i < 4; i++)
-                { dustParticles[i] = Instantiate(dustEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal)); }
-                // Уничтожаем эффект через 1 секунду, чтобы не засорять память
-                for (int i = 0; i < 4; i++) { Destroy(dustParticles[i], 1f); }
+                {
+                    dustParticles[i] = Instantiate(dustEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                }
+                for (int i = 0; i < 4; i++)
+                {
+                    Destroy(dustParticles[i], 1f);
+                }
             }
         }
 
@@ -207,7 +314,6 @@ public class WeaponController : MonoBehaviour
     private void ApplyRecoil()
     {
         float recoilAmount = currentStats.baseRecoil + currentRecoil;
-
         PlayerController playerController = GetComponent<PlayerController>();
         if (playerController != null)
         {
@@ -219,36 +325,28 @@ public class WeaponController : MonoBehaviour
 
     private void UpdateRecoilAndSpread()
     {
-        if (weapons[currentWeaponIndex] == null) return;
+        if (weapons[currentWeaponIndex] == null || currentStats == null) return;
         currentRecoil = Mathf.Lerp(currentRecoil, 0, currentStats.recoilRecovery * Time.deltaTime);
         currentSpread = Mathf.Lerp(currentSpread, 0, currentStats.spreadRecovery * Time.deltaTime);
     }
 
-    private void CreateDecal(RaycastHit hit)
-    {
-        if (weapons[currentWeaponIndex].impactDecals == null ||
-            weapons[currentWeaponIndex].impactDecals.Length == 0) return;
-
-        Sprite decal = weapons[currentWeaponIndex].impactDecals[
-            Random.Range(0, weapons[currentWeaponIndex].impactDecals.Length)];
-
-        GameObject decalObj = new GameObject("Decal");
-        decalObj.transform.position = hit.point + hit.normal * 0.01f;
-        decalObj.transform.rotation = Quaternion.LookRotation(-hit.normal);
-
-        SpriteRenderer sr = decalObj.AddComponent<SpriteRenderer>();
-        sr.sprite = decal;
-        sr.sortingOrder = 100;
-        decalObj.transform.localScale = Vector3.one * decalSize;
-
-        Destroy(decalObj, decalLifetime);
-    }
-
     // === ПУБЛИЧНЫЕ МЕТОДЫ ===
 
-    public float GetCurrentSpread() => currentSpread + (weapons[currentWeaponIndex] != null ? currentStats.baseSpread : 0f);
-    public float GetMaxSpread() => weapons[currentWeaponIndex] != null ? currentStats.maxSpread : 1f;
+    public float GetCurrentSpread()
+    {
+        if (currentStats == null || weapons[currentWeaponIndex] == null)
+            return 0f;
+        return currentSpread + currentStats.baseSpread;
+    }
 
+    public float GetMaxSpread()
+    {
+        if (currentStats == null || weapons[currentWeaponIndex] == null)
+            return 1f;
+        return currentStats.maxSpread;
+    }
+
+    // === ИСПРАВЛЕНО: Инициализация патронов при добавлении оружия ===
     public void SetWeapon(int slotIndex, WeaponData weapon, WeaponRarity rarity)
     {
         if (slotIndex < 0 || slotIndex >= weapons.Length) return;
@@ -259,9 +357,24 @@ public class WeaponController : MonoBehaviour
         weapons[slotIndex] = weapon;
         weaponRarities[slotIndex] = rarity;
 
+        // Инициализация патронов для нового оружия
+        RarityStats stats = weapon.GetStatsForRarity(rarity);
+        currentAmmoPerWeapon[slotIndex] = stats.magazineSize;
+        weaponInitialized[slotIndex] = true;
+
+        // === ИСПРАВЛЕНО: Если это текущий слот — применяем статы сразу ===
+        if (slotIndex == currentWeaponIndex)
+        {
+            currentStats = stats;
+            currentAmmo = stats.magazineSize;
+            currentRecoil = 0f;
+            currentSpread = 0f;
+            isReloading = false;
+            Debug.Log($"[WeaponController] Инициализировано: {weapon.weaponName}, патроны: {currentAmmo}/{stats.magazineSize}");
+        }
+
         if (weapon.weaponPrefab != null && weaponHolder != null)
         {
-            // Создаём инстанс
             weaponInstances[slotIndex] = Instantiate(weapon.weaponPrefab);
             weaponInstances[slotIndex].transform.SetParent(weaponHolder);
             weaponInstances[slotIndex].transform.localPosition = Vector3.zero;
@@ -269,20 +382,12 @@ public class WeaponController : MonoBehaviour
             weaponInstances[slotIndex].transform.localScale = Vector3.one;
             weaponInstances[slotIndex].SetActive(slotIndex == currentWeaponIndex);
 
-            // === НОВОЕ: Принудительно устанавливаем слой WeaponLayer ===
             int weaponLayer = LayerMask.NameToLayer("WeaponLayer");
             if (weaponLayer != -1)
             {
                 SetLayerRecursively(weaponInstances[slotIndex], weaponLayer);
-                Debug.Log($"[WeaponController] Слой оружия установлен на WeaponLayer");
-            }
-            else
-            {
-                Debug.LogError("[WeaponController] Слой 'WeaponLayer' не найден! Создайте его в Edit → Project Settings → Tags and Layers");
             }
         }
-
-        if (currentWeaponIndex == slotIndex) SwitchWeapon(slotIndex);
     }
 
     public WeaponData GetWeaponInSlot(int i)
@@ -290,11 +395,13 @@ public class WeaponController : MonoBehaviour
         if (i < 0 || i >= weapons.Length) return null;
         return weapons[i];
     }
+
     public WeaponData GetCurrentWeapon() => weapons[currentWeaponIndex];
     public WeaponRarity GetCurrentRarity() => weaponRarities[currentWeaponIndex];
     public int GetCurrentWeaponIndex() => currentWeaponIndex;
 
-    // === НОВЫЕ МЕТОДЫ ДЛЯ INVENTORY MANAGER ===
+    public int GetCurrentAmmo() => currentAmmo;
+    public int GetMaxAmmo() => currentStats != null ? currentStats.magazineSize : 0;
 
     public WeaponRarity GetRarityInSlot(int i)
     {
@@ -309,6 +416,7 @@ public class WeaponController : MonoBehaviour
         if (currentWeaponIndex == slotIndex) SwitchWeapon(slotIndex);
     }
 
+    // === ИСПРАВЛЕНО: Сброс патронов при очистке слота ===
     public void ClearCurrentWeapon()
     {
         if (weaponInstances[currentWeaponIndex] != null)
@@ -317,19 +425,77 @@ public class WeaponController : MonoBehaviour
         weapons[currentWeaponIndex] = null;
         weaponInstances[currentWeaponIndex] = null;
 
+        // Сброс патронов и флага инициализации
+        currentAmmoPerWeapon[currentWeaponIndex] = 0;
+        weaponInitialized[currentWeaponIndex] = false;
+
+        // Переключаемся на другое оружие если есть
         for (int i = 0; i < weapons.Length; i++)
         {
-            if (weapons[i] != null) { SwitchWeapon(i); return; }
+            if (weapons[i] != null)
+            {
+                SwitchWeapon(i);
+                return;
+            }
         }
+
+        // Если все оружие выкинуто
+        currentWeaponIndex = 0;
+        currentAmmo = 0;
+        currentStats = new RarityStats();
+        Debug.Log("[WeaponController] Все оружие выкинуто");
     }
 
-    private void OnDestroy()
+    // === НОВОЕ: Восстановление оружия после загрузки сцены ===
+    private void RestoreWeapons()
     {
+        Debug.Log("[WeaponController] Восстановление оружия после загрузки сцены");
+
+        // Очищаем старые инстансы
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (weaponInstances[i] != null)
                 Destroy(weaponInstances[i]);
+            weaponInstances[i] = null;
         }
+
+        // Восстанавливаем оружие из массива
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (weapons[i] != null && weaponHolder != null)
+            {
+                weaponInstances[i] = Instantiate(weapons[i].weaponPrefab);
+                weaponInstances[i].transform.SetParent(weaponHolder);
+                weaponInstances[i].transform.localPosition = Vector3.zero;
+                weaponInstances[i].transform.localRotation = Quaternion.identity;
+                weaponInstances[i].transform.localScale = Vector3.one;
+                weaponInstances[i].SetActive(i == currentWeaponIndex);
+
+                int weaponLayer = LayerMask.NameToLayer("WeaponLayer");
+                if (weaponLayer != -1)
+                {
+                    SetLayerRecursively(weaponInstances[i], weaponLayer);
+                }
+            }
+        }
+
+        // Восстанавливаем текущее оружие
+        if (weapons[currentWeaponIndex] != null)
+        {
+            currentStats = weapons[currentWeaponIndex].GetStatsForRarity(weaponRarities[currentWeaponIndex]);
+            if (weaponInitialized[currentWeaponIndex])
+            {
+                currentAmmo = currentAmmoPerWeapon[currentWeaponIndex];
+            }
+            else
+            {
+                currentAmmo = currentStats.magazineSize;
+                currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
+                weaponInitialized[currentWeaponIndex] = true;
+            }
+        }
+
+        Debug.Log($"[WeaponController] Восстановлено: {weapons[currentWeaponIndex]?.weaponName ?? "Ничего"}");
     }
 
     private void SetLayerRecursively(GameObject obj, int layer)

@@ -13,14 +13,14 @@ public class PlayerWeaponInventory : MonoBehaviour
 
     private void OnEnable()
     {
-        pickupAction.Enable();
-        dropAction.Enable();
+        if (pickupAction != null) pickupAction.Enable();
+        if (dropAction != null) dropAction.Enable();
     }
 
     private void OnDisable()
     {
-        pickupAction.Disable();
-        dropAction.Disable();
+        if (pickupAction != null) pickupAction.Disable();
+        if (dropAction != null) dropAction.Disable();
     }
 
     private void Update()
@@ -34,6 +34,7 @@ public class PlayerWeaponInventory : MonoBehaviour
     }
 
     public void SetCurrentPickup(WeaponPickup pickup) => currentPickup = pickup;
+
     public void ClearCurrentPickup(WeaponPickup pickup)
     {
         if (currentPickup == pickup) currentPickup = null;
@@ -43,6 +44,7 @@ public class PlayerWeaponInventory : MonoBehaviour
     {
         if (weapon == null) return false;
 
+        // Ищем свободный слот
         for (int i = 0; i < 2; i++)
         {
             if (weaponController.GetWeaponInSlot(i) == null)
@@ -69,10 +71,9 @@ public class PlayerWeaponInventory : MonoBehaviour
         col.isTrigger = true;
         col.radius = 1f;
 
-        GameObject modelPrefab = weapon.GetPickupPrefab();
-        if (modelPrefab != null)
+        if (weapon.weaponPrefab != null)
         {
-            GameObject model = Instantiate(modelPrefab, droppedObj.transform);
+            GameObject model = Instantiate(weapon.weaponPrefab, droppedObj.transform);
             model.transform.localPosition = Vector3.zero;
             model.transform.localRotation = Quaternion.identity;
 
@@ -92,14 +93,19 @@ public class PlayerWeaponInventory : MonoBehaviour
     {
         WeaponData droppedWeapon = weaponController.GetCurrentWeapon();
         WeaponRarity droppedRarity = weaponController.GetCurrentRarity();
-        if (droppedWeapon == null) return;
+
+        if (droppedWeapon == null)
+        {
+            Debug.Log("[Inventory] Нет оружия для выбрасывания");
+            return;
+        }
 
         SpawnWeaponPickup(droppedWeapon, droppedRarity);
         weaponController.ClearCurrentWeapon();
         Debug.Log($"Выброшено: {droppedWeapon.weaponName}");
     }
 
-    // === НОВЫЕ МЕТОДЫ ДЛЯ INVENTORY MANAGER ===
+    // Методы для InventoryManager
     public WeaponData GetWeaponInSlot(int i) => weaponController.GetWeaponInSlot(i);
     public WeaponRarity GetRarityInSlot(int i) => weaponController.GetRarityInSlot(i);
     public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)

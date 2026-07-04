@@ -10,10 +10,8 @@ public class WeaponData : ScriptableObject
     [Header("Префабы")]
     [Tooltip("Модель оружия для отображения в руках (в WeaponHolder)")]
     public GameObject weaponPrefab;
-
     [Tooltip("Модель оружия для подбора с пола (если не назначен, используется weaponPrefab)")]
     public GameObject pickupPrefab;
-
     public WeaponType weaponType = WeaponType.Pistol;
 
     [Header("Характеристики по редкостям (Common / Rare / Epic / Legendary)")]
@@ -22,6 +20,11 @@ public class WeaponData : ScriptableObject
     [Header("Визуал")]
     public GameObject muzzleFlashPrefab;
     public Sprite[] impactDecals;
+
+    // === НОВОЕ: Анимация выстрела ===
+    [Header("Анимация выстрела (из FBX)")]
+    [Tooltip("Перетащите AnimationClip выстрела из FBX модели")]
+    public AnimationClip shootAnimation;
 
     [Header("Цвета редкостей")]
     public Color[] rarityColors = new Color[4]
@@ -36,16 +39,13 @@ public class WeaponData : ScriptableObject
     public string[] rarityNames = new string[4] { "Common", "Rare", "Epic", "Legendary" };
 
     [Header("Описания улучшений (по переходам редкости)")]
-    [Tooltip("Индекс 0: Common→Rare, 1: Rare→Epic, 2: Epic→Legendary, 3: (не используется)")]
     [TextArea(2, 4)]
     public string[] descriptionsByRarity = new string[4];
 
     [Header("Рецепт покупки (Common версия)")]
-    [Tooltip("Порядок: [0]Ствол, [1]Магазин, [2]Рукоять, [3]Прицел")]
     public int[] purchaseRecipe = new int[4];
 
     [Header("Рецепты апгрейда (3 перехода)")]
-    [Tooltip("Индекс 0: Common→Rare, 1: Rare→Epic, 2: Epic→Legendary")]
     public UpgradeRecipe[] upgradeRecipes = new UpgradeRecipe[3];
 
     // === Методы ===
@@ -119,7 +119,6 @@ public class RarityStats
 [System.Serializable]
 public class UpgradeRecipe
 {
-    [Tooltip("Порядок: [0]Ствол, [1]Магазин, [2]Рукоять, [3]Прицел")]
     public int[] costs = new int[4];
 }
 

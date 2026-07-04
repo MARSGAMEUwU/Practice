@@ -41,8 +41,10 @@ public class WeaponController : MonoBehaviour
     // Хранение патронов для каждого оружия
     private int[] currentAmmoPerWeapon = new int[2];
     private bool[] weaponInitialized = new bool[2];
-
     private GameObject[] weaponInstances = new GameObject[2];
+
+    // === НОВОЕ: Анимации выстрела ===
+    private Animation[] weaponAnimations = new Animation[2];
 
     // Флаг для DontDestroyOnLoad
     private static WeaponController instance;
@@ -50,29 +52,24 @@ public class WeaponController : MonoBehaviour
 
     private void Awake()
     {
-        // === Singleton для сохранения между сценами ===
         if (instance != null && instance != this)
         {
             Debug.Log("[WeaponController] Дубликат уничтожен");
             Destroy(gameObject);
             return;
         }
-
         instance = this;
         DontDestroyOnLoad(gameObject);
 
         if (cameraTransform == null) cameraTransform = Camera.main.transform;
 
-        // Инициализация по умолчанию
         currentStats = new RarityStats();
         currentAmmo = 0;
         currentRecoil = 0f;
         currentSpread = 0f;
         isReloading = false;
 
-        // Подписываемся на событие загрузки сцены
         SceneManager.sceneLoaded += OnSceneLoaded;
-
         isInitialized = true;
         Debug.Log("[WeaponController] Инициализирован");
     }
@@ -80,18 +77,13 @@ public class WeaponController : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log($"[WeaponController] Загружена сцена: {scene.name}");
-
-        // Восстанавливаем оружие после загрузки сцены
         RestoreWeapons();
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
-
-        if (instance == this)
-            instance = null;
-
+        if (instance == this) instance = null;
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (weaponInstances[i] != null)
@@ -118,46 +110,34 @@ public class WeaponController : MonoBehaviour
     private void Update()
     {
         if (!isInitialized) return;
-
         HandleWeaponSwitch();
         HandleReload();
         HandleShooting();
         UpdateRecoilAndSpread();
     }
 
-    // === ИСПРАВЛЕНО: Нельзя переключаться во время перезарядки ===
     private void HandleWeaponSwitch()
     {
         if (isReloading) return;
-
         if (switchWeapon1Action.WasPressedThisFrame() && weapons[0] != null)
             SwitchWeapon(0);
         if (switchWeapon2Action.WasPressedThisFrame() && weapons[1] != null)
             SwitchWeapon(1);
     }
 
-    // === ИСПРАВЛЕНО: Сохранение патронов и проверка текущего оружия ===
     private void SwitchWeapon(int index)
     {
         if (weapons[index] == null) return;
+        if (currentWeaponIndex == index) return;
 
-        // === ИСПРАВЛЕНО: Убрана проверка на тот же индекс ===
-        // Теперь можно "переключиться" на то же оружие для применения статов
-
-        // Сохраняем текущие патроны
         if (weaponInitialized[currentWeaponIndex])
-        {
             currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
-        }
 
         currentWeaponIndex = index;
         currentStats = weapons[index].GetStatsForRarity(weaponRarities[index]);
 
-        // Восстанавливаем патроны для нового оружия
         if (weaponInitialized[index])
-        {
             currentAmmo = currentAmmoPerWeapon[index];
-        }
         else
         {
             currentAmmo = currentStats.magazineSize;
@@ -182,12 +162,10 @@ public class WeaponController : MonoBehaviour
                   $"Урон: {currentStats.damage} | Магазин: {currentAmmo}/{currentStats.magazineSize}");
     }
 
-    // === ИСПРАВЛЕНО: Нельзя начать перезарядку, если уже идёт ===
     private void HandleReload()
     {
         if (isReloading) return;
         if (currentStats == null || weapons[currentWeaponIndex] == null) return;
-
         if (reloadAction.WasPressedThisFrame() &&
             currentAmmo < currentStats.magazineSize)
         {
@@ -198,7 +176,6 @@ public class WeaponController : MonoBehaviour
     private System.Collections.IEnumerator ReloadRoutine()
     {
         if (currentStats == null) yield break;
-
         isReloading = true;
         yield return new WaitForSeconds(currentStats.reloadTime);
         currentAmmo = currentStats.magazineSize;
@@ -206,11 +183,9 @@ public class WeaponController : MonoBehaviour
         isReloading = false;
     }
 
-    // === ИСПРАВЛЕНО: Проверка перезарядки и корректное уменьшение патронов ===
     private void HandleShooting()
     {
         if (isReloading || weapons[currentWeaponIndex] == null || currentStats == null) return;
-
         if (shootAction.IsPressed() && Time.time >= nextFireTime)
         {
             if (currentAmmo > 0)
@@ -219,7 +194,6 @@ public class WeaponController : MonoBehaviour
                 nextFireTime = Time.time + currentStats.fireRate;
                 currentAmmo--;
                 currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
-
                 if (currentAmmo <= 0)
                 {
                     StartCoroutine(ReloadRoutine());
@@ -239,9 +213,11 @@ public class WeaponController : MonoBehaviour
     {
         if (crosshairController != null) crosshairController.OnShoot();
 
+        // === НОВОЕ: Проигрываем анимацию выстрела ===
+        PlayShootAnimation();
+
         Vector3 shootDir = GetSpreadDirection();
         Ray ray = new Ray(cameraTransform.position, shootDir);
-
         if (Physics.Raycast(ray, out RaycastHit hit, currentStats.range, impactLayers))
         {
             Damageable damageable = hit.collider.GetComponent<Damageable>();
@@ -273,33 +249,87 @@ public class WeaponController : MonoBehaviour
             {
                 GameObject[] dustParticles = new GameObject[4];
                 for (int i = 0; i < 4; i++)
-                {
                     dustParticles[i] = Instantiate(dustEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                }
                 for (int i = 0; i < 4; i++)
-                {
                     Destroy(dustParticles[i], 1f);
-                }
             }
         }
 
         SpawnMuzzleFlash();
-
         currentRecoil = Mathf.Min(currentRecoil + currentStats.recoilPerShot, currentStats.maxRecoil);
         currentSpread = Mathf.Min(currentSpread + currentStats.spreadPerShot, currentStats.maxSpread);
         ApplyRecoil();
     }
 
+    // ======================================================
+    // === НОВЫЕ МЕТОДЫ: АНИМАЦИЯ ВЫСТРЕЛА ===
+    // ======================================================
+
+    /// <summary>
+    /// Проигрывает анимацию выстрела из FBX с умной скоростью.
+    /// Если fireRate < длины анимации → ускоряем анимацию.
+    /// Если fireRate >= длины анимации → играем с нормальной скоростью.
+    /// </summary>
+    private void PlayShootAnimation()
+    {
+        Animation anim = weaponAnimations[currentWeaponIndex];
+        WeaponData weapon = weapons[currentWeaponIndex];
+
+        if (anim == null || weapon == null || weapon.shootAnimation == null) return;
+
+        AnimationState state = anim["Shoot"];
+        if (state == null) return;
+
+        float animLength = weapon.shootAnimation.length;
+        float fireRate = currentStats.fireRate;
+
+        // Умная скорость
+        if (fireRate < animLength && fireRate > 0f)
+        {
+            state.speed = animLength / fireRate;
+        }
+        else
+        {
+            state.speed = 1f;
+        }
+
+        state.normalizedTime = 0f;
+        anim.Play("Shoot");
+    }
+
+    /// <summary>
+    /// Добавляет компонент Animation на инстанс оружия и регистрирует клип выстрела.
+    /// </summary>
+    private void SetupWeaponAnimation(int slotIndex, WeaponData weapon)
+    {
+        if (weaponInstances[slotIndex] == null || weapon == null) return;
+
+        // Удаляем старый Animation если есть
+        Animation oldAnim = weaponInstances[slotIndex].GetComponent<Animation>();
+        if (oldAnim != null) Destroy(oldAnim);
+
+        // Добавляем новый Animation
+        Animation anim = weaponInstances[slotIndex].AddComponent<Animation>();
+        anim.playAutomatically = false;
+
+        // Регистрируем клип выстрела
+        if (weapon.shootAnimation != null)
+        {
+            anim.AddClip(weapon.shootAnimation, "Shoot");
+        }
+
+        weaponAnimations[slotIndex] = anim;
+    }
+
+    // ======================================================
+
     private void SpawnMuzzleFlash()
     {
         if (weaponInstances[currentWeaponIndex] == null) return;
         if (weapons[currentWeaponIndex].muzzleFlashPrefab == null) return;
-
         Transform muzzlePoint = weaponInstances[currentWeaponIndex].transform.Find("MuzzlePoint");
         if (muzzlePoint != null)
-        {
             Instantiate(weapons[currentWeaponIndex].muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
-        }
     }
 
     private Vector3 GetSpreadDirection()
@@ -331,7 +361,6 @@ public class WeaponController : MonoBehaviour
     }
 
     // === ПУБЛИЧНЫЕ МЕТОДЫ ===
-
     public float GetCurrentSpread()
     {
         if (currentStats == null || weapons[currentWeaponIndex] == null)
@@ -346,7 +375,6 @@ public class WeaponController : MonoBehaviour
         return currentStats.maxSpread;
     }
 
-    // === ИСПРАВЛЕНО: Инициализация патронов при добавлении оружия ===
     public void SetWeapon(int slotIndex, WeaponData weapon, WeaponRarity rarity)
     {
         if (slotIndex < 0 || slotIndex >= weapons.Length) return;
@@ -357,12 +385,10 @@ public class WeaponController : MonoBehaviour
         weapons[slotIndex] = weapon;
         weaponRarities[slotIndex] = rarity;
 
-        // Инициализация патронов для нового оружия
         RarityStats stats = weapon.GetStatsForRarity(rarity);
         currentAmmoPerWeapon[slotIndex] = stats.magazineSize;
         weaponInitialized[slotIndex] = true;
 
-        // === ИСПРАВЛЕНО: Если это текущий слот — применяем статы сразу ===
         if (slotIndex == currentWeaponIndex)
         {
             currentStats = stats;
@@ -384,9 +410,10 @@ public class WeaponController : MonoBehaviour
 
             int weaponLayer = LayerMask.NameToLayer("WeaponLayer");
             if (weaponLayer != -1)
-            {
                 SetLayerRecursively(weaponInstances[slotIndex], weaponLayer);
-            }
+
+            // === НОВОЕ: Настраиваем анимацию выстрела ===
+            SetupWeaponAnimation(slotIndex, weapon);
         }
     }
 
@@ -399,7 +426,6 @@ public class WeaponController : MonoBehaviour
     public WeaponData GetCurrentWeapon() => weapons[currentWeaponIndex];
     public WeaponRarity GetCurrentRarity() => weaponRarities[currentWeaponIndex];
     public int GetCurrentWeaponIndex() => currentWeaponIndex;
-
     public int GetCurrentAmmo() => currentAmmo;
     public int GetMaxAmmo() => currentStats != null ? currentStats.magazineSize : 0;
 
@@ -416,7 +442,6 @@ public class WeaponController : MonoBehaviour
         if (currentWeaponIndex == slotIndex) SwitchWeapon(slotIndex);
     }
 
-    // === ИСПРАВЛЕНО: Сброс патронов при очистке слота ===
     public void ClearCurrentWeapon()
     {
         if (weaponInstances[currentWeaponIndex] != null)
@@ -424,12 +449,11 @@ public class WeaponController : MonoBehaviour
 
         weapons[currentWeaponIndex] = null;
         weaponInstances[currentWeaponIndex] = null;
+        weaponAnimations[currentWeaponIndex] = null;
 
-        // Сброс патронов и флага инициализации
         currentAmmoPerWeapon[currentWeaponIndex] = 0;
         weaponInitialized[currentWeaponIndex] = false;
 
-        // Переключаемся на другое оружие если есть
         for (int i = 0; i < weapons.Length; i++)
         {
             if (weapons[i] != null)
@@ -439,27 +463,24 @@ public class WeaponController : MonoBehaviour
             }
         }
 
-        // Если все оружие выкинуто
         currentWeaponIndex = 0;
         currentAmmo = 0;
         currentStats = new RarityStats();
         Debug.Log("[WeaponController] Все оружие выкинуто");
     }
 
-    // === НОВОЕ: Восстановление оружия после загрузки сцены ===
     private void RestoreWeapons()
     {
         Debug.Log("[WeaponController] Восстановление оружия после загрузки сцены");
 
-        // Очищаем старые инстансы
         for (int i = 0; i < weaponInstances.Length; i++)
         {
             if (weaponInstances[i] != null)
                 Destroy(weaponInstances[i]);
             weaponInstances[i] = null;
+            weaponAnimations[i] = null;
         }
 
-        // Восстанавливаем оружие из массива
         for (int i = 0; i < weapons.Length; i++)
         {
             if (weapons[i] != null && weaponHolder != null)
@@ -473,20 +494,18 @@ public class WeaponController : MonoBehaviour
 
                 int weaponLayer = LayerMask.NameToLayer("WeaponLayer");
                 if (weaponLayer != -1)
-                {
                     SetLayerRecursively(weaponInstances[i], weaponLayer);
-                }
+
+                // === НОВОЕ: Восстанавливаем анимацию выстрела ===
+                SetupWeaponAnimation(i, weapons[i]);
             }
         }
 
-        // Восстанавливаем текущее оружие
         if (weapons[currentWeaponIndex] != null)
         {
             currentStats = weapons[currentWeaponIndex].GetStatsForRarity(weaponRarities[currentWeaponIndex]);
             if (weaponInitialized[currentWeaponIndex])
-            {
                 currentAmmo = currentAmmoPerWeapon[currentWeaponIndex];
-            }
             else
             {
                 currentAmmo = currentStats.magazineSize;
@@ -502,8 +521,6 @@ public class WeaponController : MonoBehaviour
     {
         obj.layer = layer;
         foreach (Transform child in obj.transform)
-        {
             SetLayerRecursively(child.gameObject, layer);
-        }
     }
 }

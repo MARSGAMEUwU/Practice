@@ -157,14 +157,16 @@ public class Enemy : Damageable
             animator.SetTrigger(deathTrigger);
         }
 
+        // Награда за убийство
         playerAdrenaline.KillReward();
 
-        // === НОВОЕ: спавним труп через время анимации смерти ===
+        // === НОВОЕ: спавним труп на месте смерти через время анимации ===
         Invoke(nameof(SpawnCorpse), 2f); // Через 2 секунды (длина анимации смерти)
 
-        // === НЕ уничтожаем объект! ===
-        // Destroy(gameObject, 3f); // УДАЛЕНО
+        // === НОВОЕ: уничтожаем врага после анимации смерти ===
+        Destroy(gameObject, 2f);
     }
+
 
     private void SpawnCorpse()
     {
@@ -174,11 +176,14 @@ public class Enemy : Damageable
             return;
         }
 
-        // Спавним труп со смещением по Y
-        Vector3 spawnPos = transform.position + Vector3.up * corpseSpawnHeight;
-        GameObject corpse = Instantiate(corpsePrefab, spawnPos, transform.rotation);
+        // Смещение по Y (например, -0.5 чтобы труп лежал на земле)
+        float yOffset = -0.5f;
+        Vector3 spawnPos = transform.position + Vector3.up * yOffset;
+        Quaternion spawnRot = transform.rotation;
 
-        Debug.Log($"Труп заспавнен: {corpse.name} на позиции {spawnPos}");
+        GameObject corpse = Instantiate(corpsePrefab, spawnPos, spawnRot);
+
+        Debug.Log($"Труп заспавнен на месте смерти: {corpse.name} на позиции {spawnPos}");
     }
 
     public void OnAttackHit()

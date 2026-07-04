@@ -43,10 +43,10 @@ public class WeaponController : MonoBehaviour
     private bool[] weaponInitialized = new bool[2];
     private GameObject[] weaponInstances = new GameObject[2];
 
-    // === НОВОЕ: Анимации выстрела ===
-    private Animation[] weaponAnimations = new Animation[2];
+    // === НОВОЕ: Animator для каждого слота ===
+    private Animator[] weaponAnimators = new Animator[2];
 
-    // Флаг для DontDestroyOnLoad
+    // Singleton
     private static WeaponController instance;
     private bool isInitialized = false;
 
@@ -54,7 +54,6 @@ public class WeaponController : MonoBehaviour
     {
         if (instance != null && instance != this)
         {
-            Debug.Log("[WeaponController] Дубликат уничтожен");
             Destroy(gameObject);
             return;
         }
@@ -76,7 +75,6 @@ public class WeaponController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        Debug.Log($"[WeaponController] Загружена сцена: {scene.name}");
         RestoreWeapons();
     }
 
@@ -137,7 +135,9 @@ public class WeaponController : MonoBehaviour
         currentStats = weapons[index].GetStatsForRarity(weaponRarities[index]);
 
         if (weaponInitialized[index])
+        {
             currentAmmo = currentAmmoPerWeapon[index];
+        }
         else
         {
             currentAmmo = currentStats.magazineSize;
@@ -166,8 +166,7 @@ public class WeaponController : MonoBehaviour
     {
         if (isReloading) return;
         if (currentStats == null || weapons[currentWeaponIndex] == null) return;
-        if (reloadAction.WasPressedThisFrame() &&
-            currentAmmo < currentStats.magazineSize)
+        if (reloadAction.WasPressedThisFrame() && currentAmmo < currentStats.magazineSize)
         {
             StartCoroutine(ReloadRoutine());
         }
@@ -213,7 +212,7 @@ public class WeaponController : MonoBehaviour
     {
         if (crosshairController != null) crosshairController.OnShoot();
 
-        // === НОВОЕ: Проигрываем анимацию выстрела ===
+        // === НОВОЕ: Запускаем анимацию выстрела ===
         PlayShootAnimation();
 
         Vector3 shootDir = GetSpreadDirection();
@@ -233,7 +232,6 @@ public class WeaponController : MonoBehaviour
                     if (crosshairController != null) crosshairController.OnHit();
                 }
             }
-
             if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out _))
             {
                 GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
@@ -262,63 +260,109 @@ public class WeaponController : MonoBehaviour
     }
 
     // ======================================================
-    // === НОВЫЕ МЕТОДЫ: АНИМАЦИЯ ВЫСТРЕЛА ===
+    // === НОВЫЕ МЕТОДЫ: АНИМАЦИЯ ЧЕРЕЗ ANIMATOR ===
     // ======================================================
 
     /// <summary>
-    /// Проигрывает анимацию выстрела из FBX с умной скоростью.
-    /// Если fireRate < длины анимации → ускоряем анимацию.
-    /// Если fireRate >= длины анимации → играем с нормальной скоростью.
+    /// Проигрывает анимацию выстрела с умной скоростью
     /// </summary>
     private void PlayShootAnimation()
     {
-        Animation anim = weaponAnimations[currentWeaponIndex];
+        Animator animator = weaponAnimators[currentWeaponIndex];
         WeaponData weapon = weapons[currentWeaponIndex];
 
-        if (anim == null || weapon == null || weapon.shootAnimation == null) return;
+        if (animator == null)
+        {
+            Debug.LogWarning($"[WeaponController] Animator не найден для слота {currentWeaponIndex}");
+            return;
+        }
 
-        AnimationState state = anim["Shoot"];
-        if (state == null) return;
+        if (weapon == null)
+        {
+            Debug.LogWarning($"[WeaponController] WeaponData не назначен для слота {currentWeaponIndex}");
+            return;
+        }
 
-        float animLength = weapon.shootAnimation.length;
+        if (weapon.shootAnimatorController == null)
+        {
+            Debug.LogWarning($"[WeaponController] Shoot Animator Controller не назначен в WeaponData для {weapon.weaponName}");
+            return;
+        }
+
+
+        // === УМНАЯ СКОРОСТЬ АНИМАЦИИ ===
+        // Получаем длительность анимации выстрела
+        float animationDuration = GetShootAnimationDuration(animator, weapon);
         float fireRate = currentStats.fireRate;
 
-        // Умная скорость
-        if (fireRate < animLength && fireRate > 0f)
+        // Если fireRate меньше длительности анимации → ускоряем
+        // Если fireRate больше или равен → нормальная скорость
+        if (fireRate < animationDuration && fireRate > 0f)
         {
-            state.speed = animLength / fireRate;
+            animator.speed = animationDuration / fireRate;
+            Debug.Log($"[WeaponController] Ускорение анимации: speed={animator.speed:F2} (fireRate={fireRate:F2}с, animDuration={animationDuration:F2}с)");
         }
         else
         {
-            state.speed = 1f;
+            animator.speed = 1f;
+            Debug.Log($"[WeaponController] Нормальная скорость анимации: speed=1 (fireRate={fireRate:F2}с, animDuration={animationDuration:F2}с)");
         }
 
-        state.normalizedTime = 0f;
-        anim.Play("Shoot");
+        // Запускаем триггер
+        animator.SetTrigger(weapon.shootTriggerName);
     }
 
     /// <summary>
-    /// Добавляет компонент Animation на инстанс оружия и регистрирует клип выстрела.
+    /// Получает длительность анимации выстрела из Animator
     /// </summary>
-    private void SetupWeaponAnimation(int slotIndex, WeaponData weapon)
+    private float GetShootAnimationDuration(Animator animator, WeaponData weapon)
+    {
+        // Ищем состояние с анимацией выстрела
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        // Пробуем найти состояние по имени триггера
+        foreach (AnimatorStateInfo info in new AnimatorStateInfo[] { stateInfo })
+        {
+            // Если текущее состояние - это анимация выстрела
+            if (info.IsName(weapon.shootTriggerName))
+            {
+                return info.length;
+            }
+        }
+
+        // Если не нашли, возвращаем длительность по умолчанию
+        // Можно настроить это значение в WeaponData
+        return 0.3f; // Значение по умолчанию
+    }
+
+    /// <summary>
+    /// Настраивает Animator на инстансе оружия
+    /// </summary>
+    private void SetupWeaponAnimator(int slotIndex, WeaponData weapon)
     {
         if (weaponInstances[slotIndex] == null || weapon == null) return;
 
-        // Удаляем старый Animation если есть
-        Animation oldAnim = weaponInstances[slotIndex].GetComponent<Animation>();
-        if (oldAnim != null) Destroy(oldAnim);
+        // Ищем Animator на инстансе (может быть на дочернем объекте)
+        Animator animator = weaponInstances[slotIndex].GetComponentInChildren<Animator>();
 
-        // Добавляем новый Animation
-        Animation anim = weaponInstances[slotIndex].AddComponent<Animation>();
-        anim.playAutomatically = false;
-
-        // Регистрируем клип выстрела
-        if (weapon.shootAnimation != null)
+        if (animator == null)
         {
-            anim.AddClip(weapon.shootAnimation, "Shoot");
+            Debug.LogWarning($"[WeaponController] Animator не найден на префабе {weapon.weaponName}");
+            return;
         }
 
-        weaponAnimations[slotIndex] = anim;
+        // Применяем Animator Controller из WeaponData
+        if (weapon.shootAnimatorController != null)
+        {
+            animator.runtimeAnimatorController = weapon.shootAnimatorController;
+            Debug.Log($"[WeaponController] Animator Controller назначен для {weapon.weaponName}");
+        }
+        else
+        {
+            Debug.LogWarning($"[WeaponController] Shoot Animator Controller не назначен в WeaponData для {weapon.weaponName}");
+        }
+
+        weaponAnimators[slotIndex] = animator;
     }
 
     // ======================================================
@@ -363,15 +407,13 @@ public class WeaponController : MonoBehaviour
     // === ПУБЛИЧНЫЕ МЕТОДЫ ===
     public float GetCurrentSpread()
     {
-        if (currentStats == null || weapons[currentWeaponIndex] == null)
-            return 0f;
+        if (currentStats == null || weapons[currentWeaponIndex] == null) return 0f;
         return currentSpread + currentStats.baseSpread;
     }
 
     public float GetMaxSpread()
     {
-        if (currentStats == null || weapons[currentWeaponIndex] == null)
-            return 1f;
+        if (currentStats == null || weapons[currentWeaponIndex] == null) return 1f;
         return currentStats.maxSpread;
     }
 
@@ -396,7 +438,6 @@ public class WeaponController : MonoBehaviour
             currentRecoil = 0f;
             currentSpread = 0f;
             isReloading = false;
-            Debug.Log($"[WeaponController] Инициализировано: {weapon.weaponName}, патроны: {currentAmmo}/{stats.magazineSize}");
         }
 
         if (weapon.weaponPrefab != null && weaponHolder != null)
@@ -412,8 +453,8 @@ public class WeaponController : MonoBehaviour
             if (weaponLayer != -1)
                 SetLayerRecursively(weaponInstances[slotIndex], weaponLayer);
 
-            // === НОВОЕ: Настраиваем анимацию выстрела ===
-            SetupWeaponAnimation(slotIndex, weapon);
+            // Настраиваем Animator
+            SetupWeaponAnimator(slotIndex, weapon);
         }
     }
 
@@ -449,7 +490,7 @@ public class WeaponController : MonoBehaviour
 
         weapons[currentWeaponIndex] = null;
         weaponInstances[currentWeaponIndex] = null;
-        weaponAnimations[currentWeaponIndex] = null;
+        weaponAnimators[currentWeaponIndex] = null;
 
         currentAmmoPerWeapon[currentWeaponIndex] = 0;
         weaponInitialized[currentWeaponIndex] = false;
@@ -466,19 +507,15 @@ public class WeaponController : MonoBehaviour
         currentWeaponIndex = 0;
         currentAmmo = 0;
         currentStats = new RarityStats();
-        Debug.Log("[WeaponController] Все оружие выкинуто");
     }
 
     private void RestoreWeapons()
     {
-        Debug.Log("[WeaponController] Восстановление оружия после загрузки сцены");
-
         for (int i = 0; i < weaponInstances.Length; i++)
         {
-            if (weaponInstances[i] != null)
-                Destroy(weaponInstances[i]);
+            if (weaponInstances[i] != null) Destroy(weaponInstances[i]);
             weaponInstances[i] = null;
-            weaponAnimations[i] = null;
+            weaponAnimators[i] = null;
         }
 
         for (int i = 0; i < weapons.Length; i++)
@@ -496,8 +533,7 @@ public class WeaponController : MonoBehaviour
                 if (weaponLayer != -1)
                     SetLayerRecursively(weaponInstances[i], weaponLayer);
 
-                // === НОВОЕ: Восстанавливаем анимацию выстрела ===
-                SetupWeaponAnimation(i, weapons[i]);
+                SetupWeaponAnimator(i, weapons[i]);
             }
         }
 
@@ -513,8 +549,6 @@ public class WeaponController : MonoBehaviour
                 weaponInitialized[currentWeaponIndex] = true;
             }
         }
-
-        Debug.Log($"[WeaponController] Восстановлено: {weapons[currentWeaponIndex]?.weaponName ?? "Ничего"}");
     }
 
     private void SetLayerRecursively(GameObject obj, int layer)

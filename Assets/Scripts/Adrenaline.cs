@@ -20,7 +20,7 @@ public class Adrenaline : MonoBehaviour
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
             currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
-            Debug.Log(currentAdrenaline);
+            //Debug.Log(currentAdrenaline);
             
         }
     }

@@ -12,15 +12,15 @@ public class Adrenaline : MonoBehaviour
 
     void Update()
     {
-        if (currentAdrenaline <= 0)
-        {
-            Debug.Log("вы сдохли Update");
-        }
-        else if (currentAdrenaline > 0)
+        //if (currentAdrenaline <= 0)
+        //{
+        //    Debug.Log("вы сдохли Update");
+        //}
+        if (currentAdrenaline > 0)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
             currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
-            Debug.Log(currentAdrenaline);
+            //Debug.Log(currentAdrenaline);
             
         }
     }
@@ -42,7 +42,7 @@ public class Adrenaline : MonoBehaviour
 
     public void GameOver()
     {
-        
+        Time.timeScale = 0f;
     }
 
     public void TakeDamage(float damageAmount)

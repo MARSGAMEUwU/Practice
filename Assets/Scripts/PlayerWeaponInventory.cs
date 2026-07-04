@@ -73,7 +73,7 @@ public class PlayerWeaponInventory : MonoBehaviour
 
         if (weapon.weaponPrefab != null)
         {
-            GameObject model = Instantiate(weapon.weaponPrefab, droppedObj.transform);
+            GameObject model = Instantiate(weapon.pickupPrefab, droppedObj.transform);
             model.transform.localPosition = Vector3.zero;
             model.transform.localRotation = Quaternion.identity;
 

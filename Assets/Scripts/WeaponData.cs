@@ -10,7 +10,6 @@ public class WeaponData : ScriptableObject
     [Header("Префабы")]
     [Tooltip("Модель оружия для отображения в руках (в WeaponHolder)")]
     public GameObject weaponPrefab;
-
     [Tooltip("Модель оружия для подбора с пола (если не назначен, используется weaponPrefab)")]
     public GameObject pickupPrefab;
 
@@ -22,6 +21,13 @@ public class WeaponData : ScriptableObject
     [Header("Визуал")]
     public GameObject muzzleFlashPrefab;
     public Sprite[] impactDecals;
+
+    // === НОВОЕ: Анимация выстрела ===
+    [Header("Анимация выстрела")]
+    [Tooltip("Animator Controller для анимации выстрела")]
+    public RuntimeAnimatorController shootAnimatorController;
+    [Tooltip("Название параметра триггера для выстрела в Animator")]
+    public string shootTriggerName = "Shoot";
 
     [Header("Цвета редкостей")]
     public Color[] rarityColors = new Color[4]

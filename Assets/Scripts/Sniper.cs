@@ -132,6 +132,6 @@ public class Sniper : Damageable
         Debug.Log($"<color=orange>{gameObject.name} убит!</color>");
         //if (animator != null) animator.SetTrigger("Die");
         if (rb != null) rb.useGravity = true;
-        laserLine.SetPosition(0, Vector3.zero);
+        laserLine.enabled = false;
     }
 }

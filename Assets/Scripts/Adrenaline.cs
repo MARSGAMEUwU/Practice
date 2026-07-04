@@ -1,28 +1,54 @@
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Adrenaline : MonoBehaviour
 {
-    [SerializeField] private float maxAdrenaline = 100f;
-    [SerializeField] private float currentAdrenaline = 1f;
+    [SerializeField] private float maxAdrenaline = 150f;
+    [SerializeField] private float minAdrenaline = 0f;
     [SerializeField] private float decayRate = 1f;
     [SerializeField] private float killReward = 30f;
     [SerializeField] private float injectionBoost = 50f;
-    [SerializeField] private float syringeAmount = 1f;
+    [SerializeField] private int syringeAmount = 1;
+    [SerializeField] private float cooldown = 5f;
+    [SerializeField] private InputAction useSyringe;
+    [SerializeField] private Material shader;
+    [SerializeField] private float maxSaturation = 5f;
+    [SerializeField] private float minSaturation = 0.5f;
+    [SerializeField] private float maxContrast = 5f;
+    [SerializeField] private float minContrast = 1f;
     public float AdrenalinePercentage => currentAdrenaline / maxAdrenaline;
+    private float nextInjTime;
+    private float currentSaturation;
+    private float currentContrast;
+    private float currentAdrenaline;
+
+    private void Awake()
+    {
+        currentAdrenaline = minAdrenaline;
+    }
+
+    private void OnEnable()
+    {
+        if (useSyringe != null) {useSyringe.Enable();}
+    }
+    private void OnDisable()
+    {
+        if (useSyringe != null) { useSyringe.Disable();}
+    }
 
     void Update()
     {
-        //if (currentAdrenaline <= 0)
-        //{
-        //    Debug.Log("вы сдохли Update");
-        //}
         if (currentAdrenaline > 0)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
             currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
-            //Debug.Log(currentAdrenaline);
-            
+            currentSaturation = Mathf.Lerp(minSaturation, maxSaturation, AdrenalinePercentage);
+            currentContrast = Mathf.Lerp(minContrast, maxContrast, AdrenalinePercentage);
+            shader.SetFloat("_Saturation", currentSaturation);
+            shader.SetFloat("_Contrast", currentContrast);
         }
+        if (useSyringe.IsPressed() && syringeAmount > 0 && Time.time >= nextInjTime) UseSyringe();
     }
     
     public void UseSyringe()
@@ -31,13 +57,17 @@ public class Adrenaline : MonoBehaviour
         currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
         syringeAmount --;
         Debug.Log($"+{injectionBoost} adrenaline");
+        nextInjTime = Time.time + cooldown;
     }
 
     public void KillReward()
     {
-        currentAdrenaline += killReward;
-        currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
-        Debug.Log($"+{killReward} adrenaline");
+        if (currentAdrenaline > 5)
+        {
+            currentAdrenaline += killReward;
+            currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
+            Debug.Log($"+{killReward} adrenaline");
+        }
     }
 
     public void GameOver()

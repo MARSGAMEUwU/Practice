@@ -9737,11 +9737,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Adrenaline
   maxAdrenaline: 100
-  currentAdrenaline: 1
+  minAdrenaline: 1
   decayRate: 5
   killReward: 30
   injectionBoost: 50
-  syringeAmount: 1
+  syringeAmount: 10
+  cooldown: 3
+  useSyringe:
+    m_Name: Use Syringe
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: ebb923c0-fa03-4daa-adc8-4f090752c30b
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 088021d7-ac02-47fc-8de1-ae0e84e260fd
+      m_Path: <Keyboard>/q
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Use Syringe
+      m_Flags: 0
+    m_Flags: 0
+  shader: {fileID: 2100000, guid: 591e216e4fe6b684aae4e778ef172f64, type: 2}
+  maxSaturation: 5
+  minSaturation: 0.5
+  maxContrast: 5
+  minContrast: 1
 --- !u!1 &1414696587 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3533781435667455236, guid: 9fb579ac4ab1f884cbc527e548a5fd5e, type: 3}

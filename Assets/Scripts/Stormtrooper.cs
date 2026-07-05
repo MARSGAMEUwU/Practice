@@ -89,7 +89,19 @@ public class Stormtrooper : Damageable
 
             if (projectilePrefab != null && firePoint != null)
             {
-                Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+                GameObject projObj = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+                Projectile proj = projObj.GetComponent<Projectile>();
+                if (proj != null)
+                {
+                    proj.Initialize(
+                        damage: attackDamage,
+                        speed: 50f,
+                        lifetime: 5f,
+                        direction: (player.position - firePoint.position).normalized,
+                        tracerPrefab: null,
+                        owner: gameObject  // Владелец = Stormtrooper
+                    );
+                }
             }
 
             // 3. Выключаем лазер чуть позже

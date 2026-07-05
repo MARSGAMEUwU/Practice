@@ -38,9 +38,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _ColorResolution: 8
-    - _Contrast: 1.0060568
+    - _Contrast: 1.0281872
     - _DitherSpread: 0.1
-    - _Saturation: 0.50908524
+    - _Saturation: 0.54228073
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

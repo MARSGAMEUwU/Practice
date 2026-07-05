@@ -19,9 +19,13 @@ public class Stormtrooper : Damageable
     [SerializeField] private float attackRate = 5f;
     [SerializeField] private float attackDamage = 5f;
     [SerializeField] private float aimSpeed = 5f;
+    [SerializeField] private int shotsPerBurst = 5;
+    [SerializeField] private float cooldown = 1f;
 
     private Adrenaline playerAdrenaline;
     private float nextFireTime;
+    private float nextFireBurst;
+    private bool isFiring;
 
     protected override void Awake()
     {
@@ -57,29 +61,45 @@ public class Stormtrooper : Damageable
 
     public void Attack()
     {
-        nextFireTime = Time.time + attackRate;
-        if (animator != null)
+        // Стреляем только если: вышло время кулдауна И мы сейчас НЕ стреляем другую очередь
+        if (Time.time >= nextFireTime && !isFiring)
         {
-            animator.SetTrigger("Attack");
+            StartCoroutine(BurstFireCoroutine());
         }
+    }
 
-        laserLine.enabled = true;
-        //Vector3 origin = firePoint != null ? firePoint.position : transform.position + Vector3.up;
-        //Vector3 targetPos = player.position + Vector3.up * 0.5f;
-        //Vector3 direction = (targetPos - origin).normalized;
-        //Debug.DrawRay(origin, direction * 50f, Color.red, 2f);
-        //if (Physics.Raycast(origin, direction, out RaycastHit hit, Mathf.Infinity))
-        //{
-        //    Debug.Log($"Луч попал в: {hit.collider.name}");
-        //    if (hit.collider.CompareTag("Player"))
-        //    {
-        //        playerAdrenaline.TakeDamage(attackDamage);
-        //        Debug.Log($"stormtrooper hit {attackDamage} hp");
-        //    }
-        //}
+    // Корутина для поочередного выпускания пуль
+    private System.Collections.IEnumerator BurstFireCoroutine()
+    {
+        isFiring = true; // Занято, штурмовик начал стрелять очередь
 
-        Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-        StartCoroutine(ResetLaserColorRoutine());
+        for (int i = 0; i < shotsPerBurst; i++)
+        {
+            // Проверяем на всякий случай, не умер ли штурмовик посреди очереди
+            if (isDead) yield break;
+
+            // 1. Включаем анимацию (если нужно на каждый выстрел)
+            if (animator != null)
+            {
+                animator.SetTrigger("Attack");
+            }
+
+            // 2. Включаем лазер и спавним пулю
+            if (laserLine != null) laserLine.enabled = true;
+
+            if (projectilePrefab != null && firePoint != null)
+            {
+                Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
+            }
+
+            // 3. Выключаем лазер чуть позже
+            StartCoroutine(ResetLaserColorRoutine());
+
+            // 4. Ждем микро-паузу перед следующей пулей в этой же очереди
+            yield return new WaitForSeconds(attackRate);
+        }
+        nextFireTime = Time.time + cooldown;
+        isFiring = false;
     }
 
     private System.Collections.IEnumerator ResetLaserColorRoutine()
@@ -97,34 +117,56 @@ public class Stormtrooper : Damageable
         if (isDead) return;
         if (player == null) return;
 
-        Aim(); // Поворачиваемся всегда
-
-        if (Time.time >= nextFireTime)
-            Attack();
+        // Поворачиваемся к игроку всегда, чтобы знать, куда пускать луч
+        Aim();
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Проверяем дистанцию и двигаемся
-        if (distanceToPlayer > maxDistance)
+        // === НАЧАЛО БЛОКА ПРОВЕРКИ ВИДИМОСТИ ===
+        bool canSeePlayer = false;
+
+        // Пускаем луч от уровня "глаз" штурмовика к уровню "груди" игрока (чуть выше пола)
+        Vector3 rayOrigin = firePoint != null ? firePoint.position : transform.position + Vector3.up * 1f;
+        Vector3 rayTarget = player.position + Vector3.up * 1f;
+        Vector3 rayDirection = (rayTarget - rayOrigin).normalized;
+
+        // Стреляем лучом на расстояние maxDistance
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, maxDistance))
         {
-            ChasePlayer();
+            // Если первый объект, в который врезался луч — это игрок
+            if (hit.collider.CompareTag("Player"))
+            {
+                canSeePlayer = true;
+            }
         }
-        else if (distanceToPlayer < minDistance)
+        // === КОНЕЦ БЛОКА ПРОВЕРКИ ВИДИМОСТИ ===
+
+        // Логика поведения на основе видимости
+        if (canSeePlayer)
         {
-            RunFromPlayer();
+            // 1. ИГРОКА ВИДНО: Стреляем и контролируем дистанцию
+            if (Time.time >= nextFireBurst)
+                Attack();
+
+            if (distanceToPlayer > maxDistance)
+            {
+                ChasePlayer();
+            }
+            else if (distanceToPlayer < minDistance)
+            {
+                RunFromPlayer();
+            }
+            else
+            {
+                // Идеальная дистанция: стоим и стреляем
+                if (agent.isOnNavMesh) agent.ResetPath();
+            }
         }
         else
         {
-            // === НОВОЕ: Мы в идеальной зоне (20-50м). Стоим на месте! ===
-            if (agent.isOnNavMesh)
-            {
-                agent.ResetPath(); // Сбрасываем маршрут
-            }
+            // 2. ИГРОК ЗА СТЕНОЙ: Не стреляем, а просто бежим за ним, огибая углы
+            ChasePlayer();
         }
-
-        // ЕСЛИ У ТЕБЯ APPLY ROOT MOTION = TRUE:
-        // Сюда обязательно нужно вернуть метод UpdateAnimator(distanceToPlayer), 
-        // как это было сделано в Enemy.cs, чтобы штурмовик перебирал ногами!
     }
 
     private void ChasePlayer()

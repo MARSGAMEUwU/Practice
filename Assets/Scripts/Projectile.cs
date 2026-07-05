@@ -2,50 +2,67 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    [SerializeField] private float speed = 100f;
-    [SerializeField] private float lifetime = 5f;
-    [SerializeField] private float damage = 10f;
-    [SerializeField] private GameObject impactEffectPrefab;
-    private Adrenaline playerAdrenaline;
+    private float damage;
+    private float speed;
+    private float lifetime;
+    private Vector3 direction;
+    private GameObject tracerPrefab;
+    private GameObject owner;
 
-    void Start()
+    private Rigidbody rb;
+    private GameObject tracerInstance;
+
+    public void Initialize(float damage, float speed, float lifetime, Vector3 direction, GameObject tracerPrefab, GameObject owner)
     {
-        Rigidbody rigidbody = GetComponent<Rigidbody>();
-        rigidbody.linearVelocity = transform.forward * speed;
-        Destroy(gameObject, lifetime);
+        this.damage = damage;
+        this.speed = speed;
+        this.lifetime = lifetime;
+        this.direction = direction.normalized;
+        this.tracerPrefab = tracerPrefab;
+        this.owner = owner;
 
-        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            Transform player = playerObj.transform;
-            playerAdrenaline = playerObj.GetComponent<Adrenaline>();
-            
-        }
+        Setup();
     }
 
-    void OnTriggerEnter(Collider other)
+    private void Setup()
     {
-        // 1. Игнорируем другие триггеры (чтобы пуля не взрывалась в воздухе от триггеров зоны видимости врагов)
+        rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.useGravity = false;
+            rb.linearVelocity = direction * speed;
+        }
+
+        if (tracerPrefab != null)
+        {
+            tracerInstance = Instantiate(tracerPrefab, transform.position, transform.rotation);
+            tracerInstance.transform.SetParent(transform);
+        }
+
+        Destroy(gameObject, lifetime);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
         if (other.isTrigger) return;
 
-        // 2. Проверяем, попали ли в игрока
-        if (other.CompareTag("Player"))
-        {
-            if (playerAdrenaline != null)
-            {
-                playerAdrenaline.TakeDamage(damage);
-            }
-        }
-        // Если в твоем будущем оружии пуля будет лететь от ИГРОКА ВО ВРАГА, то добавь проверку:
-        // else if (other.TryGetComponent<Damageable>(out Damageable enemy)) { enemy.TakeDamage(damage); }
+        if (owner != null && other.gameObject == owner) return;
+        if (owner != null && other.transform.IsChildOf(owner.transform)) return;
 
-        // 3. Эффект попадания должен создаваться ВСЕГДА (и об стену, и об игрока)
-        if (impactEffectPrefab != null)
+        Damageable damageable = other.GetComponent<Damageable>();
+        if (damageable != null)
         {
-            Instantiate(impactEffectPrefab, transform.position, transform.rotation);
+            damageable.TakeDamage(damage);
         }
 
-        // 4. Уничтожаем пулю при любом физическом столкновении
         Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (tracerInstance != null)
+        {
+            Destroy(tracerInstance);
+        }
     }
 }

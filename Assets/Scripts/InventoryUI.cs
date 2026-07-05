@@ -110,9 +110,9 @@ public class InventoryUI : MonoBehaviour
         if (inventoryManager == null) return;
 
         UpdateSlot(pistolSlot, WeaponType.Pistol);
-        UpdateSlot(smgSlot, WeaponType.SMG);
-        UpdateSlot(shotgunSlot, WeaponType.Shotgun);
-        UpdateSlot(rifleSlot, WeaponType.Rifle);
+        UpdateSlot(smgSlot, WeaponType.SniperRifle);
+        UpdateSlot(shotgunSlot, WeaponType.Rifle);
+        UpdateSlot(rifleSlot, WeaponType.GrenadeLauncher);
     }
 
     private void UpdateSlot(WeaponSlotUI slot, WeaponType type)
@@ -130,7 +130,7 @@ public class InventoryUI : MonoBehaviour
 
     private WeaponData FindWeaponDataByType(WeaponType type)
     {
-        string[] names = { "Pistol", "SMG", "Shotgun", "Rifle" };
+        string[] names = { "Pistol", "SniperRifle", "Rifle", "GrenadeLauncher" };
         int index = (int)type;
         if (index < 0 || index >= names.Length) return null;
 

@@ -10,10 +10,46 @@ public class WeaponData : ScriptableObject
     [Header("Префабы")]
     [Tooltip("Модель оружия для отображения в руках (в WeaponHolder)")]
     public GameObject weaponPrefab;
+
     [Tooltip("Модель оружия для подбора с пола (если не назначен, используется weaponPrefab)")]
     public GameObject pickupPrefab;
 
     public WeaponType weaponType = WeaponType.Pistol;
+
+    // === ТИП СТРЕЛЬБЫ ===
+    [Header("Тип стрельбы")]
+    public WeaponFireType fireType = WeaponFireType.Raycast;
+
+    // === Для Projectile ===
+    [Header("Настройки Projectile")]
+    [Tooltip("Префаб пули (для автомата)")]
+    public GameObject projectilePrefab;
+
+    [Tooltip("Скорость пули")]
+    public float projectileSpeed = 100f;
+
+    [Tooltip("Длительность жизни пули")]
+    public float projectileLifetime = 3f;
+
+    [Tooltip("Префаб трассера (LineRenderer)")]
+    public GameObject tracerPrefab;
+
+    // === Для Grenade ===
+    [Header("Настройки Grenade")]
+    [Tooltip("Префаб гранаты")]
+    public GameObject grenadePrefab;
+
+    [Tooltip("Сила броска")]
+    public float throwForce = 20f;
+
+    [Tooltip("Радиус взрыва")]
+    public float explosionRadius = 5f;
+
+    [Tooltip("Время до взрыва (если не попал во врага)")]
+    public float fuseTime = 3f;
+
+    [Tooltip("Префаб эффекта взрыва")]
+    public GameObject explosionEffectPrefab;
 
     [Header("Характеристики по редкостям (Common / Rare / Epic / Legendary)")]
     public RarityStats[] statsByRarity = new RarityStats[4];
@@ -22,11 +58,8 @@ public class WeaponData : ScriptableObject
     public GameObject muzzleFlashPrefab;
     public Sprite[] impactDecals;
 
-    // === НОВОЕ: Анимация выстрела ===
     [Header("Анимация выстрела")]
-    [Tooltip("Animator Controller для анимации выстрела")]
     public RuntimeAnimatorController shootAnimatorController;
-    [Tooltip("Название параметра триггера для выстрела в Animator")]
     public string shootTriggerName = "Shoot";
 
     [Header("Цвета редкостей")]
@@ -130,4 +163,5 @@ public class UpgradeRecipe
 }
 
 public enum WeaponRarity { Common = 0, Rare = 1, Epic = 2, Legendary = 3 }
-public enum WeaponType { Pistol, SMG, Shotgun, Rifle }
+public enum WeaponType { Pistol, SniperRifle, Rifle, GrenadeLauncher }
+public enum WeaponFireType { Raycast, Projectile, Grenade }

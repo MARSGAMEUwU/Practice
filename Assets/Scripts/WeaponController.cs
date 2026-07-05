@@ -42,8 +42,6 @@ public class WeaponController : MonoBehaviour
     private int[] currentAmmoPerWeapon = new int[2];
     private bool[] weaponInitialized = new bool[2];
     private GameObject[] weaponInstances = new GameObject[2];
-
-    // === НОВОЕ: Animator для каждого слота ===
     private Animator[] weaponAnimators = new Animator[2];
 
     // Singleton
@@ -61,7 +59,6 @@ public class WeaponController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         if (cameraTransform == null) cameraTransform = Camera.main.transform;
-
         currentStats = new RarityStats();
         currentAmmo = 0;
         currentRecoil = 0f;
@@ -70,7 +67,6 @@ public class WeaponController : MonoBehaviour
 
         SceneManager.sceneLoaded += OnSceneLoaded;
         isInitialized = true;
-        Debug.Log("[WeaponController] Инициализирован");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -211,46 +207,21 @@ public class WeaponController : MonoBehaviour
     private void Shoot()
     {
         if (crosshairController != null) crosshairController.OnShoot();
-
-        // === НОВОЕ: Запускаем анимацию выстрела ===
         PlayShootAnimation();
 
-        Vector3 shootDir = GetSpreadDirection();
-        Ray ray = new Ray(cameraTransform.position, shootDir);
-        if (Physics.Raycast(ray, out RaycastHit hit, currentStats.range, impactLayers))
+        WeaponData weapon = weapons[currentWeaponIndex];
+
+        switch (weapon.fireType)
         {
-            Damageable damageable = hit.collider.GetComponent<Damageable>();
-            if (damageable != null)
-            {
-                damageable.TakeDamage(currentStats.damage);
-                if (damageable.IsDead())
-                {
-                    if (crosshairController != null) crosshairController.OnHitKill();
-                }
-                else
-                {
-                    if (crosshairController != null) crosshairController.OnHit();
-                }
-            }
-            if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out _))
-            {
-                GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                Destroy(hitEffect, 1f);
-            }
-            if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out _))
-            {
-                GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                bulletHole.transform.position += hit.normal * 0.1f;
-                Destroy(bulletHole, 10f);
-            }
-            if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out _))
-            {
-                GameObject[] dustParticles = new GameObject[4];
-                for (int i = 0; i < 4; i++)
-                    dustParticles[i] = Instantiate(dustEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
-                for (int i = 0; i < 4; i++)
-                    Destroy(dustParticles[i], 1f);
-            }
+            case WeaponFireType.Raycast:
+                ShootRaycast();
+                break;
+            case WeaponFireType.Projectile:
+                ShootProjectile();
+                break;
+            case WeaponFireType.Grenade:
+                ShootGrenade();
+                break;
         }
 
         SpawnMuzzleFlash();
@@ -259,118 +230,169 @@ public class WeaponController : MonoBehaviour
         ApplyRecoil();
     }
 
-    // ======================================================
-    // === НОВЫЕ МЕТОДЫ: АНИМАЦИЯ ЧЕРЕЗ ANIMATOR ===
-    // ======================================================
+    private void ShootRaycast()
+    {
+        Vector3 shootDir = GetSpreadDirection();
+        Ray ray = new Ray(cameraTransform.position, shootDir);
 
-    /// <summary>
-    /// Проигрывает анимацию выстрела с умной скоростью
-    /// </summary>
+        int layerMask = impactLayers & ~(1 << LayerMask.NameToLayer("Player"));
+
+        if (Physics.Raycast(ray, out RaycastHit hit, currentStats.range, layerMask))
+        {
+            if (!hit.collider.CompareTag("Player"))
+            {
+                Damageable damageable = hit.collider.GetComponent<Damageable>();
+                if (damageable != null)
+                {
+                    damageable.TakeDamage(currentStats.damage);
+                    if (damageable.IsDead())
+                    {
+                        if (crosshairController != null) crosshairController.OnHitKill();
+                    }
+                    else
+                    {
+                        if (crosshairController != null) crosshairController.OnHit();
+                    }
+                }
+                CreateHitEffects(hit);
+            }
+        }
+    }
+
+    private void ShootProjectile()
+    {
+        WeaponData weapon = weapons[currentWeaponIndex];
+        if (weapon.projectilePrefab == null) return;
+
+        Transform muzzlePoint = GetMuzzlePoint();
+        Vector3 spawnPos = muzzlePoint != null ? muzzlePoint.position : cameraTransform.position;
+        Quaternion spawnRot = muzzlePoint != null ? muzzlePoint.rotation : Quaternion.LookRotation(GetSpreadDirection());
+
+        GameObject projectile = Instantiate(weapon.projectilePrefab, spawnPos, spawnRot);
+
+        Projectile proj = projectile.GetComponent<Projectile>();
+        if (proj != null)
+        {
+            proj.Initialize(
+                currentStats.damage,
+                weapon.projectileSpeed,
+                weapon.projectileLifetime,
+                GetSpreadDirection(),
+                weapon.tracerPrefab,
+                gameObject
+            );
+        }
+    }
+
+    private void ShootGrenade()
+    {
+        WeaponData weapon = weapons[currentWeaponIndex];
+        if (weapon.grenadePrefab == null) return;
+
+        Transform muzzlePoint = GetMuzzlePoint();
+        Vector3 spawnPos = muzzlePoint != null ? muzzlePoint.position : cameraTransform.position;
+        Quaternion spawnRot = muzzlePoint != null ? muzzlePoint.rotation : Quaternion.LookRotation(GetSpreadDirection());
+
+        GameObject grenade = Instantiate(weapon.grenadePrefab, spawnPos, spawnRot);
+
+        GrenadeProjectile grenadeProj = grenade.GetComponent<GrenadeProjectile>();
+        if (grenadeProj != null)
+        {
+            grenadeProj.Initialize(
+                currentStats.damage,
+                weapon.throwForce,
+                weapon.explosionRadius,
+                weapon.fuseTime,
+                weapon.explosionEffectPrefab,
+                GetSpreadDirection(),
+                gameObject
+            );
+        }
+    }
+
+    private Transform GetMuzzlePoint()
+    {
+        if (weaponInstances[currentWeaponIndex] == null) return null;
+        return weaponInstances[currentWeaponIndex].transform.Find("MuzzlePoint");
+    }
+
+    private void CreateHitEffects(RaycastHit hit)
+    {
+        if (bloodHitEffectPrefab != null && hit.transform.TryGetComponent<Damageable>(out _))
+        {
+            GameObject hitEffect = Instantiate(bloodHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+            Destroy(hitEffect, 1f);
+        }
+
+        if (holeHitEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out _))
+        {
+            GameObject bulletHole = Instantiate(holeHitEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+            bulletHole.transform.position += hit.normal * 0.1f;
+            Destroy(bulletHole, 10f);
+        }
+
+        if (dustEffectPrefab != null && !hit.transform.TryGetComponent<Damageable>(out _))
+        {
+            GameObject[] dustParticles = new GameObject[4];
+            for (int i = 0; i < 4; i++)
+                dustParticles[i] = Instantiate(dustEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+            for (int i = 0; i < 4; i++)
+                Destroy(dustParticles[i], 1f);
+        }
+    }
+
     private void PlayShootAnimation()
     {
         Animator animator = weaponAnimators[currentWeaponIndex];
         WeaponData weapon = weapons[currentWeaponIndex];
 
-        if (animator == null)
-        {
-            Debug.LogWarning($"[WeaponController] Animator не найден для слота {currentWeaponIndex}");
-            return;
-        }
+        if (animator == null || weapon == null || weapon.shootAnimatorController == null) return;
 
-        if (weapon == null)
-        {
-            Debug.LogWarning($"[WeaponController] WeaponData не назначен для слота {currentWeaponIndex}");
-            return;
-        }
-
-        if (weapon.shootAnimatorController == null)
-        {
-            Debug.LogWarning($"[WeaponController] Shoot Animator Controller не назначен в WeaponData для {weapon.weaponName}");
-            return;
-        }
-
-
-        // === УМНАЯ СКОРОСТЬ АНИМАЦИИ ===
-        // Получаем длительность анимации выстрела
         float animationDuration = GetShootAnimationDuration(animator, weapon);
         float fireRate = currentStats.fireRate;
 
-        // Если fireRate меньше длительности анимации → ускоряем
-        // Если fireRate больше или равен → нормальная скорость
         if (fireRate < animationDuration && fireRate > 0f)
         {
             animator.speed = animationDuration / fireRate;
-            Debug.Log($"[WeaponController] Ускорение анимации: speed={animator.speed:F2} (fireRate={fireRate:F2}с, animDuration={animationDuration:F2}с)");
         }
         else
         {
             animator.speed = 1f;
-            Debug.Log($"[WeaponController] Нормальная скорость анимации: speed=1 (fireRate={fireRate:F2}с, animDuration={animationDuration:F2}с)");
         }
 
-        // Запускаем триггер
         animator.SetTrigger(weapon.shootTriggerName);
     }
 
-    /// <summary>
-    /// Получает длительность анимации выстрела из Animator
-    /// </summary>
     private float GetShootAnimationDuration(Animator animator, WeaponData weapon)
     {
-        // Ищем состояние с анимацией выстрела
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-
-        // Пробуем найти состояние по имени триггера
-        foreach (AnimatorStateInfo info in new AnimatorStateInfo[] { stateInfo })
+        if (stateInfo.IsName(weapon.shootTriggerName))
         {
-            // Если текущее состояние - это анимация выстрела
-            if (info.IsName(weapon.shootTriggerName))
-            {
-                return info.length;
-            }
+            return stateInfo.length;
         }
-
-        // Если не нашли, возвращаем длительность по умолчанию
-        // Можно настроить это значение в WeaponData
-        return 0.3f; // Значение по умолчанию
+        return 0.3f;
     }
 
-    /// <summary>
-    /// Настраивает Animator на инстансе оружия
-    /// </summary>
     private void SetupWeaponAnimator(int slotIndex, WeaponData weapon)
     {
         if (weaponInstances[slotIndex] == null || weapon == null) return;
 
-        // Ищем Animator на инстансе (может быть на дочернем объекте)
         Animator animator = weaponInstances[slotIndex].GetComponentInChildren<Animator>();
+        if (animator == null) return;
 
-        if (animator == null)
-        {
-            Debug.LogWarning($"[WeaponController] Animator не найден на префабе {weapon.weaponName}");
-            return;
-        }
-
-        // Применяем Animator Controller из WeaponData
         if (weapon.shootAnimatorController != null)
         {
             animator.runtimeAnimatorController = weapon.shootAnimatorController;
-            Debug.Log($"[WeaponController] Animator Controller назначен для {weapon.weaponName}");
-        }
-        else
-        {
-            Debug.LogWarning($"[WeaponController] Shoot Animator Controller не назначен в WeaponData для {weapon.weaponName}");
         }
 
         weaponAnimators[slotIndex] = animator;
     }
 
-    // ======================================================
-
     private void SpawnMuzzleFlash()
     {
         if (weaponInstances[currentWeaponIndex] == null) return;
         if (weapons[currentWeaponIndex].muzzleFlashPrefab == null) return;
+
         Transform muzzlePoint = weaponInstances[currentWeaponIndex].transform.Find("MuzzlePoint");
         if (muzzlePoint != null)
             Instantiate(weapons[currentWeaponIndex].muzzleFlashPrefab, muzzlePoint.position, muzzlePoint.rotation);
@@ -453,7 +475,6 @@ public class WeaponController : MonoBehaviour
             if (weaponLayer != -1)
                 SetLayerRecursively(weaponInstances[slotIndex], weaponLayer);
 
-            // Настраиваем Animator
             SetupWeaponAnimator(slotIndex, weapon);
         }
     }
@@ -491,7 +512,6 @@ public class WeaponController : MonoBehaviour
         weapons[currentWeaponIndex] = null;
         weaponInstances[currentWeaponIndex] = null;
         weaponAnimators[currentWeaponIndex] = null;
-
         currentAmmoPerWeapon[currentWeaponIndex] = 0;
         weaponInitialized[currentWeaponIndex] = false;
 

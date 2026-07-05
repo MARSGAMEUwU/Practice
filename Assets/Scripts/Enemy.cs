@@ -92,9 +92,38 @@ public class Enemy : Damageable
             isAttacking = true;
             nextAttackTime = Time.time + attackCooldown;
             if (animator != null) animator.SetTrigger(attackTrigger);
-            Debug.Log($"<color=red>{gameObject.name} атакует игрока!</color>");
+            Debug.Log($"<color=red>{gameObject.name} замахивается!</color>");
+
             Invoke(nameof(ResetAttack), 0.8f);
-            playerAdrenaline.TakeDamage(damage);
+
+            // ВМЕСТО УРОНА ЗАПУСКАЕМ КОРУТИНУ:
+            // Передаем туда время замаха (например, 0.4 секунды)
+            StartCoroutine(DealDamageCoroutine(0.8f));
+        }
+    }
+
+    // А ВОТ И САМА КОРУТИНА С УСЛОВИЕМ:
+    private System.Collections.IEnumerator DealDamageCoroutine(float delay)
+    {
+        // 1. Ставим выполнение на паузу, пока идет анимация замаха
+        yield return new WaitForSeconds(delay);
+
+        // 2. ВРЕМЯ ВЫШЛО. Проверяем условие (не убежал ли игрок?)
+        // Предполагается, что переменные player и attackRange у тебя уже есть в скрипте Enemy
+        if (player != null)
+        {
+            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+            // Если игрок все еще находится в зоне поражения:
+            if (isDead == false)
+            {
+                playerAdrenaline.TakeDamage(damage);
+                Debug.Log($"<color=red>Удар достиг цели!</color>");
+            }
+            else
+            {
+                Debug.Log($"<color=yellow>Игрок успел увернуться!</color>");
+            }
         }
     }
 

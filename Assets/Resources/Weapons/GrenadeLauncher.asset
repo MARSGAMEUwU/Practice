@@ -32,7 +32,7 @@ MonoBehaviour:
     fireRate: 0.15
     range: 100
     magazineSize: 6
-    reloadTime: 50
+    reloadTime: 5
     baseRecoil: 1
     recoilPerShot: 0.3
     maxRecoil: 8

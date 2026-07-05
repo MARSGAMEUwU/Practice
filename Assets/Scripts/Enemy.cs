@@ -56,14 +56,13 @@ public class Enemy : Damageable
 
         if (distanceToPlayer <= detectionRange)
         {
+            // Всегда преследуем игрока, пока он в зоне видимости!
+            ChasePlayer();
+
+            // Если подошли достаточно близко — бьем на ходу
             if (distanceToPlayer <= attackRange)
             {
                 Attack();
-                StopMovement();
-            }
-            else
-            {
-                ChasePlayer();
             }
         }
         else
@@ -76,7 +75,8 @@ public class Enemy : Damageable
 
     private void ChasePlayer()
     {
-        if (agent.isOnNavMesh && !isAttacking)
+        // Убрали проверку && !isAttacking
+        if (agent.isOnNavMesh)
             agent.SetDestination(player.position);
     }
 
@@ -98,7 +98,7 @@ public class Enemy : Damageable
 
             // ВМЕСТО УРОНА ЗАПУСКАЕМ КОРУТИНУ:
             // Передаем туда время замаха (например, 0.4 секунды)
-            StartCoroutine(DealDamageCoroutine(0.8f));
+            StartCoroutine(DealDamageCoroutine(1.2f));
         }
     }
 
@@ -115,7 +115,7 @@ public class Enemy : Damageable
             float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
             // Если игрок все еще находится в зоне поражения:
-            if (isDead == false)
+            if (isDead == false && distanceToPlayer <= attackRange)
             {
                 playerAdrenaline.TakeDamage(damage);
                 Debug.Log($"<color=red>Удар достиг цели!</color>");
@@ -133,25 +133,18 @@ public class Enemy : Damageable
     {
         if (animator == null) return;
 
-        bool isMoving = distanceToPlayer > attackRange &&
-                        distanceToPlayer <= detectionRange &&
-                        !isAttacking;
+        // Враг должен двигать ногами всегда, когда бежит за игроком
+        bool isMoving = distanceToPlayer <= detectionRange;
 
         if (isMoving && agent.velocity.magnitude > 0.1f)
         {
-            // Получаем направление движения в локальных координатах
             Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
-
-            // Нормализуем
             float inputX = Mathf.Clamp(localVelocity.x, -1f, 1f);
             float inputY = Mathf.Clamp(localVelocity.z, -1f, 1f);
 
-            // Устанавливаем параметры
             animator.SetFloat("InputX", inputX);
             animator.SetFloat("InputY", inputY);
             animator.SetFloat("Speed", 1f);
-
-            //Debug.Log($"InputX: {inputX:F2}, InputY: {inputY:F2}");
         }
         else
         {
@@ -160,39 +153,32 @@ public class Enemy : Damageable
             animator.SetFloat("InputY", 0f);
         }
     }
-
-    // === ИЗМЕНЁННЫЙ МЕТОД СМЕРТИ ===
     protected override void Die()
     {
         Debug.Log($"<color=red>{gameObject.name} убит!</color>");
 
-        // Останавливаем агента
         if (agent != null && agent.isOnNavMesh)
         {
             agent.ResetPath();
             agent.enabled = false;
         }
 
-        // Отключаем коллайдеры чтобы не мешал стрельбе
         foreach (var col in GetComponentsInChildren<Collider>())
         {
             col.enabled = false;
         }
 
-        // Запускаем анимацию смерти
         if (animator != null)
         {
             animator.applyRootMotion = true;
+            // === НОВОЕ: Отключаем слой атаки (индекс 1), чтобы труп падал естественно ===
+            animator.SetLayerWeight(1, 0f);
             animator.SetTrigger(deathTrigger);
         }
 
-        // Награда за убийство
-        playerAdrenaline.KillReward();
+        playerAdrenaline.KillReward(); // Обрати внимание: в твоем коде было KillReward() - проверь точное имя в скрипте Adrenaline
 
-        // === НОВОЕ: спавним труп на месте смерти через время анимации ===
-        Invoke(nameof(SpawnCorpse), 2f); // Через 2 секунды (длина анимации смерти)
-
-        // === НОВОЕ: уничтожаем врага после анимации смерти ===
+        Invoke(nameof(SpawnCorpse), 2f);
         Destroy(gameObject, 2f);
     }
 

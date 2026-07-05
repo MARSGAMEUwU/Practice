@@ -77,7 +77,8 @@ public class Adrenaline : MonoBehaviour
 
     public void GameOver()
     {
-        Time.timeScale = 0f;
+        //Time.timeScale = 0f;
+        Debug.Log("вы сдохли");
     }
 
     public void TakeDamage(float damageAmount)
@@ -87,7 +88,7 @@ public class Adrenaline : MonoBehaviour
         if (currentAdrenaline <= 0)
         {
             GameOver();
-            Debug.Log("вы сдохли");
+            
         }
     }
 }

@@ -8565,6 +8565,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 982163678}
     - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: shader
+      value: 
+      objectReference: {fileID: 2100000, guid: 591e216e4fe6b684aae4e778ef172f64, type: 2}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
       propertyPath: maxStamina
       value: 10
       objectReference: {fileID: 0}
@@ -9737,7 +9741,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Adrenaline
   maxAdrenaline: 100
-  minAdrenaline: 1
+  currentAdrenaline: 0
   decayRate: 5
   killReward: 30
   injectionBoost: 50
@@ -9761,9 +9765,9 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   shader: {fileID: 2100000, guid: 591e216e4fe6b684aae4e778ef172f64, type: 2}
-  maxSaturation: 5
+  maxSaturation: 2
   minSaturation: 0.5
-  maxContrast: 5
+  maxContrast: 2
   minContrast: 1
 --- !u!1 &1414696587 stripped
 GameObject:

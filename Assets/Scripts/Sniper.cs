@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 public class Sniper : Damageable
@@ -10,22 +10,30 @@ public class Sniper : Damageable
     [SerializeField] private LineRenderer laserLine;
     [SerializeField] private Rigidbody rb;
     [SerializeField] private ParticleSystem MuzzleEffect;
-    [Header("параметры стрельбы")]
+
+    [Header("Параметры стрельбы")]
     [SerializeField] private float attackRate = 3f;
     [SerializeField] private float attackDamage = 30f;
     [SerializeField] private float aimSpeed = 5f;
     [SerializeField] private AudioClip shotSound;
     [SerializeField] private float lockDelay = 1.0f;
+    [SerializeField] private float maxSightDistance = 100f;
+
+    [Header("Настройки прицеливания")]
+    [SerializeField] private float aimTargetHeight = 0.2f;
 
     private Adrenaline playerAdrenaline;
     private float nextFireTime;
     private bool wasSeeingPlayer = false;
 
+    // Новая логика таймера (без плавности)
+    private float lockTimer = 0f;
+    private bool isLockedOn = false;
+
     protected override void Awake()
     {
-        base.Awake(); // Обязательно вызываем Awake из Damageable, чтобы здоровье установилось
+        base.Awake();
 
-        // Ищем игрока по тегу, как это сделано в Enemy.cs
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -39,41 +47,37 @@ public class Sniper : Damageable
         {
             playerAdrenaline = player.GetComponent<Adrenaline>();
         }
-        if (laserLine != null) { laserLine = GetComponent<LineRenderer>(); laserLine.positionCount = 2; }
-        
+
+        if (laserLine == null) laserLine = GetComponent<LineRenderer>();
+        if (laserLine != null) laserLine.positionCount = 2;
     }
 
     private void UpdateLaser()
     {
-        if (laserLine == null) return;
+        if (laserLine == null || player == null) return;
 
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
-        Vector3 targetPos = player.position + Vector3.up * 0.5f;
+        Vector3 targetPos = player.position + Vector3.up * aimTargetHeight;
         Vector3 direction = (targetPos - origin).normalized;
 
-        // Первая точка лазера (на стволе снайпера)
         laserLine.SetPosition(0, origin);
 
-        // Пускаем луч, чтобы понять, где лазер должен оборваться
         if (Physics.Raycast(origin, direction, out RaycastHit hit, Mathf.Infinity))
         {
-            // Если луч во что-то уперся (в стену или игрока), обрываем лазер в точке касания
             laserLine.SetPosition(1, hit.point);
-            //if (hit.collider.CompareTag("Player"))
-            //{
-            //    nextFireTime += attackRate;
-            //}
         }
         else
         {
-            // Если луч улетел в небо, рисуем его очень длинным
             laserLine.SetPosition(1, origin + direction * 100f);
         }
     }
 
     private void Aim()
     {
-        Vector3 direction = (player.position - transform.position).normalized;
+        if (player == null) return;
+        Vector3 targetPos = player.position + Vector3.up * aimTargetHeight;
+        Vector3 direction = (targetPos - transform.position).normalized;
+
         if (direction != Vector3.zero)
         {
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * aimSpeed);
@@ -81,97 +85,124 @@ public class Sniper : Damageable
         UpdateLaser();
     }
 
-
     public void Attack()
     {
         nextFireTime = Time.time + attackRate;
-        if (animator != null)
+
+        if (animator != null) animator.SetTrigger("Attack");
+
+        if (audioSource != null && shotSound != null)
         {
-            animator.SetTrigger("Attack");
+            audioSource.PlayOneShot(shotSound);
         }
 
-        audioSource.PlayOneShot(shotSound);
-        laserLine.material.color = Color.yellow;
+        if (laserLine != null && laserLine.material != null)
+        {
+            laserLine.material.color = Color.yellow;
+        }
+
         Vector3 origin = firePoint != null ? firePoint.position : transform.position + Vector3.up;
-        Vector3 targetPos = player.position + Vector3.up * 0.5f;
+        Vector3 targetPos = player.position + Vector3.up * aimTargetHeight;
         Vector3 direction = (targetPos - origin).normalized;
-        Debug.DrawRay(origin, direction * 50f, Color.red, 2f);
+
+        Debug.DrawRay(origin, direction * 100f, Color.red, 2f);
+
         if (Physics.Raycast(origin, direction, out RaycastHit hit, Mathf.Infinity))
         {
-            Debug.Log($"Луч попал в: {hit.collider.name}");
-            if (hit.collider.CompareTag("Player"))
+            if (hit.collider.CompareTag("Player") || hit.collider.GetComponentInParent<Adrenaline>() != null)
             {
-                playerAdrenaline.TakeDamage(attackDamage);
-                Debug.Log($"sniper hit {attackDamage} hp");
+                if (playerAdrenaline != null)
+                {
+                    playerAdrenaline.TakeDamage(attackDamage);
+                }
             }
-            //else Debug.Log("sniper hit wall");
         }
 
         StartCoroutine(ResetLaserColorRoutine());
     }
 
-    private System.Collections.IEnumerator ResetLaserColorRoutine()
+    private IEnumerator ResetLaserColorRoutine()
     {
-        // Ждём 0.15 секунд (можешь поменять время, чтобы выстрел казался длиннее или короче)
         yield return new WaitForSeconds(0.15f);
-
-        // Возвращаем лазеру стандартный красный прицел
-        if (laserLine != null)
+        if (laserLine != null && laserLine.material != null)
         {
             laserLine.material.color = Color.red;
         }
     }
 
-    // Update is called once per frame
     private void Update()
     {
         if (isDead) return;
         if (player == null) return;
 
-        Aim(); // Снайпер всегда целится
+        Aim();
 
         bool canSeePlayer = false;
 
-        // 1. Вычисляем точки старта и конца
         Vector3 rayOrigin = firePoint != null ? firePoint.position : transform.position + Vector3.up * 0.5f;
-
-        // Целимся чуть выше (на уровне 1.2 - 1.4 метра), чтобы точно попадать в центр туловища
-        Vector3 rayTarget = player.position + Vector3.up * 1.2f;
+        Vector3 rayTarget = player.position + Vector3.up * aimTargetHeight;
         Vector3 rayDirection = (rayTarget - rayOrigin).normalized;
         float distanceToPlayer = Vector3.Distance(rayOrigin, rayTarget);
 
-        // 2. Пускаем луч, игнорируя триггеры (чтобы не спотыкаться о невидимые зоны)
-        // И используем максимальную дистанцию, чтобы снайпер не видел через всю карту
-        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        float rayDistance = Mathf.Min(distanceToPlayer, maxSightDistance);
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, rayDistance, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
         {
-            // Проверяем: если луч врезался в игрока ИЛИ в объект, на котором висит скрипт Adrenaline
             if (hit.collider.CompareTag("Player") || hit.collider.GetComponentInParent<Adrenaline>() != null)
             {
                 canSeePlayer = true;
             }
         }
 
-        // Оставляем Debug, чтобы проверить стабильность (линия в окне Scene)
-        // Зеленая линия должна быть ЧЕТКОЙ и не мигать, пока ты на открытом пространстве
         Debug.DrawRay(rayOrigin, rayDirection * distanceToPlayer, canSeePlayer ? Color.green : Color.red);
 
-        // === ДАЛЬШЕ ТВОЯ ЛОГИКА ТАЙМЕРА БЕЗ ИЗМЕНЕНИЙ ===
+        // === ЛОГИКА ЖЕСТКОГО СБРОСА ТАЙМЕРА ===
         if (canSeePlayer)
         {
+            // Если игрок только что появился в зоне видимости (был скрыт, стал виден)
             if (!wasSeeingPlayer)
             {
-                nextFireTime = Time.time + lockDelay;
-                if (laserLine != null) laserLine.material.color = new Color(1f, 0.5f, 0f);
+                lockTimer = 0f;       // Обнуляем таймер
+                isLockedOn = false;   // Сбрасываем флаг захвата
+                if (laserLine != null && laserLine.material != null) laserLine.material.color = new Color(1f, 0.5f, 0f); // Оранжевый
             }
 
-            if (Time.time >= nextFireTime)
+            // Если еще не захвачены, считаем время
+            if (!isLockedOn)
             {
-                Attack();
+                lockTimer += Time.deltaTime;
+                if (lockTimer >= lockDelay)
+                {
+                    isLockedOn = true;
+                    Debug.Log($"<color=yellow>[Sniper Debug]</color> Цель ЗАХВАЧЕНА!");
+                }
+            }
+            else
+            {
+                // Если захвачены, проверяем кулдаун атаки (attackRate)
+                if (Time.time >= nextFireTime)
+                {
+                    Attack();
+                }
+                else
+                {
+                    // Во время перезарядки лазер оранжевый
+                    if (laserLine != null && laserLine.material != null) laserLine.material.color = new Color(1f, 0.5f, 0f);
+                }
             }
         }
         else
         {
-            if (wasSeeingPlayer && laserLine != null)
+            // Если игрок скрылся, жестко обнуляем таймер и сброс
+            if (wasSeeingPlayer)
+            {
+                Debug.Log($"<color=yellow>[Sniper Debug]</color> Игрок скрылся. Захват СБРОШЕН.");
+            }
+
+            lockTimer = 0f;
+            isLockedOn = false;
+
+            if (laserLine != null && laserLine.material != null)
             {
                 laserLine.material.color = Color.red;
             }
@@ -182,9 +213,7 @@ public class Sniper : Damageable
 
     protected override void Die()
     {
-        Debug.Log($"<color=orange>{gameObject.name} убит!</color>");
-        //if (animator != null) animator.SetTrigger("Die");
         if (rb != null) rb.useGravity = true;
-        laserLine.enabled = false;
+        if (laserLine != null) laserLine.enabled = false;
     }
 }

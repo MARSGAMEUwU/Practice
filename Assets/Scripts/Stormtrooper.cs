@@ -21,6 +21,12 @@ public class Stormtrooper : Damageable
     [SerializeField] private float aimSpeed = 5f;
     [SerializeField] private int shotsPerBurst = 5;
     [SerializeField] private float cooldown = 1f;
+    [Header("Мансование (Strafing)")]
+    [SerializeField] private float strafeDistance = 3f; // На какое расстояние вбок пытаемся шагнуть
+    [SerializeField] private float strafeChangeTime = 2f; // Как часто враг меняет направление (влево/вправо)
+
+    private float nextStrafeTime;
+    private int currentStrafeDirection = 1; // 1 = вправо, -1 = влево
 
     private Adrenaline playerAdrenaline;
     private float nextFireTime;
@@ -156,6 +162,7 @@ public class Stormtrooper : Damageable
         // Логика поведения на основе видимости
         if (canSeePlayer)
         {
+            Strafe();
             // 1. ИГРОКА ВИДНО: Стреляем и контролируем дистанцию
             if (Time.time >= nextFireBurst)
                 Attack();
@@ -194,6 +201,40 @@ public class Stormtrooper : Damageable
         Vector3 runToPosition = transform.position + directionAwayFromPlayer.normalized * minDistance;
         NavMeshHit hit;
         if (NavMesh.SamplePosition(runToPosition, out hit, minDistance, NavMesh.AllAreas))
+        {
+            agent.SetDestination(hit.position);
+        }
+        Strafe();
+    }
+
+    private void Strafe()
+    {
+        if (!agent.isOnNavMesh) return;
+
+        // 1. Проверяем, не пора ли сменить направление
+        if (Time.time >= nextStrafeTime)
+        {
+            // Случайно выбираем: 1 (вправо) или -1 (влево)
+            currentStrafeDirection = Random.value > 0.5f ? 1 : -1;
+
+            // Задаем время следующей смены направления (можно добавить легкий рандом, чтобы враг был менее предсказуемым)
+            nextStrafeTime = Time.time + strafeChangeTime + Random.Range(-0.5f, 0.5f);
+        }
+
+        // 2. Узнаем, где у нас "вперед" и "вверх"
+        Vector3 directionToPlayer = (player.position - transform.position).normalized;
+
+        // 3. Магия Cross Product: получаем вектор, смотрящий ровно вправо от игрока
+        Vector3 rightDirection = Vector3.Cross(directionToPlayer, Vector3.up);
+
+        // 4. Умножаем на наш currentStrafeDirection (чтобы идти вправо или влево)
+        Vector3 strafeVector = rightDirection * currentStrafeDirection;
+
+        // 5. Вычисляем точку назначения в паре метров сбоку от штурмовика
+        Vector3 targetPosition = transform.position + strafeVector * strafeDistance;
+
+        // 6. Проверяем, есть ли в этой точке пол (NavMesh), чтобы не приказать ему идти в стену
+        if (NavMesh.SamplePosition(targetPosition, out NavMeshHit hit, strafeDistance, NavMesh.AllAreas))
         {
             agent.SetDestination(hit.position);
         }

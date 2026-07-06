@@ -1,0 +1,154 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4399677127681861043
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7234996465177474260}
+  - component: {fileID: 1801997427953490803}
+  - component: {fileID: 6421866629974866127}
+  m_Layer: 0
+  m_Name: RiflePickUp
+  m_TagString: WeaponPickup
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7234996465177474260
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4399677127681861043}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.02835, y: -0.000000028485012, z: -6.655363}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5456540512979028468}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1801997427953490803
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4399677127681861043}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6421866629974866127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4399677127681861043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cbf9fae21343c04f9770a65dbcec450, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponPickup
+  weaponData: {fileID: 11400000, guid: 3208af2da2777274f960cc21f1d7ff40, type: 2}
+  rarity: 0
+  rotationSpeed: 1
+  floatAmplitude: 0
+  floatSpeed: 2
+  pickupPromptUI: {fileID: 6698009506288601536, guid: 6056c44629de70c40b29ed1332fe3a7d, type: 3}
+  canvasTransform: {fileID: 0}
+--- !u!1001 &5490802545026264607
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 7234996465177474260}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.09
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.09
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.09
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.791
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.688
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.239
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+      propertyPath: m_Name
+      value: Rifle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+--- !u!4 &5456540512979028468 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d2003bcb577339e4081780b8e740cf61, type: 3}
+  m_PrefabInstance: {fileID: 5490802545026264607}
+  m_PrefabAsset: {fileID: 0}

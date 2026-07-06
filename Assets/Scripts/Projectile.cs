@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
@@ -50,11 +51,15 @@ public class Projectile : MonoBehaviour
         if (owner != null && other.transform.IsChildOf(owner.transform)) return;
 
         Damageable damageable = other.GetComponent<Damageable>();
-        if (damageable != null)
+        if (damageable != null && owner.CompareTag("Player"))
         {
             damageable.TakeDamage(damage);
         }
 
+        if (other.CompareTag("Player") && owner.CompareTag("Enemy"))
+        {
+            GameObject.FindGameObjectWithTag("Player").GetComponent<Adrenaline>().TakeDamage(damage);
+        }
         Destroy(gameObject);
     }
 

@@ -57,7 +57,7 @@ public class Adrenaline : MonoBehaviour
         if (currentAdrenaline > 0)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
-            currentAdrenaline = Mathf.Clamp(currentAdrenaline, 0f, maxAdrenaline);
+            currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
             
             currentSaturation = Mathf.Lerp(minSaturation, maxSaturation, AdrenalinePercentage);
             currentContrast = Mathf.Lerp(minContrast, maxContrast, AdrenalinePercentage);
@@ -106,8 +106,7 @@ public class Adrenaline : MonoBehaviour
     {
         if (currentAdrenaline > 5)
         {
-            currentAdrenaline += killReward;
-            currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
+            StartCoroutine(SmoothHealRoutine(killReward));
             UnityEngine.Debug.Log($"+{killReward} adrenaline");
         }
     }
@@ -120,8 +119,7 @@ public class Adrenaline : MonoBehaviour
 
     public void TakeDamage(float damageAmount)
     {
-        currentAdrenaline -= damageAmount;
-        currentAdrenaline = Mathf.Clamp(currentAdrenaline, 0f, maxAdrenaline);
+        StartCoroutine(SmoothHealRoutine(-damageAmount));
         if (currentAdrenaline <= 0)
         {
             GameOver();

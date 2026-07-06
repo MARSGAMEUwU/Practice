@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Grenade Launcher
   weaponIcon: {fileID: 21300000, guid: f1a4c7bad77818047bc811e1c076aedd, type: 3}
-  weaponPrefab: {fileID: 3211722494390839536, guid: b5eab558a3b8d124195578f13f9252a8, type: 3}
+  weaponPrefab: {fileID: 3211722494390839536, guid: 36b1c074e1fa0d149a60a1c78394c56c, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: cf6308595185d1a4c82eb00104e0f6b4, type: 3}
   weaponType: 3
   fireType: 2

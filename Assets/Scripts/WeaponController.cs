@@ -266,7 +266,7 @@ public class WeaponController : MonoBehaviour
 
         Transform muzzlePoint = GetMuzzlePoint();
         Vector3 spawnPos = muzzlePoint != null ? muzzlePoint.position : cameraTransform.position;
-        Quaternion spawnRot = muzzlePoint != null ? muzzlePoint.rotation : Quaternion.LookRotation(GetSpreadDirection());
+        Quaternion spawnRot = Quaternion.LookRotation(GetSpreadDirection());
 
         GameObject projectile = Instantiate(weapon.projectilePrefab, spawnPos, spawnRot);
 

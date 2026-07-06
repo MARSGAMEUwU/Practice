@@ -1,5 +1,8 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Sniper : Damageable
 {
@@ -8,7 +11,6 @@ public class Sniper : Damageable
     [SerializeField] private Animator animator;
     [SerializeField] private Transform firePoint;
     [SerializeField] private LineRenderer laserLine;
-    [SerializeField] private Rigidbody rb;
     [SerializeField] private ParticleSystem MuzzleEffect;
 
     [Header("Параметры стрельбы")]
@@ -50,8 +52,9 @@ public class Sniper : Damageable
 
         if (laserLine == null) laserLine = GetComponent<LineRenderer>();
         if (laserLine != null) laserLine.positionCount = 2;
-    }
 
+    }
+    
     private void UpdateLaser()
     {
         if (laserLine == null || player == null) return;
@@ -213,6 +216,8 @@ public class Sniper : Damageable
 
     protected override void Die()
     {
+        Debug.Log($"<color=orange>{gameObject.name} убит!</color>");
+        Rigidbody rb = gameObject.AddComponent<Rigidbody>();
         if (rb != null) rb.useGravity = true;
         if (laserLine != null) laserLine.enabled = false;
     }

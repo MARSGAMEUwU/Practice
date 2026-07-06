@@ -22,7 +22,7 @@ public class GrenadeProjectile : MonoBehaviour
         this.explosionRadius = explosionRadius;
         this.fuseTime = fuseTime;
         this.explosionEffectPrefab = explosionEffectPrefab;
-        this.direction = direction.normalized;
+        this.direction = direction;
         this.owner = owner;
 
         Setup();

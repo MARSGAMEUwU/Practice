@@ -17,10 +17,15 @@ public class Adrenaline : MonoBehaviour
     [SerializeField] private float minSaturation = 0.5f;
     [SerializeField] private float maxContrast = 2f;
     [SerializeField] private float minContrast = 1f;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float minFov = 30f;
+    [SerializeField] private float maxFov = 100f;
+
     public float AdrenalinePercentage => currentAdrenaline / maxAdrenaline;
     private float nextInjTime;
     private float currentSaturation;
     private float currentContrast;
+    private float currentFov;
 
     private void Awake()
     {
@@ -50,16 +55,35 @@ public class Adrenaline : MonoBehaviour
             currentContrast = Mathf.Lerp(minContrast, maxContrast, AdrenalinePercentage);
             shader.SetFloat("_Saturation", currentSaturation);
             shader.SetFloat("_Contrast", currentContrast);
-            
-            
+            currentFov = Mathf.Lerp(minFov, maxFov, AdrenalinePercentage);
+            mainCamera.fieldOfView = currentFov;
         }
         if (useSyringe.IsPressed() && syringeAmount > 0 && Time.time >= nextInjTime) UseSyringe();
     }
-    
+
+    // Сама корутина для плавного прибавления
+    private System.Collections.IEnumerator SmoothHealRoutine(float amountToHeal)
+    {
+        // 1. Вычисляем, до какой отметки нужно дойти (не превышая maxAdrenaline)
+        float targetAdrenaline = Mathf.Clamp(currentAdrenaline + amountToHeal, 0f, maxAdrenaline);
+
+        // 2. Пока текущий адреналин меньше целевого...
+        while (currentAdrenaline < targetAdrenaline)
+        {
+            Debug.Log(targetAdrenaline);
+            // Mathf.MoveTowards плавно двигает значение от текущего к целевому с заданной скоростью
+            currentAdrenaline = Mathf.MoveTowards(currentAdrenaline, targetAdrenaline + 1, 50f * Time.deltaTime);
+
+            // 3. САМОЕ ВАЖНОЕ: Ждем один кадр, чтобы игра не зависла
+            yield return null;
+        }
+
+        // На всякий случай жестко фиксируем значение в конце, чтобы не было дробных погрешностей
+        currentAdrenaline = targetAdrenaline;
+    }
     public void UseSyringe()
     {
-        currentAdrenaline += injectionBoost;
-        currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
+        StartCoroutine(SmoothHealRoutine(injectionBoost));
         syringeAmount --;
         Debug.Log($"+{injectionBoost} adrenaline");
         nextInjTime = Time.time + cooldown;

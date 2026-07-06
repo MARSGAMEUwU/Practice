@@ -30,6 +30,8 @@ public class WeaponController : MonoBehaviour
     [Header("Прицел")]
     [SerializeField] private CrosshairController crosshairController;
 
+    [SerializeField] private AudioSource OneShotSound; //ONESHOT REFERENCE!!!11!11
+
     // Состояние
     private RarityStats currentStats;
     private float nextFireTime;
@@ -210,6 +212,7 @@ public class WeaponController : MonoBehaviour
         PlayShootAnimation();
 
         WeaponData weapon = weapons[currentWeaponIndex];
+        OneShotSound.PlayOneShot(weapon.sound); //ONESHOT REFERENCE!!11!!1
 
         switch (weapon.fireType)
         {

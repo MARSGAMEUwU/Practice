@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Runtime.CompilerServices;
+using UnityEngine;
+using UnityEngine.Audio;
 
 [CreateAssetMenu(fileName = "NewWeapon", menuName = "Weapon System/Weapon Data")]
 public class WeaponData : ScriptableObject
@@ -6,6 +8,9 @@ public class WeaponData : ScriptableObject
     [Header("Основное")]
     public string weaponName = "New Weapon";
     public Sprite weaponIcon;
+
+    [Header("звуки")]
+    [SerializeField] public AudioClip sound;
 
     [Header("Префабы")]
     [Tooltip("Модель оружия для отображения в руках (в WeaponHolder)")]

@@ -14,6 +14,8 @@ public class GrenadeProjectile : MonoBehaviour
     private Rigidbody rb;
     private bool hasExploded = false;
 
+    private AudioSource explosionSound;
+
     public void Initialize(float damage, float throwForce, float explosionRadius,
                           float fuseTime, GameObject explosionEffectPrefab, Vector3 direction, GameObject owner)
     {
@@ -68,6 +70,7 @@ public class GrenadeProjectile : MonoBehaviour
         if (explosionEffectPrefab != null)
         {
             Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            explosionSound.Play();
         }
 
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);

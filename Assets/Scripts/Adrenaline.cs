@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,6 +13,7 @@ public class Adrenaline : MonoBehaviour
     [SerializeField] private int syringeAmount = 1;
     [SerializeField] private float cooldown = 5f;
     [SerializeField] private InputAction useSyringe;
+    [Header("Effects")]
     [SerializeField] private Material shader;
     [SerializeField] private float maxSaturation = 2f;
     [SerializeField] private float minSaturation = 0.5f;
@@ -20,6 +22,12 @@ public class Adrenaline : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     [SerializeField] private float minFov = 30f;
     [SerializeField] private float maxFov = 100f;
+    [Header("Music")]
+    [SerializeField] private AudioSource track1;
+    [SerializeField] private AudioSource track2;
+    [SerializeField] private AudioSource track3;
+    [SerializeField] private AudioSource track4;
+    [SerializeField] private float volume = 0.3f;
 
     public float AdrenalinePercentage => currentAdrenaline / maxAdrenaline;
     private float nextInjTime;
@@ -59,6 +67,11 @@ public class Adrenaline : MonoBehaviour
             mainCamera.fieldOfView = currentFov;
         }
         if (useSyringe.IsPressed() && syringeAmount > 0 && Time.time >= nextInjTime) UseSyringe();
+
+        if (track1 != null) track1.volume = volume;
+        if (track2 != null) track2.volume = Mathf.InverseLerp(10f, 30f, currentAdrenaline) * volume;
+        if (track3 != null) track3.volume = Mathf.InverseLerp(30f, 60f, currentAdrenaline) * volume;
+        if (track4 != null) track4.volume = Mathf.InverseLerp(60f, 90f, currentAdrenaline) * volume;
     }
 
     // —ама корутина дл€ плавного прибавлени€
@@ -70,7 +83,7 @@ public class Adrenaline : MonoBehaviour
         // 2. ѕока текущий адреналин меньше целевого...
         while (currentAdrenaline < targetAdrenaline)
         {
-            Debug.Log(targetAdrenaline);
+            UnityEngine.Debug.Log(targetAdrenaline);
             // Mathf.MoveTowards плавно двигает значение от текущего к целевому с заданной скоростью
             currentAdrenaline = Mathf.MoveTowards(currentAdrenaline, targetAdrenaline + 1, 50f * Time.deltaTime);
 
@@ -85,7 +98,7 @@ public class Adrenaline : MonoBehaviour
     {
         StartCoroutine(SmoothHealRoutine(injectionBoost));
         syringeAmount --;
-        Debug.Log($"+{injectionBoost} adrenaline");
+        UnityEngine.Debug.Log($"+{injectionBoost} adrenaline");
         nextInjTime = Time.time + cooldown;
     }
 
@@ -95,24 +108,30 @@ public class Adrenaline : MonoBehaviour
         {
             currentAdrenaline += killReward;
             currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
-            Debug.Log($"+{killReward} adrenaline");
+            UnityEngine.Debug.Log($"+{killReward} adrenaline");
         }
     }
 
     public void GameOver()
     {
         //Time.timeScale = 0f;
-        Debug.Log("вы сдохли");
+        UnityEngine.Debug.Log("вы сдохли");
     }
 
     public void TakeDamage(float damageAmount)
     {
         currentAdrenaline -= damageAmount;
-        
+        currentAdrenaline = Mathf.Clamp(currentAdrenaline, 0f, maxAdrenaline);
         if (currentAdrenaline <= 0)
         {
             GameOver();
             
         }
+    }
+
+    public void GetSyringe()
+    {
+        syringeAmount++;
+        UnityEngine.Debug.Log("+ syringe");
     }
 }

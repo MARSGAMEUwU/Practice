@@ -3454,7 +3454,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -130}
-  m_SizeDelta: {x: 300, y: 150}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &763214718
 MonoBehaviour:
@@ -13231,6 +13231,8 @@ MonoBehaviour:
   aimSpeed: 5
   shotsPerBurst: 5
   cooldown: 1
+  strafeDistance: 3
+  strafeChangeTime: 2
 --- !u!136 &1828898584
 CapsuleCollider:
   m_ObjectHideFlags: 0

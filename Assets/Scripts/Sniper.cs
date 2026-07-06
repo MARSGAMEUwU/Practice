@@ -14,9 +14,12 @@ public class Sniper : Damageable
     [SerializeField] private float attackRate = 3f;
     [SerializeField] private float attackDamage = 30f;
     [SerializeField] private float aimSpeed = 5f;
+    [SerializeField] private AudioClip shotSound;
+    [SerializeField] private float lockDelay = 1.0f;
 
     private Adrenaline playerAdrenaline;
     private float nextFireTime;
+    private bool wasSeeingPlayer = false;
 
     protected override void Awake()
     {
@@ -45,7 +48,7 @@ public class Sniper : Damageable
         if (laserLine == null) return;
 
         Vector3 origin = firePoint != null ? firePoint.position : transform.position;
-        Vector3 targetPos = player.position + Vector3.up * 0.7f;
+        Vector3 targetPos = player.position + Vector3.up * 0.5f;
         Vector3 direction = (targetPos - origin).normalized;
 
         // Первая точка лазера (на стволе снайпера)
@@ -78,6 +81,7 @@ public class Sniper : Damageable
         UpdateLaser();
     }
 
+
     public void Attack()
     {
         nextFireTime = Time.time + attackRate;
@@ -86,6 +90,7 @@ public class Sniper : Damageable
             animator.SetTrigger("Attack");
         }
 
+        audioSource.PlayOneShot(shotSound);
         laserLine.material.color = Color.yellow;
         Vector3 origin = firePoint != null ? firePoint.position : transform.position + Vector3.up;
         Vector3 targetPos = player.position + Vector3.up * 0.5f;
@@ -122,9 +127,57 @@ public class Sniper : Damageable
     {
         if (isDead) return;
         if (player == null) return;
-        Aim();
-        if (Time.time >= nextFireTime)
-            Attack();
+
+        Aim(); // Снайпер всегда целится
+
+        bool canSeePlayer = false;
+
+        // 1. Вычисляем точки старта и конца
+        Vector3 rayOrigin = firePoint != null ? firePoint.position : transform.position + Vector3.up * 0.5f;
+
+        // Целимся чуть выше (на уровне 1.2 - 1.4 метра), чтобы точно попадать в центр туловища
+        Vector3 rayTarget = player.position + Vector3.up * 1.2f;
+        Vector3 rayDirection = (rayTarget - rayOrigin).normalized;
+        float distanceToPlayer = Vector3.Distance(rayOrigin, rayTarget);
+
+        // 2. Пускаем луч, игнорируя триггеры (чтобы не спотыкаться о невидимые зоны)
+        // И используем максимальную дистанцию, чтобы снайпер не видел через всю карту
+        if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+        {
+            // Проверяем: если луч врезался в игрока ИЛИ в объект, на котором висит скрипт Adrenaline
+            if (hit.collider.CompareTag("Player") || hit.collider.GetComponentInParent<Adrenaline>() != null)
+            {
+                canSeePlayer = true;
+            }
+        }
+
+        // Оставляем Debug, чтобы проверить стабильность (линия в окне Scene)
+        // Зеленая линия должна быть ЧЕТКОЙ и не мигать, пока ты на открытом пространстве
+        Debug.DrawRay(rayOrigin, rayDirection * distanceToPlayer, canSeePlayer ? Color.green : Color.red);
+
+        // === ДАЛЬШЕ ТВОЯ ЛОГИКА ТАЙМЕРА БЕЗ ИЗМЕНЕНИЙ ===
+        if (canSeePlayer)
+        {
+            if (!wasSeeingPlayer)
+            {
+                nextFireTime = Time.time + lockDelay;
+                if (laserLine != null) laserLine.material.color = new Color(1f, 0.5f, 0f);
+            }
+
+            if (Time.time >= nextFireTime)
+            {
+                Attack();
+            }
+        }
+        else
+        {
+            if (wasSeeingPlayer && laserLine != null)
+            {
+                laserLine.material.color = Color.red;
+            }
+        }
+
+        wasSeeingPlayer = canSeePlayer;
     }
 
     protected override void Die()

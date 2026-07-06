@@ -201,16 +201,7 @@ public class Enemy : Damageable
         Debug.Log($"Труп заспавнен на месте смерти: {corpse.name} на позиции {spawnPos}");
     }
 
-    public void OnAttackHit()
-    {
-        if (player == null) return;
-        float distance = Vector3.Distance(transform.position, player.position);
-        if (distance <= attackRange)
-        {
-            Debug.Log($"💥 Удар достиг игрока! Урон: {damage}");
-            playerAdrenaline.TakeDamage(damage);
-        }
-    }
+    
 
     private void OnDrawGizmosSelected()
     {

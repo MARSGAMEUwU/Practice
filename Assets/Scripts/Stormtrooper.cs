@@ -21,6 +21,7 @@ public class Stormtrooper : Damageable
     [SerializeField] private float aimSpeed = 5f;
     [SerializeField] private int shotsPerBurst = 5;
     [SerializeField] private float cooldown = 1f;
+    [SerializeField] private AudioClip shotSound;
     [Header("Мансование (Strafing)")]
     [SerializeField] private float strafeDistance = 3f; // На какое расстояние вбок пытаемся шагнуть
     [SerializeField] private float strafeChangeTime = 2f; // Как часто враг меняет направление (влево/вправо)
@@ -99,9 +100,10 @@ public class Stormtrooper : Damageable
                 Projectile proj = projObj.GetComponent<Projectile>();
                 if (proj != null)
                 {
+                    audioSource.PlayOneShot(shotSound);
                     proj.Initialize(
                         damage: attackDamage,
-                        speed: 50f,
+                        speed: 100f,
                         lifetime: 5f,
                         direction: (player.position - firePoint.position).normalized,
                         tracerPrefab: null,

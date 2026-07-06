@@ -12,7 +12,7 @@ public class Damageable : MonoBehaviour
     [SerializeField][Range(0f, 1f)] private float hitVolume = 0.7f;
     [SerializeField][Range(0f, 1f)] private float deathVolume = 1f;
 
-    private AudioSource audioSource;
+    protected AudioSource audioSource;
 
     protected virtual void Awake()
     {
@@ -57,14 +57,12 @@ public class Damageable : MonoBehaviour
     private void PlayHitSound()
     {
         if (audioSource == null || hitSound == null) return;
-        audioSource.volume = hitVolume;
         audioSource.PlayOneShot(hitSound);
     }
 
     private void PlayDeathSound()
     {
         if (audioSource == null || deathSound == null) return;
-        audioSource.volume = deathVolume;
         audioSource.PlayOneShot(deathSound);
     }
 }

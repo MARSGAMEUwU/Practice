@@ -136,7 +136,7 @@ public class PlayerController : MonoBehaviour
     private void HandleStaminaAndSprint()
     {
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
-        bool isMovingForward = moveInput.y >= 0f;
+        bool isMovingForward = moveInput.y >= -0.01f;
 
         bool wantsToSprint = sprintAction.IsPressed() && isMovingForward && !isOnCooldown && currentStamina > 0f;
 

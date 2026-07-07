@@ -11,24 +11,36 @@ public class Stormtrooper : Damageable
     [SerializeField] private LineRenderer laserLine;
     [SerializeField] private ParticleSystem MuzzleEffect;
     [SerializeField] private NavMeshAgent agent;
+
     [Header("Настройки преследования")]
     [SerializeField] private float minDistance = 20f;
     [SerializeField] private float maxDistance = 50f;
     [SerializeField] private float moveSpeed = 4f;
-    [Header("параметры стрельбы")]
+
+    [Header("Параметры стрельбы")]
     [SerializeField] private float attackRate = 5f;
     [SerializeField] private float attackDamage = 5f;
     [SerializeField] private float aimSpeed = 5f;
     [SerializeField] private int shotsPerBurst = 5;
     [SerializeField] private float cooldown = 1f;
     [SerializeField] private AudioClip shotSound;
-    [Header("Мансование (Strafing)")]
-    [SerializeField] private float strafeDistance = 3f; // На какое расстояние вбок пытаемся шагнуть
-    [SerializeField] private float strafeChangeTime = 2f; // Как часто враг меняет направление (влево/вправо)
+
+    [Header("Маневрирование (Strafing)")]
+    [SerializeField] private float strafeDistance = 3f;
+    [SerializeField] private float strafeChangeTime = 2f;
+
+    [Header("Анимации")]
+    [SerializeField] private string speedParam = "Speed";
+    [SerializeField] private string attackTrigger = "Attack";
+    [SerializeField] private string deathTrigger = "Die";
+
+    // === НОВОЕ: Лут трупа (как в Enemy) ===
+    [Header("Лут трупа")]
+    [SerializeField] private GameObject corpsePrefab; // Префаб трупа
+    [SerializeField] private float corpseSpawnHeight = 73f; // Смещение по Y
 
     private float nextStrafeTime;
-    private int currentStrafeDirection = 1; // 1 = вправо, -1 = влево
-
+    private int currentStrafeDirection = 1;
     private Adrenaline playerAdrenaline;
     private float nextFireTime;
     private float nextFireBurst;
@@ -36,10 +48,15 @@ public class Stormtrooper : Damageable
 
     protected override void Awake()
     {
-        base.Awake(); // Обязательно вызываем Awake из Damageable, чтобы здоровье установилось
+        base.Awake();
         agent = GetComponent<NavMeshAgent>();
+
         agent.speed = moveSpeed;
-        // Ищем игрока по тегу, как это сделано в Enemy.cs
+        agent.acceleration = 8f;      // Плавный разгон и торможение (вместо мгновенного старта)
+        agent.angularSpeed = 120f;
+
+        if (animator == null) animator = GetComponentInChildren<Animator>();
+
         if (player == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
@@ -53,69 +70,81 @@ public class Stormtrooper : Damageable
         {
             playerAdrenaline = player.GetComponent<Adrenaline>();
         }
+
         if (laserLine != null) { laserLine = GetComponent<LineRenderer>(); laserLine.positionCount = 2; }
         agent.updateRotation = false;
     }
 
     private void Aim()
     {
-        Vector3 direction = (player.position - transform.position).normalized;
-        if (direction != Vector3.zero)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(direction), Time.deltaTime * aimSpeed);
-        }
+        if (player == null || firePoint == null) return;
+
+        // 1. Получаем МИРОВУЮ ось X (красную стрелку) объекта firePoint
+        // (Если ствол смотрит по Z, замени right на forward)
+        Vector3 aimAxis = firePoint.right;
+
+        // 2. Проецируем на горизонтальную плоскость (убираем Y, чтобы не задирал голову)
+        aimAxis.y = 0f;
+        if (aimAxis.sqrMagnitude < 0.001f) return; // Защита от нулевого вектора
+        aimAxis.Normalize();
+
+        // 3. Получаем направление на игрока (тоже на горизонтальной плоскости)
+        Vector3 targetDir = player.position - transform.position;
+        targetDir.y = 0f;
+        if (targetDir.sqrMagnitude < 0.001f) return;
+        targetDir.Normalize();
+
+        // 4. Вычисляем разницу (поворот) между текущим направлением ствола и целью
+        Quaternion deltaRotation = Quaternion.FromToRotation(aimAxis, targetDir);
+
+        // 5. Применяем этот поворот к корневому объекту персонажа
+        // deltaRotation — это мировой поворот, поэтому умножаем СЛЕВА
+        Quaternion targetRotation = deltaRotation * transform.rotation;
+
+        // 6. Плавно интерполируем
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * aimSpeed);
     }
 
     public void Attack()
     {
-        // Стреляем только если: вышло время кулдауна И мы сейчас НЕ стреляем другую очередь
         if (Time.time >= nextFireTime && !isFiring)
         {
             StartCoroutine(BurstFireCoroutine());
         }
     }
 
-    // Корутина для поочередного выпускания пуль
     private System.Collections.IEnumerator BurstFireCoroutine()
     {
-        isFiring = true; // Занято, штурмовик начал стрелять очередь
-
+        isFiring = true;
         for (int i = 0; i < shotsPerBurst; i++)
         {
-            // Проверяем на всякий случай, не умер ли штурмовик посреди очереди
             if (isDead) yield break;
 
-            // 1. Включаем анимацию (если нужно на каждый выстрел)
             if (animator != null)
             {
-                animator.SetTrigger("Attack");
+                animator.SetTrigger(attackTrigger);
             }
 
-            // 2. Включаем лазер и спавним пулю
             if (laserLine != null) laserLine.enabled = true;
-
             if (projectilePrefab != null && firePoint != null)
             {
                 GameObject projObj = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
                 Projectile proj = projObj.GetComponent<Projectile>();
                 if (proj != null)
                 {
-                    audioSource.PlayOneShot(shotSound);
+                    if (audioSource != null && shotSound != null) audioSource.PlayOneShot(shotSound);
                     proj.Initialize(
                         damage: attackDamage,
                         speed: 100f,
                         lifetime: 5f,
                         direction: (player.position - firePoint.position).normalized,
                         tracerPrefab: null,
-                        owner: gameObject  // Владелец = Stormtrooper
+                        owner: gameObject
                     );
                 }
             }
 
-            // 3. Выключаем лазер чуть позже
             StartCoroutine(ResetLaserColorRoutine());
-
-            // 4. Ждем микро-паузу перед следующей пулей в этой же очереди
             yield return new WaitForSeconds(attackRate);
         }
         nextFireTime = Time.time + cooldown;
@@ -125,7 +154,6 @@ public class Stormtrooper : Damageable
     private System.Collections.IEnumerator ResetLaserColorRoutine()
     {
         yield return new WaitForSeconds(0.15f);
-
         if (laserLine != null)
         {
             laserLine.enabled = false;
@@ -137,72 +165,88 @@ public class Stormtrooper : Damageable
         if (isDead) return;
         if (player == null) return;
 
-        // Поворачиваемся к игроку всегда, чтобы знать, куда пускать луч
         Aim();
-
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // === НАЧАЛО БЛОКА ПРОВЕРКИ ВИДИМОСТИ ===
         bool canSeePlayer = false;
-
-        // Пускаем луч от уровня "глаз" штурмовика к уровню "груди" игрока (чуть выше пола)
         Vector3 rayOrigin = firePoint != null ? firePoint.position : transform.position + Vector3.up * 1f;
         Vector3 rayTarget = player.position + Vector3.up * 1f;
         Vector3 rayDirection = (rayTarget - rayOrigin).normalized;
 
-        // Стреляем лучом на расстояние maxDistance
         if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, maxDistance))
         {
-            // Если первый объект, в который врезался луч — это игрок
             if (hit.collider.CompareTag("Player"))
             {
                 canSeePlayer = true;
             }
         }
-        // === КОНЕЦ БЛОКА ПРОВЕРКИ ВИДИМОСТИ ===
 
-        // Логика поведения на основе видимости
         if (canSeePlayer)
         {
-            Strafe();
-            // 1. ИГРОКА ВИДНО: Стреляем и контролируем дистанцию
-            if (Time.time >= nextFireBurst)
-                Attack();
+            if (Time.time >= nextFireBurst) Attack();
 
+            // === ИСПРАВЛЕННАЯ ЛОГИКА ДВИЖЕНИЯ (без конфликтов) ===
             if (distanceToPlayer > maxDistance)
             {
+                // Слишком далеко: просто бежим к игроку
                 ChasePlayer();
             }
             else if (distanceToPlayer < minDistance)
             {
+                // Слишком близко: убегаем назад (стрейф тут не нужен, чтобы не путать агента)
                 RunFromPlayer();
             }
             else
             {
-                // Идеальная дистанция: стоим и стреляем
-                if (agent.isOnNavMesh) agent.ResetPath();
+                // Идеальная дистанция (20-50м): стоим на месте по отношению к игроку, но активно стрейфимся влево/вправо
+                Strafe();
             }
         }
         else
         {
-            // 2. ИГРОК ЗА СТЕНОЙ: Не стреляем, а просто бежим за ним, огибая углы
+            // Игрок за стеной: бежим к нему
             ChasePlayer();
+        }
+
+        UpdateAnimator(distanceToPlayer);
+    }
+
+    private void UpdateAnimator(float distanceToPlayer)
+    {
+        if (animator == null) return;
+
+        bool isMoving = distanceToPlayer <= maxDistance && agent.velocity.magnitude > 0.1f;
+
+        if (isMoving)
+        {
+            Vector3 localVelocity = transform.InverseTransformDirection(agent.velocity);
+            float inputX = Mathf.Clamp(localVelocity.x, -1f, 1f);
+            float inputY = Mathf.Clamp(localVelocity.z, -1f, 1f);
+
+            animator.SetFloat("InputX", inputX);
+            animator.SetFloat("InputY", inputY);
+            animator.SetFloat(speedParam, 1f);
+        }
+        else
+        {
+            animator.SetFloat(speedParam, 0f);
+            animator.SetFloat("InputX", 0f);
+            animator.SetFloat("InputY", 0f);
         }
     }
 
     private void ChasePlayer()
     {
-        if (agent.isOnNavMesh)
-            agent.SetDestination(player.position);
+        if (agent.isOnNavMesh) agent.SetDestination(player.position);
     }
 
     private void RunFromPlayer()
     {
         if (!agent.isOnNavMesh) { return; }
-            Vector3 directionAwayFromPlayer = transform.position - player.position;
+        Vector3 directionAwayFromPlayer = transform.position - player.position;
         Vector3 runToPosition = transform.position + directionAwayFromPlayer.normalized * minDistance;
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(runToPosition, out hit, minDistance, NavMesh.AllAreas))
+
+        if (NavMesh.SamplePosition(runToPosition, out NavMeshHit hit, minDistance, NavMesh.AllAreas))
         {
             agent.SetDestination(hit.position);
         }
@@ -213,29 +257,17 @@ public class Stormtrooper : Damageable
     {
         if (!agent.isOnNavMesh) return;
 
-        // 1. Проверяем, не пора ли сменить направление
         if (Time.time >= nextStrafeTime)
         {
-            // Случайно выбираем: 1 (вправо) или -1 (влево)
             currentStrafeDirection = Random.value > 0.5f ? 1 : -1;
-
-            // Задаем время следующей смены направления (можно добавить легкий рандом, чтобы враг был менее предсказуемым)
             nextStrafeTime = Time.time + strafeChangeTime + Random.Range(-0.5f, 0.5f);
         }
 
-        // 2. Узнаем, где у нас "вперед" и "вверх"
         Vector3 directionToPlayer = (player.position - transform.position).normalized;
-
-        // 3. Магия Cross Product: получаем вектор, смотрящий ровно вправо от игрока
         Vector3 rightDirection = Vector3.Cross(directionToPlayer, Vector3.up);
-
-        // 4. Умножаем на наш currentStrafeDirection (чтобы идти вправо или влево)
         Vector3 strafeVector = rightDirection * currentStrafeDirection;
-
-        // 5. Вычисляем точку назначения в паре метров сбоку от штурмовика
         Vector3 targetPosition = transform.position + strafeVector * strafeDistance;
 
-        // 6. Проверяем, есть ли в этой точке пол (NavMesh), чтобы не приказать ему идти в стену
         if (NavMesh.SamplePosition(targetPosition, out NavMeshHit hit, strafeDistance, NavMesh.AllAreas))
         {
             agent.SetDestination(hit.position);
@@ -245,29 +277,42 @@ public class Stormtrooper : Damageable
     protected override void Die()
     {
         Debug.Log($"<color=red>{gameObject.name} убит!</color>");
-
         if (agent != null && agent.isOnNavMesh)
         {
             agent.ResetPath();
             agent.enabled = false;
         }
-
         foreach (var col in GetComponentsInChildren<Collider>())
         {
             col.enabled = false;
         }
-
         if (animator != null)
         {
             animator.applyRootMotion = true;
-            // === НОВОЕ: Отключаем слой атаки (индекс 1), чтобы труп падал естественно ===
             animator.SetLayerWeight(1, 0f);
-            //animator.SetTrigger(deathTrigger);
+            animator.SetTrigger(deathTrigger);
         }
 
-        playerAdrenaline.KillReward();
+        if (playerAdrenaline != null) playerAdrenaline.KillReward();
 
-        //Invoke(nameof(SpawnCorpse), 2f);
-        //Destroy(gameObject, 2f);
+        // === НОВОЕ: Спавн трупа и уничтожение объекта через 2 секунды (как в Enemy) ===
+        Invoke(nameof(SpawnCorpse), 2f);
+        Destroy(gameObject, 2f);
+    }
+
+    // === НОВОЕ: Метод спавна трупа (полностью скопирован из Enemy) ===
+    private void SpawnCorpse()
+    {
+        if (corpsePrefab == null)
+        {
+            Debug.LogWarning("Corpse prefab не назначен!");
+            return;
+        }
+        // Смещение по Y (например, -0.5 чтобы труп лежал на земле)
+        float yOffset = 0f;
+        Vector3 spawnPos = transform.position + Vector3.up * yOffset;
+        Quaternion spawnRot = transform.rotation;
+        GameObject corpse = Instantiate(corpsePrefab, spawnPos, spawnRot);
+        Debug.Log($"Труп заспавнен на месте смерти: {corpse.name} на позиции {spawnPos}");
     }
 }

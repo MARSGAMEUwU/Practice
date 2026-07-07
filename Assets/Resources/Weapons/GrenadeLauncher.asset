@@ -34,9 +34,9 @@ MonoBehaviour:
     range: 100
     magazineSize: 6
     reloadTime: 5
-    baseRecoil: 1
-    recoilPerShot: 0.3
-    maxRecoil: 8
+    baseRecoil: 1000
+    recoilPerShot: 0.1
+    maxRecoil: 1010
     recoilRecovery: 5
     baseSpread: 0.5
     spreadPerShot: 0.2

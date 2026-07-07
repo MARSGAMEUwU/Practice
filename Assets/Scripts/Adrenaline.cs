@@ -8,7 +8,7 @@ public class Adrenaline : MonoBehaviour
     [SerializeField] private float maxAdrenaline = 100f;
     [SerializeField] private float currentAdrenaline = 0f;
     [SerializeField] private float decayRate = 1f;
-    [SerializeField] private float killReward = 30f;
+    [SerializeField] private float killReward = 20f;
     [SerializeField] private float injectionBoost = 50f;
     [SerializeField] private int syringeAmount = 1;
     [SerializeField] private float cooldown = 5f;
@@ -106,7 +106,7 @@ public class Adrenaline : MonoBehaviour
 
     public void KillReward()
     {
-        if (currentAdrenaline > 5)
+        if (currentAdrenaline > 0)
         {
             StartCoroutine(SmoothHealRoutine(killReward));
             UnityEngine.Debug.Log($"+{killReward} adrenaline");

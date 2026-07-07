@@ -216,6 +216,7 @@ public class Sniper : Damageable
 
     protected override void Die()
     {
+        playerAdrenaline.KillReward();
         Debug.Log($"<color=orange>{gameObject.name} убит!</color>");
         Rigidbody rb = gameObject.AddComponent<Rigidbody>();
         if (rb != null) rb.useGravity = true;

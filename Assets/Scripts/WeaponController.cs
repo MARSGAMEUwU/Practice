@@ -11,6 +11,9 @@ public class WeaponController : MonoBehaviour
     public GameObject holeHitEffectPrefab;
     public GameObject dustEffectPrefab;
 
+    [Header("UI")]
+    [SerializeField] private AmmoUI ammoUI;
+
     [Header("Input Actions")]
     [SerializeField] private InputAction shootAction;
     [SerializeField] private InputAction reloadAction;
@@ -112,6 +115,13 @@ public class WeaponController : MonoBehaviour
         UpdateRecoilAndSpread();
     }
 
+    private void UpdateAmmoUI()
+    {
+        if (ammoUI != null && currentStats != null)
+        {
+            ammoUI.UpdateAmmo(currentAmmo, currentStats.magazineSize);
+        }
+    }
     private void HandleWeaponSwitch()
     {
         if (isReloading) return;
@@ -158,6 +168,8 @@ public class WeaponController : MonoBehaviour
         Debug.Log($"<color=#{ColorUtility.ToHtmlStringRGB(color)}>" +
                   $"[{w.GetRarityName(weaponRarities[index])}]</color> {w.weaponName} | " +
                   $"Урон: {currentStats.damage} | Магазин: {currentAmmo}/{currentStats.magazineSize}");
+        Debug.Log($"<color=#{ColorUtility.ToHtmlStringRGB(color)}>");
+        UpdateAmmoUI();
     }
 
     private void HandleReload()
@@ -174,10 +186,64 @@ public class WeaponController : MonoBehaviour
     {
         if (currentStats == null) yield break;
         isReloading = true;
-        yield return new WaitForSeconds(currentStats.reloadTime);
+
+        float reloadTime = currentStats.reloadTime;
+        float elapsedTime = 0f;
+
+        // Сохраняем начальные локальные координаты и поворот weaponHolder
+        Vector3 originalLocalPos = weaponHolder != null ? weaponHolder.localPosition : Vector3.zero;
+        Quaternion originalLocalRot = weaponHolder != null ? weaponHolder.localRotation : Quaternion.identity;
+
+        // Целевые значения для первой половины перезарядки
+        Vector3 targetLocalPos = originalLocalPos + new Vector3(0f, -0.5f, 0f);
+        Quaternion targetLocalRot = originalLocalRot * Quaternion.Euler(0f, 0f, 20f);
+
+        // Цикл анимации и UI
+        while (elapsedTime < reloadTime)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / reloadTime); // Общий прогресс от 0 до 1
+
+            // 1. Обновляем UI прогресса перезарядки
+            if (ammoUI != null) ammoUI.SetReloadProgress(t);
+
+            // 2. Анимируем weaponHolder
+            if (weaponHolder != null)
+            {
+                if (t <= 0.5f)
+                {
+                    // ПЕРВАЯ ПОЛОВИНА: Опускаем и поворачиваем
+                    float localT = t / 0.5f; // Нормализуем от 0 до 1 для первой половины
+                    weaponHolder.localPosition = Vector3.Lerp(originalLocalPos, targetLocalPos, localT);
+                    weaponHolder.localRotation = Quaternion.Slerp(originalLocalRot, targetLocalRot, localT);
+                }
+                else
+                {
+                    // ВТОРАЯ ПОЛОВИНА: Возвращаем обратно
+                    float localT = (t - 0.5f) / 0.5f; // Нормализуем от 0 до 1 для второй половины
+                    weaponHolder.localPosition = Vector3.Lerp(targetLocalPos, originalLocalPos, localT);
+                    weaponHolder.localRotation = Quaternion.Slerp(targetLocalRot, originalLocalRot, localT);
+                }
+            }
+
+            yield return null;
+        }
+
+        // Гарантируем, что в конце оружие вернулось ровно на свои исходные позиции
+        if (weaponHolder != null)
+        {
+            weaponHolder.localPosition = originalLocalPos;
+            weaponHolder.localRotation = originalLocalRot;
+        }
+
+        // Завершаем перезарядку
         currentAmmo = currentStats.magazineSize;
         currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
         isReloading = false;
+
+        // Обновляем текст патронов и скрываем прогресс
+        UpdateAmmoUI();
+        if (ammoUI != null) ammoUI.HideReloadProgress();
     }
 
     private void HandleShooting()
@@ -191,6 +257,7 @@ public class WeaponController : MonoBehaviour
                 nextFireTime = Time.time + currentStats.fireRate;
                 currentAmmo--;
                 currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
+                UpdateAmmoUI();
                 if (currentAmmo <= 0)
                 {
                     StartCoroutine(ReloadRoutine());

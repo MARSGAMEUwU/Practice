@@ -276,6 +276,7 @@ public class Stormtrooper : Damageable
 
     protected override void Die()
     {
+        if (WaveManager.Instance != null) WaveManager.Instance.OnEnemyDeath();
         Debug.Log($"<color=red>{gameObject.name} убит!</color>");
         if (agent != null && agent.isOnNavMesh)
         {
@@ -309,7 +310,7 @@ public class Stormtrooper : Damageable
             return;
         }
         // Смещение по Y (например, -0.5 чтобы труп лежал на земле)
-        float yOffset = 0f;
+        float yOffset = 0.3f;
         Vector3 spawnPos = transform.position + Vector3.up * yOffset;
         Quaternion spawnRot = transform.rotation;
         GameObject corpse = Instantiate(corpsePrefab, spawnPos, spawnRot);

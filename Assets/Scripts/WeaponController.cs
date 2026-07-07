@@ -57,11 +57,15 @@ public class WeaponController : MonoBehaviour
     {
         if (instance != null && instance != this)
         {
-            Destroy(gameObject);
+            // ВНИМАНИЕ: Убрали Destroy(gameObject), чтобы не убить всего игрока!
+            // Уничтожаем только дублирующийся компонент
+            Destroy(this);
             return;
         }
         instance = this;
-        DontDestroyOnLoad(gameObject);
+
+        // ВНИМАНИЕ: Убрали DontDestroyOnLoad(gameObject).
+        // Теперь этим занимается PersistentManager для всего корневого объекта Player.
 
         if (cameraTransform == null) cameraTransform = Camera.main.transform;
         currentStats = new RarityStats();
@@ -69,7 +73,6 @@ public class WeaponController : MonoBehaviour
         currentRecoil = 0f;
         currentSpread = 0f;
         isReloading = false;
-
         SceneManager.sceneLoaded += OnSceneLoaded;
         isInitialized = true;
         UpdateAmmoUIVisibility();

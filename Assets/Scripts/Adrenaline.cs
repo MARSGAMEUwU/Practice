@@ -156,6 +156,7 @@ public class Adrenaline : MonoBehaviour
     {
         //Time.timeScale = 0f;
         UnityEngine.Debug.Log("Игрок погиб");
+        if (WaveManager.Instance != null) WaveManager.Instance.GameOver();
     }
 
     public void TakeDamage(float damageAmount)

@@ -155,6 +155,7 @@ public class Enemy : Damageable
     }
     protected override void Die()
     {
+        if (WaveManager.Instance != null) WaveManager.Instance.OnEnemyDeath();
         Debug.Log($"<color=red>{gameObject.name} убит!</color>");
 
         if (agent != null && agent.isOnNavMesh)

@@ -1,31 +1,51 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class WaveManager : MonoBehaviour
 {
-    // Делаем Синглтон, чтобы враги могли сообщать ему о своей смерти
     public static WaveManager Instance { get; private set; }
 
     [System.Serializable]
     public class Wave
     {
         public string waveName = "Волна 1";
-        [Tooltip("Какие враги могут спавниться (менеджер выберет случайно из списка)")]
         public GameObject[] enemyPrefabs;
-        [Tooltip("Сколько всего врагов за волну")]
         public int enemyCount;
-        [Tooltip("Задержка между спавном врагов (в секундах)")]
         public float timeBetweenSpawns = 1.5f;
+
+        [Tooltip("Таймкод: через сколько секунд ПРИНУДИТЕЛЬНО начнётся следующая волна (даже если эта не зачищена)")]
+        public float waveDuration = 60f;
     }
 
-    [Header("Настройки спавна")]
+    [Header("Волны и спавн")]
     [SerializeField] private Wave[] waves;
-    [SerializeField] private Transform[] spawnPoints; // Пустышки на сцене, откуда лезут враги
-    [SerializeField] private float timeBetweenWaves = 5f; // Время на передышку
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private float timeBetweenWaves = 3f;
 
+    [Header("Общий таймер уровня")]
+    [Tooltip("Общее время на весь уровень (секунды)")]
+    [SerializeField] private float totalLevelTime = 300f;
+
+    [Header("Финальная сцена")]
+    [SerializeField] private string nextSceneName = "MainMenu";
+    [Tooltip("Сколько секунд показывать 'Устройство искрится' перед загрузкой")]
+    [SerializeField] private float sparkMessageDuration = 3f;
+
+    [Header("UI — обратный отсчёт")]
+    [Tooltip("TextMeshPro для отображения таймера и сообщения")]
+    [SerializeField] private TextMeshProUGUI notificationText;
+
+    // === СОСТОЯНИЕ ===
     private int currentWaveIndex = 0;
     private int enemiesAlive = 0;
-    private bool isSpawning = false; // Защита от двойного запуска
+    private bool isSpawning = false;
+    private bool isGameOver = false;
+    private bool isVictorySequence = false;
+
+    private float currentWaveTimer = 0f;
+    private float totalTimer = 0f;
 
     private void Awake()
     {
@@ -33,46 +53,124 @@ public class WaveManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    private void Start()
+    {
+        totalTimer = totalLevelTime;
+
+        // Скрываем текст в начале
+        if (notificationText != null)
+            notificationText.gameObject.SetActive(false);
+    }
+
     private void Update()
     {
-        // Если игра на паузе или игрок мертв — волны не идут
-        if (GameManager.Instance.State != GameManager.GameState.Playing) return;
+        if (isGameOver) return;
 
-        // Если все враги мертвы, мы сейчас ничего не спавним, и волны еще не закончились
+        // ========================================
+        // 1. ОБЩИЙ ТАЙМЕР УРОВНЯ (обратный отсчёт)
+        // ========================================
+        totalTimer -= Time.deltaTime;
+
+        // Показываем обратный отсчёт на UI
+        if (notificationText != null)
+        {
+            notificationText.gameObject.SetActive(true);
+            int minutes = Mathf.FloorToInt(totalTimer / 60f);
+            int seconds = Mathf.FloorToInt(totalTimer % 60f);
+            notificationText.text = $"{minutes:D2}:{seconds:D2}";
+        }
+
+        // Общий таймер истёк — запускаем финальную последовательность
+        if (totalTimer <= 0f && !isVictorySequence)
+        {
+            StartCoroutine(SparkSequence());
+            return;
+        }
+
+        if (isVictorySequence) return;
+
+        // ========================================
+        // 2. ТАЙМКОД ТЕКУЩЕЙ ВОЛНЫ
+        // ========================================
+        if (!isSpawning && currentWaveIndex < waves.Length)
+        {
+            currentWaveTimer -= Time.deltaTime;
+
+            // Таймкод истёк — принудительно начинаем СЛЕДУЮЩУЮ волну (старые враги остаются!)
+            if (currentWaveTimer <= 0f)
+            {
+                Debug.Log($"<color=yellow> Таймкод волны {currentWaveIndex + 1} истёк! Живых врагов: {enemiesAlive}. Запускаем следующую!</color>");
+                StartCoroutine(StartNextWave());
+                return;
+            }
+        }
+
+        // ========================================
+        // 3. ОБЫЧНАЯ ПРОВЕРКА — все враги мертвы
+        // ========================================
         if (enemiesAlive == 0 && !isSpawning && currentWaveIndex < waves.Length)
         {
             StartCoroutine(StartNextWave());
         }
         else if (enemiesAlive == 0 && !isSpawning && currentWaveIndex >= waves.Length)
         {
-            Debug.Log("<color=green>ПОБЕДА! ВСЕ ВОЛНЫ ПРОЙДЕНЫ!</color>");
-            // Тут можно вызвать GameManager.Instance.OnVictory()
+            // Все волны зачищены досрочно — тоже запускаем финал
+            Debug.Log("<color=green> Все волны зачищены досрочно!</color>");
+            StartCoroutine(SparkSequence());
         }
     }
 
+    /// <summary>
+    /// Финальная последовательность: "Устройство искрится" ? загрузка сцены
+    /// </summary>
+    private IEnumerator SparkSequence()
+    {
+        isVictorySequence = true;
+        isGameOver = true;
+
+        // Показываем сообщение
+        if (notificationText != null)
+        {
+            notificationText.text = " Устройство искрится ";
+            notificationText.gameObject.SetActive(true);
+        }
+
+        Debug.Log("<color=red> Устройство искрится!</color>");
+
+        // Ждём указанное время
+        yield return new WaitForSeconds(sparkMessageDuration);
+
+        // Загружаем следующую сцену
+        Debug.Log($"<color=cyan> Загрузка сцены: {nextSceneName}</color>");
+        SceneManager.LoadScene(nextSceneName);
+    }
+
+    /// <summary>
+    /// Запускает спавн текущей волны (не убивает старых врагов!)
+    /// </summary>
     private IEnumerator StartNextWave()
     {
+        if (currentWaveIndex >= waves.Length) yield break;
+
         isSpawning = true;
 
-        // Пауза перед началом новой волны (чтобы игрок успел перезарядиться)
+        Wave wave = waves[currentWaveIndex];
+        Debug.Log($"<color=cyan> Начинается: {wave.waveName} (живых врагов на карте: {enemiesAlive})</color>");
+
+        // Ставим таймкод для ЭТОЙ волны
+        currentWaveTimer = wave.waveDuration;
+
+        // Пауза перед спавном
         yield return new WaitForSeconds(timeBetweenWaves);
 
-        Wave wave = waves[currentWaveIndex];
-        Debug.Log($"<color=cyan>Начинается: {wave.waveName}</color>");
-
-        // Цикл спавна врагов
+        // Спавним врагов
         for (int i = 0; i < wave.enemyCount; i++)
         {
-            // Проверка, если вдруг игрок умер во время спавна волны
-            if (GameManager.Instance.State != GameManager.GameState.Playing) yield break;
-
+            if (isGameOver) yield break;
             SpawnEnemy(wave.enemyPrefabs);
-
-            // Ждем перед спавном следующего
             yield return new WaitForSeconds(wave.timeBetweenSpawns);
         }
 
-        // Подготавливаем индекс для следующей волны
         currentWaveIndex++;
         isSpawning = false;
     }
@@ -81,20 +179,28 @@ public class WaveManager : MonoBehaviour
     {
         if (prefabs.Length == 0 || spawnPoints.Length == 0) return;
 
-        // Выбираем случайную точку спавна
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        // Выбираем случайного врага из разрешенных в этой волне
         GameObject prefabToSpawn = prefabs[Random.Range(0, prefabs.Length)];
-
         Instantiate(prefabToSpawn, sp.position, sp.rotation);
 
-        // Увеличиваем счетчик живых врагов
         enemiesAlive++;
     }
 
-    // Этот метод будут вызывать враги перед своей смертью
+    // === ПУБЛИЧНЫЕ МЕТОДЫ ===
+
+    /// <summary>
+    /// Враги вызывают это перед уничтожением
+    /// </summary>
     public void OnEnemyDeath()
     {
-        enemiesAlive--;
+        enemiesAlive = Mathf.Max(0, enemiesAlive - 1);
+    }
+
+    /// <summary>
+    /// Вызывается при смерти игрока
+    /// </summary>
+    public void GameOver()
+    {
+        isGameOver = true;
     }
 }

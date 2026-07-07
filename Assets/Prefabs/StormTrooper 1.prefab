@@ -196,7 +196,7 @@ MonoBehaviour:
   agent: {fileID: 780829068881515356}
   minDistance: 10
   maxDistance: 20
-  moveSpeed: 3
+  moveSpeed: 7
   attackRate: 0.1
   attackDamage: 5
   aimSpeed: 5

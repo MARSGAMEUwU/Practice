@@ -3,7 +3,77 @@ guid: 0e8cb5bcada4def459ef575639458219
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Barrel
+    second: {fileID: 2100000, guid: 463d8ca64cd25f24c8407a5d94de6cdf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black0.5
+    second: {fileID: 2100000, guid: b7398062b4fa17c47877343a8778284b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black0.6
+    second: {fileID: 2100000, guid: 525804c4978556c458640703e1d8a2e6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black0.7
+    second: {fileID: 2100000, guid: 31bc818b62dd37640a53809b013d3d58, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black0.8
+    second: {fileID: 2100000, guid: 081a1351b3dcaae449e92478c596b38f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Black1.0
+    second: {fileID: -4863934395440341812, guid: 9fb579ac4ab1f884cbc527e548a5fd5e, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Box
+    second: {fileID: 4209093093234567041, guid: 9fb579ac4ab1f884cbc527e548a5fd5e, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CardboardBox
+    second: {fileID: 2100000, guid: cc142914bda62e442b15a3b825a335a1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cisterna
+    second: {fileID: 2100000, guid: 862ce6fe75997254a9937e0a5446df11, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Computer
+    second: {fileID: 2100000, guid: ac5cfecdd437c1149af9c183b4e865a7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Door
+    second: {fileID: 2100000, guid: eacefc9762bfa894598318104ab34b28, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.001
+    second: {fileID: 2100000, guid: 8dd1abe8366dca0409d06244ae3597cb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.002
+    second: {fileID: 2100000, guid: b2125fffd850f644093e2922002d12bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WoodenBox
+    second: {fileID: 2100000, guid: 2b05a2c575330994da1a3d6dc7a2b2e0, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

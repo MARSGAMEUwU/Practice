@@ -3618,7 +3618,7 @@ MonoBehaviour:
   - {fileID: 786385574}
   - {fileID: 888580100}
   timeBetweenWaves: 3
-  totalLevelTime: 40
+  totalLevelTime: 2
   nextSceneName: Lvl1
   sparkMessageDuration: 3
   notificationText: {fileID: 0}

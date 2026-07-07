@@ -200,8 +200,8 @@ MonoBehaviour:
   attackRate: 0.1
   attackDamage: 5
   aimSpeed: 5
-  shotsPerBurst: 5
-  cooldown: 1
+  shotsPerBurst: 3
+  cooldown: 1.5
   shotSound: {fileID: 8300000, guid: d32da1d1dcacafe40b685b8432b95362, type: 3}
   strafeDistance: 2
   strafeChangeTime: 4

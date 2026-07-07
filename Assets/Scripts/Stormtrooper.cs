@@ -135,8 +135,8 @@ public class Stormtrooper : Damageable
                     if (audioSource != null && shotSound != null) audioSource.PlayOneShot(shotSound);
                     proj.Initialize(
                         damage: attackDamage,
-                        speed: 100f,
-                        lifetime: 5f,
+                        speed: 25f,
+                        lifetime: 10f,
                         direction: (player.position - firePoint.position).normalized,
                         tracerPrefab: null,
                         owner: gameObject

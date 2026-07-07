@@ -767,11 +767,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82104acb58502eb4687a2bb2cf6d3152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  maxHealth: 1
+  maxHealth: 120
   currentHealth: 0
   isDead: 0
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
+  deathSound: {fileID: 8300000, guid: 97cf3388bf806184f8bbc1f83cb9d57c, type: 3}
   hitVolume: 0.7
   deathVolume: 1
   player: {fileID: 0}
@@ -782,7 +782,7 @@ MonoBehaviour:
   stopDistance: 1.2
   attackCooldown: 1.5
   damage: 10
-  moveSpeed: 3.5
+  moveSpeed: 10
   speedParam: Speed
   attackTrigger: Attack
   deathTrigger: Die

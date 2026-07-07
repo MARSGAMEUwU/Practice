@@ -180,11 +180,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfd0bfc5fdef61641a939770b9563575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Stormtrooper
-  maxHealth: 1
+  maxHealth: 100
   currentHealth: 0
   isDead: 0
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
+  deathSound: {fileID: 8300000, guid: 97cf3388bf806184f8bbc1f83cb9d57c, type: 3}
   hitVolume: 0.7
   deathVolume: 1
   projectilePrefab: {fileID: 2221258214874630549, guid: ba06039b1a5bfae42a1f538ec1734323, type: 3}
@@ -202,7 +202,7 @@ MonoBehaviour:
   aimSpeed: 5
   shotsPerBurst: 5
   cooldown: 1
-  shotSound: {fileID: 0}
+  shotSound: {fileID: 8300000, guid: d32da1d1dcacafe40b685b8432b95362, type: 3}
   strafeDistance: 2
   strafeChangeTime: 4
   speedParam: Speed

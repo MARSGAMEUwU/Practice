@@ -675,10 +675,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
   playerInventory: {fileID: 1410276489}
-  barrelIcon: {fileID: 21300000, guid: 64b0c3e965242ae40840ed9ee4455291, type: 3}
-  magazineIcon: {fileID: 21300000, guid: 64b0c3e965242ae40840ed9ee4455291, type: 3}
-  handleIcon: {fileID: 21300000, guid: 64b0c3e965242ae40840ed9ee4455291, type: 3}
-  scopeIcon: {fileID: 21300000, guid: 64b0c3e965242ae40840ed9ee4455291, type: 3}
+  barrelIcon: {fileID: 21300000, guid: 65a84cc8174acb944aba0da6dc9245d7, type: 3}
+  magazineIcon: {fileID: 21300000, guid: b68bb58e570d8be48bcf270fad8006a5, type: 3}
+  handleIcon: {fileID: 21300000, guid: e610db907c985304fba5383e50a8bbe0, type: 3}
+  scopeIcon: {fileID: 21300000, guid: af0ad23b1d8c3364ea19d7c63ff3bf17, type: 3}
   resourceIcons: []
 --- !u!4 &139036537
 Transform:

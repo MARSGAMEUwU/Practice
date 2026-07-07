@@ -172,7 +172,7 @@ Transform:
   m_LocalRotation: {x: 0.0027186368, y: -0, z: -0, w: 0.99999636}
   m_LocalPosition: {x: -0.18, y: 1.3318793, z: -0.0030859709}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5725942346976205030}
   m_Father: {fileID: 0}
@@ -377,6 +377,8 @@ MonoBehaviour:
   gravity: -15
   mouseSensitivity: 0.02
   groundCheckDistance: 0.4
+  minSpeed: 3
+  maxSpeed: 12
   maxStamina: 100
   staminaDrainRate: 35
   staminaRegenRate: 15
@@ -423,6 +425,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponController
   cameraTransform: {fileID: 5725942346976205030}
   weaponHolder: {fileID: 8102561508010506866}
+  bloodHitEffectPrefab: {fileID: 1695903670411783888, guid: d914ea6056cbac34eab8f4ca89f0de90, type: 3}
+  holeHitEffectPrefab: {fileID: 8801940085997650057, guid: d0b808aed5e2fc44d94a84f79fadd4d9, type: 3}
+  dustEffectPrefab: {fileID: 7897932250483453192, guid: 4e74d27d0e440bd49a3482ee9fb43bd9, type: 3}
+  ammoUI: {fileID: 0}
   shootAction:
     m_Name: Shoot
     m_Type: 1
@@ -501,10 +507,8 @@ MonoBehaviour:
   impactLayers:
     serializedVersion: 2
     m_Bits: 1
-  bloodHitEffectPrefab: {fileID: 1695903670411783888, guid: d914ea6056cbac34eab8f4ca89f0de90, type: 3}
-  holeHitEffectPrefab: {fileID: 8801940085997650057, guid: d0b808aed5e2fc44d94a84f79fadd4d9, type: 3}
-  dustEffectPrefab: {fileID: 7897932250483453192, guid: 4e74d27d0e440bd49a3482ee9fb43bd9, type: 3}
   crosshairController: {fileID: 0}
+  OneShotSound: {fileID: 0}
 --- !u!114 &6628033829165587425
 MonoBehaviour:
   m_ObjectHideFlags: 0

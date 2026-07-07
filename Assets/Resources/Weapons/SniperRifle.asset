@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: New Weapon
   weaponIcon: {fileID: 0}
-  weaponPrefab: {fileID: 0}
-  pickupPrefab: {fileID: 919132149155446097, guid: 29e0b9ca815a4a64ca2578833ad71c66, type: 3}
+  sound: {fileID: 0}
+  weaponPrefab: {fileID: 3211722494390839536, guid: b7673090de3f2554a83d8fb7b0e3ad9d, type: 3}
+  pickupPrefab: {fileID: 4399677127681861043, guid: 857bfee2b737e0341b4853b5b976ccb7, type: 3}
   weaponType: 1
   fireType: 0
   projectilePrefab: {fileID: 0}
@@ -28,10 +29,10 @@ MonoBehaviour:
   fuseTime: 3
   explosionEffectPrefab: {fileID: 0}
   statsByRarity:
-  - damage: 10
-    fireRate: 0.15
-    range: 100
-    magazineSize: 30
+  - damage: 50
+    fireRate: 0.1
+    range: 200
+    magazineSize: 5
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -99,7 +100,7 @@ MonoBehaviour:
   - 
   - 
   - 
-  purchaseRecipe: 00000000000000000000000000000000
+  purchaseRecipe: 01000000010000000100000001000000
   upgradeRecipes:
   - costs: 00000000000000000000000000000000
   - costs: 00000000000000000000000000000000

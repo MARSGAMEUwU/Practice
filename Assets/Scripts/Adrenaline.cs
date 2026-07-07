@@ -28,6 +28,8 @@ public class Adrenaline : MonoBehaviour
     [SerializeField] private AudioSource track3;
     [SerializeField] private AudioSource track4;
     [SerializeField] private float volume = 0.3f;
+    [Header("UI")]
+    [SerializeField] private AdrenalineUI adrenalineUI;
 
     public float AdrenalinePercentage => currentAdrenaline / maxAdrenaline;
     private float nextInjTime;
@@ -120,10 +122,15 @@ public class Adrenaline : MonoBehaviour
     public void TakeDamage(float damageAmount)
     {
         StartCoroutine(SmoothHealRoutine(-damageAmount));
+
+        if (adrenalineUI != null)
+        {
+            adrenalineUI.TriggerShake();
+        }
+
         if (currentAdrenaline <= 0)
         {
             GameOver();
-            
         }
     }
 

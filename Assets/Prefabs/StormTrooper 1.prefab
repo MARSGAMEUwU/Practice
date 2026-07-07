@@ -180,7 +180,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfd0bfc5fdef61641a939770b9563575, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Stormtrooper
-  maxHealth: 100
+  maxHealth: 60
   currentHealth: 0
   isDead: 0
   hitSound: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}

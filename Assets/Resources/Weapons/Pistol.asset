@@ -42,19 +42,19 @@ MonoBehaviour:
     spreadPerShot: 0.8
     maxSpread: 6
     spreadRecovery: 10
-  - damage: 20
+  - damage: 15
     fireRate: 0.15
     range: 100
     magazineSize: 10
-    reloadTime: 3
-    baseRecoil: 3
-    recoilPerShot: 1.5
-    maxRecoil: 16
+    reloadTime: 2
+    baseRecoil: 4
+    recoilPerShot: 2
+    maxRecoil: 20
     recoilRecovery: 5
-    baseSpread: 0.5
-    spreadPerShot: 0.2
+    baseSpread: 0.15
+    spreadPerShot: 0.6
     maxSpread: 5
-    spreadRecovery: 3
+    spreadRecovery: 0.1
   - damage: 10
     fireRate: 0.15
     range: 100

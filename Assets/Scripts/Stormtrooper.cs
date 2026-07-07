@@ -310,7 +310,7 @@ public class Stormtrooper : Damageable
             return;
         }
         // Смещение по Y (например, -0.5 чтобы труп лежал на земле)
-        float yOffset = 0.3f;
+        float yOffset = 0.8f;
         Vector3 spawnPos = transform.position + Vector3.up * yOffset;
         Quaternion spawnRot = transform.rotation;
         GameObject corpse = Instantiate(corpsePrefab, spawnPos, spawnRot);

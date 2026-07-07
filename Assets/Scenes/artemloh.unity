@@ -8944,6 +8944,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
+      propertyPath: walkSpeed
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5177574415808759665, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
       propertyPath: maxStamina
       value: 10
       objectReference: {fileID: 0}
@@ -10268,7 +10272,7 @@ MonoBehaviour:
   lootTextUI: {fileID: 272624318}
   progressBar: {fileID: 562609585}
   progressBarBG: {fileID: 1597069658}
-  lootTime: 2.5
+  lootTime: 1.25
 --- !u!114 &1410276501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10283,7 +10287,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Adrenaline
   maxAdrenaline: 100
   currentAdrenaline: 1
-  decayRate: 5
+  decayRate: 2.5
   killReward: 30
   injectionBoost: 50
   syringeAmount: 10

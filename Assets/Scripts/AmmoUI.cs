@@ -32,6 +32,7 @@ public class AmmoUI : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// ”станавливает прогресс перезар€дки (от 0 до 1)
     /// </summary>
@@ -53,6 +54,20 @@ public class AmmoUI : MonoBehaviour
         {
             reloadProgressImage.fillAmount = 0f;
             reloadProgressImage.gameObject.SetActive(false);
+        }
+    }
+    public void SetAmmoUIActive(bool isActive)
+    {
+        // ”правл€ем активностью текста
+        if (ammoText != null)
+        {
+            ammoText.gameObject.SetActive(isActive);
+        }
+
+        // ”правл€ем активностью полоски (Image)
+        if (reloadProgressImage != null)
+        {
+            reloadProgressImage.gameObject.SetActive(isActive);
         }
     }
 }

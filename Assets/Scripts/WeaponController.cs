@@ -72,6 +72,7 @@ public class WeaponController : MonoBehaviour
 
         SceneManager.sceneLoaded += OnSceneLoaded;
         isInitialized = true;
+        UpdateAmmoUIVisibility();
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -120,6 +121,16 @@ public class WeaponController : MonoBehaviour
         if (ammoUI != null && currentStats != null)
         {
             ammoUI.UpdateAmmo(currentAmmo, currentStats.magazineSize);
+        }
+    }
+    private void UpdateAmmoUIVisibility()
+    {
+        // Проверяем, есть ли оружие в текущем слоте
+        bool hasWeaponEquipped = weapons[currentWeaponIndex] != null;
+
+        if (ammoUI != null)
+        {
+            ammoUI.SetAmmoUIActive(hasWeaponEquipped);
         }
     }
     private void HandleWeaponSwitch()
@@ -545,6 +556,8 @@ public class WeaponController : MonoBehaviour
 
             SetupWeaponAnimator(slotIndex, weapon);
         }
+        UpdateAmmoUIVisibility();
+        UpdateAmmoUI();
     }
 
     public WeaponData GetWeaponInSlot(int i)
@@ -595,6 +608,8 @@ public class WeaponController : MonoBehaviour
         currentWeaponIndex = 0;
         currentAmmo = 0;
         currentStats = new RarityStats();
+
+        UpdateAmmoUIVisibility();
     }
 
     private void RestoreWeapons()

@@ -3763,7 +3763,7 @@ MonoBehaviour:
   - {fileID: 1898226035}
   - {fileID: 153439355}
   - {fileID: 181056330}
-  timeBetweenWaves: 10
+  timeBetweenWaves: 40
   totalLevelTime: 100
   nextSceneName: bossFight
   sparkMessageDuration: 3

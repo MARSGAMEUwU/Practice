@@ -227,5 +227,19 @@ public class PlayerController : MonoBehaviour
         Debug.Log("[PlayerController] ”правление разблокировано, курсор спр€тан");
     }
 
+    public void LockControlsWithoutMouse()
+    {
+        isControlsEnabled = false;
+        Cursor.lockState = CursorLockMode.None;
+        Debug.Log("[PlayerController] ”правление заблокировано, курсор разблокирован");
+    }
+
+    public void UnlockControlsWhithoutMouse()
+    {
+        isControlsEnabled = true;
+        Cursor.lockState = CursorLockMode.Locked;
+        Debug.Log("[PlayerController] ”правление разблокировано, курсор спр€тан");
+    }
+
     public bool IsControlsEnabled => isControlsEnabled;
 }

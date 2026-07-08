@@ -20,7 +20,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintMultiplier = 1.8f;
     [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private float gravity = -15f;
-    [SerializeField] private float mouseSensitivity = 2f;
+    [SerializeField] private float mouseSensitivity = SettingsManager.MouseSensitivity*0.1f;
     [SerializeField] private float groundCheckDistance = 0.4f;
     [SerializeField] private float minSpeed = 3f;
     [SerializeField] private float maxSpeed = 12f;
@@ -99,6 +99,7 @@ public class PlayerController : MonoBehaviour
         HandleStaminaAndSprint();
         HandleMovement();
         UpdateRecoil();
+        mouseSensitivity = SettingsManager.MouseSensitivity * 0.1f;
     }
 
     private void HandleLook()

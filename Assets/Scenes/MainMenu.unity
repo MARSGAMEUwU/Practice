@@ -418,7 +418,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsManager
   minSensitivity: 0.1
-  maxSensitivity: 5
+  maxSensitivity: 3
 --- !u!4 &422207346
 Transform:
   m_ObjectHideFlags: 0

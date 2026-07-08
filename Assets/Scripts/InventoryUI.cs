@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -26,6 +27,11 @@ public class InventoryUI : MonoBehaviour
     private InventoryManager inventoryManager;
     private bool isOpen = false;
     private float previousTimeScale = 1f;
+
+    [Header("Настройки")]
+
+    [SerializeField] private GameObject settingsbutton;
+    [SerializeField] private GameObject settings;
 
     private void Awake()
     {
@@ -87,8 +93,12 @@ public class InventoryUI : MonoBehaviour
         Canvas.ForceUpdateCanvases();
 
         Time.timeScale = 0f;
+        settingsbutton.SetActive(true);
 
+        
         Debug.Log($"[UI] Инвентарь открыт. Время остановлено. Старая скорость была: {previousTimeScale}");
+
+
     }
 
     private void CloseInventory()
@@ -108,6 +118,8 @@ public class InventoryUI : MonoBehaviour
         Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
 
         Debug.Log($"[UI] Инвентарь закрыт. Время восстановлено: {Time.timeScale}");
+        settingsbutton.SetActive(false);
+        settings.SetActive(false);
     }
 
     // Метод для мгновенного скрытия/показа UI без отключения GameObject

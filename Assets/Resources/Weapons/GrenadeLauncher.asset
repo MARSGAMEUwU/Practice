@@ -15,8 +15,8 @@ MonoBehaviour:
   weaponName: GrenadeLauncher
   weaponIcon: {fileID: 21300000, guid: a83896ce478ddac4fb077a6ce858287f, type: 3}
   sound: {fileID: 8300000, guid: d32da1d1dcacafe40b685b8432b95362, type: 3}
-  weaponPrefab: {fileID: 3211722494390839536, guid: 36b1c074e1fa0d149a60a1c78394c56c, type: 3}
-  pickupPrefab: {fileID: 4399677127681861043, guid: cf6308595185d1a4c82eb00104e0f6b4, type: 3}
+  weaponPrefab: {fileID: 3211722494390839536, guid: 3aca1d82974ed324bbbf0f2d0498dbca, type: 3}
+  pickupPrefab: {fileID: 4399677127681861043, guid: e8f6ec91d6c392b47966b90ff8d31835, type: 3}
   weaponType: 3
   fireType: 2
   projectilePrefab: {fileID: 0}

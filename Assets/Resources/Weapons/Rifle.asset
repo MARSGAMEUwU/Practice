@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ea989968e4d10f469e17a77a7658c30, type: 3}
   m_Name: Rifle
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponName: New Weapon
-  weaponIcon: {fileID: 21300000, guid: f1a4c7bad77818047bc811e1c076aedd, type: 3}
+  weaponName: Rifle
+  weaponIcon: {fileID: 21300000, guid: 75de81240c7625e4cae74dae0acfa93e, type: 3}
+  sound: {fileID: 0}
   weaponPrefab: {fileID: 3211722494390839536, guid: c43ea33fa5122814390902a7a923c2ec, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: 5b1d1785517d179489890d5aacc06b47, type: 3}
   weaponType: 2
@@ -85,10 +86,10 @@ MonoBehaviour:
   shootAnimatorController: {fileID: 9100000, guid: 2e164e4a9a19f9c4a8929980eab16196, type: 2}
   shootTriggerName: Shoot
   rarityColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.2, g: 0.6, b: 1, a: 1}
-  - {r: 0.7, g: 0.2, b: 1, a: 1}
-  - {r: 1, g: 0.6, b: 0, a: 1}
+  - {r: 0, g: 0.990566, b: 0.06394616, a: 1}
+  - {r: 0, g: 0.31740785, b: 1, a: 1}
+  - {r: 0.5114592, g: 0.1724813, b: 0.7169812, a: 1}
+  - {r: 1, g: 0.7170844, b: 0, a: 1}
   rarityNames:
   - Common
   - Rare

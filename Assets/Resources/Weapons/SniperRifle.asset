@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ea989968e4d10f469e17a77a7658c30, type: 3}
   m_Name: SniperRifle
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponName: New Weapon
-  weaponIcon: {fileID: 0}
+  weaponName: Sniper Rifle
+  weaponIcon: {fileID: 21300000, guid: e061575ec6311e146b68e04c30c538b5, type: 3}
   sound: {fileID: 0}
   weaponPrefab: {fileID: 3211722494390839536, guid: b7673090de3f2554a83d8fb7b0e3ad9d, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: 857bfee2b737e0341b4853b5b976ccb7, type: 3}
@@ -86,10 +86,10 @@ MonoBehaviour:
   shootAnimatorController: {fileID: 0}
   shootTriggerName: Shoot
   rarityColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.2, g: 0.6, b: 1, a: 1}
-  - {r: 0.7, g: 0.2, b: 1, a: 1}
-  - {r: 1, g: 0.6, b: 0, a: 1}
+  - {r: 0, g: 0.990566, b: 0.06394616, a: 1}
+  - {r: 0, g: 0.31740785, b: 1, a: 1}
+  - {r: 0.5114592, g: 0.1724813, b: 0.7169812, a: 1}
+  - {r: 1, g: 0.7170844, b: 0, a: 1}
   rarityNames:
   - Common
   - Rare

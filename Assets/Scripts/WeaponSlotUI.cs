@@ -4,9 +4,9 @@ using TMPro;
 
 public class WeaponSlotUI : MonoBehaviour
 {
-    [Header("Элементы плашки")]
-    [SerializeField] private Image background;        // Серый фон плашки
-    [SerializeField] private Image rarityOverlay;     // Полупрозрачный цветной слой
+    [Header("Визуальные элементы слота")]
+    [SerializeField] private Image background;        // Фон слота
+    [SerializeField] private Image rarityOverlay;     // Цветная подложка (редкость)
     [SerializeField] private Image weaponIcon;        // Иконка оружия
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
@@ -19,9 +19,9 @@ public class WeaponSlotUI : MonoBehaviour
     [SerializeField] private RecipeDisplay upgradeRecipeDisplay;
     [SerializeField] private RecipeDisplay purchaseRecipeDisplay;
 
-    [Header("Цвета")]
-    [SerializeField] private Color emptySlotColor = new Color(0.25f, 0.25f, 0.25f);
-    [SerializeField] private float overlayAlpha = 0.5f;
+    [Header("Настройки")]
+    [SerializeField] private Color emptySlotColor = new Color(0.2f, 0.2f, 0.2f); // Чуть темнее для "пустого" состояния
+    [SerializeField] private float overlayAlpha = 0.4f;
 
     private InventoryManager inventoryManager;
     private WeaponData currentWeaponData;
@@ -48,41 +48,33 @@ public class WeaponSlotUI : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        // Определяем цвет плашки
-        Color targetColor;
-
-        if (!hasWeapon)
+        // Если WeaponData вообще не назначен (ошибка конфигурации), скрываем всё
+        if (currentWeaponData == null)
         {
-            // Нет оружия — серый
-            targetColor = emptySlotColor;
-            if (rarityOverlay != null)
-                rarityOverlay.color = new Color(0.3f, 0.3f, 0.3f, overlayAlpha);
-        }
-        else
-        {
-            // Есть оружие — цвет СЛЕДУЮЩЕЙ редкости
-            WeaponRarity nextRarity = currentWeaponData != null
-                ? currentWeaponData.GetNextRarity(currentRarity)
-                : currentRarity;
-
-            if (currentWeaponData != null)
-                targetColor = currentWeaponData.GetRarityColor(nextRarity);
-            else
-                targetColor = Color.gray;
-
-            // Полупрозрачный цветной слой поверх серого фона
-            if (rarityOverlay != null)
-                rarityOverlay.color = new Color(targetColor.r, targetColor.g, targetColor.b, overlayAlpha);
+            SetSlotEmpty();
+            return;
         }
 
-        // Фон остаётся серым/белым базовым
+        // 1. ФОН СЛОТА
         if (background != null)
-            background.color = new Color(0.4f, 0.4f, 0.4f, 1f);
+        {
+            background.color = hasWeapon ? new Color(0.35f, 0.35f, 0.35f, 1f) : emptySlotColor;
+        }
 
-        // Иконка оружия
+        // 2. ОВЕРЛЕЙ РЕДКОСТИ
+        if (rarityOverlay != null)
+        {
+            // Если оружия нет, показываем цвет Common. Если есть - текущий цвет.
+            WeaponRarity displayRarity = hasWeapon ? currentRarity : WeaponRarity.Common;
+            Color rarityColor = currentWeaponData.GetRarityColor(displayRarity);
+            rarityOverlay.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, overlayAlpha);
+        }
+
+        // 3. ИКОНКА, НАЗВАНИЕ, ОПИСАНИЕ (Всегда активны, если есть WeaponData)
+        // Иконка
         if (weaponIcon != null)
         {
-            if (hasWeapon && currentWeaponData != null && currentWeaponData.weaponIcon != null)
+            if (currentWeaponData.weaponIcon != null)
             {
                 weaponIcon.sprite = currentWeaponData.weaponIcon;
                 weaponIcon.gameObject.SetActive(true);
@@ -96,24 +88,38 @@ public class WeaponSlotUI : MonoBehaviour
         // Название
         if (weaponNameText != null)
         {
-            if (hasWeapon && currentWeaponData != null)
+            weaponNameText.text = currentWeaponData.weaponName;
+            weaponNameText.gameObject.SetActive(true);
+            weaponNameText.color = Color.white; // Белый текст для читаемости на темном фоне
+        }
+
+        // 4. ОПИСАНИЕ (Учитываем новую логику 4-х элементов)
+        if (descriptionText != null)
+        {
+            string desc = "";
+
+            if (!hasWeapon)
             {
-                weaponNameText.text = currentWeaponData.weaponName;
-                weaponNameText.gameObject.SetActive(true);
+                if (currentWeaponData.descriptionsByRarity != null && currentWeaponData.descriptionsByRarity.Length > 0)
+                {
+                    desc = currentWeaponData.descriptionsByRarity[0];
+                }
             }
             else
             {
-                weaponNameText.gameObject.SetActive(false);
-            }
-        }
+                int nextDescIndex = (int)currentRarity + 1;
 
-        // Описание улучшения
-        if (descriptionText != null)
-        {
-            if (hasWeapon && !isMaxRarity && currentWeaponData != null)
+                if (currentWeaponData.descriptionsByRarity != null && nextDescIndex < currentWeaponData.descriptionsByRarity.Length)
+                {
+                    desc = currentWeaponData.descriptionsByRarity[nextDescIndex];
+                }
+            }
+
+            if (!string.IsNullOrEmpty(desc))
             {
-                descriptionText.text = currentWeaponData.GetUpgradeDescription(currentRarity);
+                descriptionText.text = desc;
                 descriptionText.gameObject.SetActive(true);
+                descriptionText.color = Color.white;
             }
             else
             {
@@ -121,59 +127,82 @@ public class WeaponSlotUI : MonoBehaviour
             }
         }
 
-        // Рецепты
-        if (purchaseRecipeDisplay != null && currentWeaponData != null)
+        // 4. РЕЦЕПТЫ (Логика взаимного исключения)
+        // Рецепт покупки: ТОЛЬКО если оружия НЕТ
+        if (purchaseRecipeDisplay != null)
         {
-            purchaseRecipeDisplay.SetRecipe(currentWeaponData.purchaseRecipe, inventoryManager);
+            if (!hasWeapon)
+            {
+                purchaseRecipeDisplay.SetRecipe(currentWeaponData.purchaseRecipe, inventoryManager);
+                purchaseRecipeDisplay.gameObject.SetActive(true);
+            }
+            else
+            {
+                purchaseRecipeDisplay.gameObject.SetActive(false); // СКРЫВАЕМ, если оружие уже есть
+            }
         }
 
-        if (upgradeRecipeDisplay != null && currentWeaponData != null && hasWeapon && !isMaxRarity)
+        // Рецепт апгрейда: ТОЛЬКО если оружие ЕСТЬ и оно не максимального уровня
+        if (upgradeRecipeDisplay != null)
         {
-            int[] recipe = currentWeaponData.GetUpgradeRecipe(currentRarity);
-            upgradeRecipeDisplay.SetRecipe(recipe, inventoryManager);
-            upgradeRecipeDisplay.gameObject.SetActive(true);
-        }
-        else if (upgradeRecipeDisplay != null)
-        {
-            upgradeRecipeDisplay.gameObject.SetActive(false);
+            if (hasWeapon && !isMaxRarity)
+            {
+                int[] recipe = currentWeaponData.GetUpgradeRecipe(currentRarity);
+                upgradeRecipeDisplay.SetRecipe(recipe, inventoryManager);
+                upgradeRecipeDisplay.gameObject.SetActive(true);
+            }
+            else
+            {
+                upgradeRecipeDisplay.gameObject.SetActive(false);
+            }
         }
     }
 
     private void UpdateButtons()
     {
-        // Кнопка покупки
+        // Кнопка покупки: ТОЛЬКО если оружия НЕТ
         if (purchaseButton != null)
         {
-            bool canPurchase = hasWeapon == false
-                && currentWeaponData != null
-                && inventoryManager != null
-                && inventoryManager.CanAfford(currentWeaponData.purchaseRecipe);
+            bool showPurchase = !hasWeapon;
+            purchaseButton.gameObject.SetActive(showPurchase);
 
-            purchaseButton.interactable = canPurchase;
-            purchaseButton.gameObject.SetActive(!hasWeapon);
+            if (showPurchase)
+            {
+                bool canAfford = inventoryManager != null && inventoryManager.CanAfford(currentWeaponData.purchaseRecipe);
+                purchaseButton.interactable = canAfford;
+            }
         }
 
-        // Кнопка апгрейда
+        // Кнопка апгрейда: ТОЛЬКО если оружие ЕСТЬ и не максимального уровня
         if (upgradeButton != null)
         {
-            bool canUpgrade = hasWeapon
-                && !isMaxRarity
-                && currentWeaponData != null
-                && inventoryManager != null;
+            bool showUpgrade = hasWeapon && !isMaxRarity;
+            upgradeButton.gameObject.SetActive(showUpgrade);
 
-            if (canUpgrade)
+            if (showUpgrade)
             {
                 int[] recipe = currentWeaponData.GetUpgradeRecipe(currentRarity);
-                canUpgrade = inventoryManager.CanAfford(recipe);
+                bool canAfford = inventoryManager != null && inventoryManager.CanAfford(recipe);
+                upgradeButton.interactable = canAfford;
             }
-
-            upgradeButton.interactable = canUpgrade;
-            upgradeButton.gameObject.SetActive(hasWeapon && !isMaxRarity);
         }
     }
 
-    // === Обработчики кнопок ===
+    // Вспомогательный метод для полного скрытия (если WeaponData битый)
+    private void SetSlotEmpty()
+    {
+        if (background != null) background.color = emptySlotColor;
+        if (rarityOverlay != null) rarityOverlay.color = new Color(0, 0, 0, 0);
+        if (weaponIcon != null) weaponIcon.gameObject.SetActive(false);
+        if (weaponNameText != null) weaponNameText.gameObject.SetActive(false);
+        if (descriptionText != null) descriptionText.gameObject.SetActive(false);
+        if (purchaseRecipeDisplay != null) purchaseRecipeDisplay.gameObject.SetActive(false);
+        if (upgradeRecipeDisplay != null) upgradeRecipeDisplay.gameObject.SetActive(false);
+        if (purchaseButton != null) purchaseButton.gameObject.SetActive(false);
+        if (upgradeButton != null) upgradeButton.gameObject.SetActive(false);
+    }
 
+    // === Обработчики кнопок ===
     public void OnPurchaseClicked()
     {
         if (currentWeaponData != null && inventoryManager != null)
@@ -184,14 +213,13 @@ public class WeaponSlotUI : MonoBehaviour
 
     public void OnUpgradeClicked()
     {
-        Debug.Log("КНОПКА НАЖАТА");
         if (currentWeaponData != null && inventoryManager != null)
         {
             inventoryManager.CraftUpgrade(currentWeaponData);
         }
     }
 
-    // Вызывается из InventoryManager после крафта для обновления
+    // Обновление слота извне (например, при изменении ресурсов)
     public void Refresh()
     {
         if (inventoryManager != null && currentWeaponData != null)

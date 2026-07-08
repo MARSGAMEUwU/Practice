@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Pistol
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Pistol
-  weaponIcon: {fileID: 21300000, guid: 0be83c9759139144f8ea7020e497a1fe, type: 3}
+  weaponIcon: {fileID: 21300000, guid: e1a85ef0a030e494ea8c579d2eae0efe, type: 3}
   sound: {fileID: 8300000, guid: 882e8887fe20e3b4b900cf27c651e1c2, type: 3}
   weaponPrefab: {fileID: 3211722494390839536, guid: b5eab558a3b8d124195578f13f9252a8, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: cf6308595185d1a4c82eb00104e0f6b4, type: 3}
@@ -32,24 +32,24 @@ MonoBehaviour:
   - damage: 10
     fireRate: 0.15
     range: 100
-    magazineSize: 7
-    reloadTime: 2
+    magazineSize: 8
+    reloadTime: 1.5
     baseRecoil: 4
     recoilPerShot: 2
     maxRecoil: 20
     recoilRecovery: 5
-    baseSpread: 0.2
-    spreadPerShot: 0.8
-    maxSpread: 6
+    baseSpread: 2
+    spreadPerShot: 1
+    maxSpread: 5
     spreadRecovery: 10
   - damage: 15
     fireRate: 0.15
     range: 100
     magazineSize: 10
-    reloadTime: 2
-    baseRecoil: 4
-    recoilPerShot: 2
-    maxRecoil: 20
+    reloadTime: 1.25
+    baseRecoil: 3
+    recoilPerShot: 1
+    maxRecoil: 15
     recoilRecovery: 5
     baseSpread: 0.15
     spreadPerShot: 0.6
@@ -86,10 +86,10 @@ MonoBehaviour:
   shootAnimatorController: {fileID: 9100000, guid: dea2f1aa0dbcda4489bdf62e4bcab2aa, type: 2}
   shootTriggerName: Shoot
   rarityColors:
-  - {r: 0.4717202, g: 0.6415094, b: 0.40245637, a: 1}
-  - {r: 0, g: 0.40727168, b: 0.7075472, a: 1}
-  - {r: 0.7, g: 0.2, b: 1, a: 1}
-  - {r: 1, g: 0.6, b: 0, a: 1}
+  - {r: 0, g: 0.990566, b: 0.06394616, a: 1}
+  - {r: 0, g: 0.31740785, b: 1, a: 1}
+  - {r: 0.5114592, g: 0.1724813, b: 0.7169812, a: 1}
+  - {r: 1, g: 0.7170844, b: 0, a: 1}
   rarityNames:
   - Common
   - Rare

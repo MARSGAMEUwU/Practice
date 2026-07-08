@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ea989968e4d10f469e17a77a7658c30, type: 3}
   m_Name: GrenadeLauncher
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
-  weaponName: Grenade Launcher
-  weaponIcon: {fileID: 21300000, guid: f1a4c7bad77818047bc811e1c076aedd, type: 3}
+  weaponName: GrenadeLauncher
+  weaponIcon: {fileID: 21300000, guid: a83896ce478ddac4fb077a6ce858287f, type: 3}
   sound: {fileID: 8300000, guid: d32da1d1dcacafe40b685b8432b95362, type: 3}
   weaponPrefab: {fileID: 3211722494390839536, guid: 36b1c074e1fa0d149a60a1c78394c56c, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: cf6308595185d1a4c82eb00104e0f6b4, type: 3}
@@ -25,12 +25,12 @@ MonoBehaviour:
   tracerPrefab: {fileID: 0}
   grenadePrefab: {fileID: 1042915425289900098, guid: 80a67c7d46f023b4f912ee2d3b0bec43, type: 3}
   throwForce: 20
-  explosionRadius: 4
-  fuseTime: 3
+  explosionRadius: 5
+  fuseTime: 2
   explosionEffectPrefab: {fileID: 5344967403138647181, guid: 64babc5c22d668443b9eb8b834a176ae, type: 3}
   statsByRarity:
-  - damage: 10
-    fireRate: 0.15
+  - damage: 25
+    fireRate: 0.5
     range: 100
     magazineSize: 6
     reloadTime: 5
@@ -86,10 +86,10 @@ MonoBehaviour:
   shootAnimatorController: {fileID: 0}
   shootTriggerName: Shoot
   rarityColors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0.2, g: 0.6, b: 1, a: 1}
-  - {r: 0.7, g: 0.2, b: 1, a: 1}
-  - {r: 1, g: 0.6, b: 0, a: 1}
+  - {r: 0, g: 0.990566, b: 0.06394616, a: 1}
+  - {r: 0, g: 0.31740785, b: 1, a: 1}
+  - {r: 0.5114592, g: 0.1724813, b: 0.7169812, a: 1}
+  - {r: 1, g: 0.7170844, b: 0, a: 1}
   rarityNames:
   - Common
   - Rare
@@ -100,7 +100,7 @@ MonoBehaviour:
   - 
   - 
   - 
-  purchaseRecipe: 00000000000000000000000000000000
+  purchaseRecipe: 01000000010000000100000001000000
   upgradeRecipes:
   - costs: 00000000000000000000000000000000
   - costs: 00000000000000000000000000000000

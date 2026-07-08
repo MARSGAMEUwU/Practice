@@ -585,7 +585,35 @@ public class WeaponController : MonoBehaviour
     {
         if (slotIndex < 0 || slotIndex >= weaponRarities.Length) return;
         weaponRarities[slotIndex] = rarity;
-        if (currentWeaponIndex == slotIndex) SwitchWeapon(slotIndex);
+
+        // Если апгрейднули то оружие, которое сейчас в руках, обновляем его статы и патроны
+        if (currentWeaponIndex == slotIndex)
+        {
+            RefreshCurrentWeaponStats();
+        }
+    }
+
+    // Новый метод для мгновенного обновления характеристик и патронов
+    private void RefreshCurrentWeaponStats()
+    {
+        if (weapons[currentWeaponIndex] == null) return;
+
+        // 1. Получаем новые характеристики для новой редкости
+        currentStats = weapons[currentWeaponIndex].GetStatsForRarity(weaponRarities[currentWeaponIndex]);
+
+        // 2. Обновляем патроны до вместимости нового магазина (как ты и просил - магазин заполняется)
+        currentAmmo = currentStats.magazineSize;
+        currentAmmoPerWeapon[currentWeaponIndex] = currentAmmo;
+
+        // 3. Сбрасываем разброс и отдачу (чтобы не было багов, если старые статы были хуже)
+        currentRecoil = 0f;
+        currentSpread = 0f;
+
+        // 4. Прерываем перезарядку, если она вдруг шла (чтобы не было рассинхрона)
+        isReloading = false;
+
+        // 5. Обновляем UI патронов (текст и шкалу)
+        UpdateAmmoUI();
     }
 
     public void ClearCurrentWeapon()

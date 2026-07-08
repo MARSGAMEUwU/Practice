@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Sniper Rifle
   weaponIcon: {fileID: 21300000, guid: e061575ec6311e146b68e04c30c538b5, type: 3}
-  sound: {fileID: 0}
+  sound: {fileID: 8300000, guid: 882e8887fe20e3b4b900cf27c651e1c2, type: 3}
   weaponPrefab: {fileID: 3211722494390839536, guid: b7673090de3f2554a83d8fb7b0e3ad9d, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: 857bfee2b737e0341b4853b5b976ccb7, type: 3}
   weaponType: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   statsByRarity:
   - damage: 50
-    fireRate: 0.5
+    fireRate: 1
     range: 200
     magazineSize: 5
     reloadTime: 2
@@ -43,7 +43,7 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 70
-    fireRate: 0.7
+    fireRate: 1.2
     range: 100
     magazineSize: 4
     reloadTime: 2
@@ -56,7 +56,7 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 100
-    fireRate: 0.8
+    fireRate: 1.4
     range: 100
     magazineSize: 3
     reloadTime: 2
@@ -69,7 +69,7 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 200
-    fireRate: 1
+    fireRate: 1.6
     range: 1000
     magazineSize: 1
     reloadTime: 3
@@ -100,9 +100,7 @@ MonoBehaviour:
 
     MAG 5
 
-    Fire Rate 0.5
-
-'
+    Fire Rate 1'
   - 'DMG +20
 
     Fire Rate +0.02
@@ -110,7 +108,7 @@ MonoBehaviour:
     MAG -1'
   - 'DMG +30
 
-    Fire Rate +0.01
+    Fire Rate +0.02
 
     MAG -1'
   - 'DMG +100

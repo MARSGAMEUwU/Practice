@@ -43,9 +43,9 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 30
-    fireRate: 0.45
+    fireRate: 0.5
     range: 100
-    magazineSize: 8
+    magazineSize: 5
     reloadTime: 4.5
     baseRecoil: 1
     recoilPerShot: 20
@@ -56,9 +56,9 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 40
-    fireRate: 0.4
+    fireRate: 0.5
     range: 100
-    magazineSize: 10
+    magazineSize: 4
     reloadTime: 4
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -69,9 +69,9 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 50
-    fireRate: 0.35
+    fireRate: 0.5
     range: 100
-    magazineSize: 12
+    magazineSize: 3
     reloadTime: 3.5
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -97,17 +97,17 @@ MonoBehaviour:
   - Legendary
   descriptionsByRarity:
   - "Grenade Ammo 6\nAoE Exploision Damage \nRigidBody Projectile Shot"
-  - 'Ammo +2
+  - 'Ammo -1
 
     ReloadTime -0.5
 
     DMG +10'
-  - 'Ammo +2
+  - 'Ammo -1
 
     ReloadTime -0.5
 
     DMG +10'
-  - 'Ammo +2
+  - 'Ammo -1
 
     ReloadTime -0.5
 

@@ -33,7 +33,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Box.001
-    second: {fileID: 4209093093234567041, guid: 9fb579ac4ab1f884cbc527e548a5fd5e, type: 3}
+    second: {fileID: 2100000, guid: fdfb2bf7eb362a643b8d017767d51fcf, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule

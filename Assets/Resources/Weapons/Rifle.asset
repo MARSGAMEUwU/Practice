@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponData
   weaponName: Rifle
   weaponIcon: {fileID: 21300000, guid: 75de81240c7625e4cae74dae0acfa93e, type: 3}
-  sound: {fileID: 0}
+  sound: {fileID: 8300000, guid: d32da1d1dcacafe40b685b8432b95362, type: 3}
   weaponPrefab: {fileID: 3211722494390839536, guid: c43ea33fa5122814390902a7a923c2ec, type: 3}
   pickupPrefab: {fileID: 4399677127681861043, guid: 5b1d1785517d179489890d5aacc06b47, type: 3}
   weaponType: 2
   fireType: 1
   projectilePrefab: {fileID: 2221258214874630549, guid: ba06039b1a5bfae42a1f538ec1734323, type: 3}
-  projectileSpeed: 100
+  projectileSpeed: 150
   projectileLifetime: 3
   tracerPrefab: {fileID: 0}
   grenadePrefab: {fileID: 0}
@@ -30,6 +30,19 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   statsByRarity:
   - damage: 10
+    fireRate: 0.2
+    range: 100
+    magazineSize: 20
+    reloadTime: 2
+    baseRecoil: 1
+    recoilPerShot: 0.3
+    maxRecoil: 8
+    recoilRecovery: 5
+    baseSpread: 0.5
+    spreadPerShot: 0.2
+    maxSpread: 5
+    spreadRecovery: 3
+  - damage: 12
     fireRate: 0.15
     range: 100
     magazineSize: 30
@@ -42,10 +55,10 @@ MonoBehaviour:
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 14
+    fireRate: 0.1
     range: 100
-    magazineSize: 30
+    magazineSize: 40
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -55,23 +68,10 @@ MonoBehaviour:
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 16
+    fireRate: 0.05
     range: 100
-    magazineSize: 30
-    reloadTime: 2
-    baseRecoil: 1
-    recoilPerShot: 0.3
-    maxRecoil: 8
-    recoilRecovery: 5
-    baseSpread: 0.5
-    spreadPerShot: 0.2
-    maxSpread: 5
-    spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
-    range: 100
-    magazineSize: 30
+    magazineSize: 50
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -97,11 +97,23 @@ MonoBehaviour:
   - Legendary
   descriptionsByRarity:
   - 
-  - 
-  - 
-  - 
-  purchaseRecipe: 01000000010000000100000001000000
+  - 'DMG +2
+
+    Fire Rate -0.05
+
+    MAG +10'
+  - 'DMG +2
+
+    Fire Rate -0.05
+
+    MAG +10'
+  - 'DMG +2
+
+    Fire Rate -0.05
+
+    MAG +10'
+  purchaseRecipe: 02000000030000000100000005000000
   upgradeRecipes:
-  - costs: 00000000000000000000000000000000
-  - costs: 00000000000000000000000000000000
-  - costs: 00000000000000000000000000000000
+  - costs: 0400000006000000020000000a000000
+  - costs: 080000000c000000040000000f000000
+  - costs: 0c0000000e0000000800000012000000

@@ -30,7 +30,7 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   statsByRarity:
   - damage: 10
-    fireRate: 0.15
+    fireRate: 0.3
     range: 100
     magazineSize: 8
     reloadTime: 1.5
@@ -43,7 +43,7 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 10
   - damage: 15
-    fireRate: 0.15
+    fireRate: 0.2
     range: 100
     magazineSize: 10
     reloadTime: 1.25
@@ -54,8 +54,8 @@ MonoBehaviour:
     baseSpread: 0.15
     spreadPerShot: 0.6
     maxSpread: 5
-    spreadRecovery: 0.1
-  - damage: 10
+    spreadRecovery: 7
+  - damage: 20
     fireRate: 0.15
     range: 100
     magazineSize: 30
@@ -67,9 +67,9 @@ MonoBehaviour:
     baseSpread: 0.5
     spreadPerShot: 0.2
     maxSpread: 5
-    spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+    spreadRecovery: 4
+  - damage: 25
+    fireRate: 0.1
     range: 100
     magazineSize: 30
     reloadTime: 2
@@ -80,7 +80,7 @@ MonoBehaviour:
     baseSpread: 0.5
     spreadPerShot: 0.2
     maxSpread: 5
-    spreadRecovery: 3
+    spreadRecovery: 1
   muzzleFlashPrefab: {fileID: 7529913218493613103, guid: bdfebbcc2e9b7e947a4268b16eb8c346, type: 3}
   impactDecals: []
   shootAnimatorController: {fileID: 9100000, guid: dea2f1aa0dbcda4489bdf62e4bcab2aa, type: 2}
@@ -97,15 +97,29 @@ MonoBehaviour:
   - Legendary
   descriptionsByRarity:
   - 
-  - 'DMG+
+  - 'DMG +5
 
     Magazin +3
 
-    Recoil-'
-  - 
-  - 
-  purchaseRecipe: 01000000020000000100000001000000
+    Recoil -3
+
+    -Fire Rate 0.05'
+  - 'DMG +5
+
+    Magazin +3
+
+    Recoil -3
+
+    -Fire Rate 0.05'
+  - 'DMG +5
+
+    Magazin +3
+
+    Recoil -3
+
+    -Fire Rate 0.05'
+  purchaseRecipe: 02000000030000000100000002000000
   upgradeRecipes:
-  - costs: 02000000040000000200000002000000
-  - costs: 04000000080000000400000004000000
-  - costs: 08000000100000000800000008000000
+  - costs: 02000000040000000100000002000000
+  - costs: 04000000080000000200000004000000
+  - costs: 08000000100000000400000008000000

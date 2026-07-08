@@ -3389,7 +3389,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   timeBetweenWaves: 3
-  totalLevelTime: 20
+  totalLevelTime: 10000
   nextSceneName: Lvl1
   sparkMessageDuration: 3
   notificationText: {fileID: 0}
@@ -9906,7 +9906,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 96cc4525e2424c744abb532e7635c05a, type: 3}
+  m_Resource: {fileID: 8300000, guid: 936abee504eea6244bf66528a5ac763e, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.49
   m_Pitch: 1

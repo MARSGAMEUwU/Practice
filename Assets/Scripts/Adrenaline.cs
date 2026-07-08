@@ -72,6 +72,8 @@ public class Adrenaline : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale <= 0f) return;
+
         if (currentAdrenaline > 0)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;

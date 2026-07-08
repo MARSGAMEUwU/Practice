@@ -51,7 +51,7 @@ public class Damageable : MonoBehaviour
 
         PlayDeathSound();
 
-        Destroy(gameObject, 2f);
+        Destroy(gameObject);
     }
 
     private void PlayHitSound()

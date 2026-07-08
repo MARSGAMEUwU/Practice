@@ -84,5 +84,7 @@ public class BOSS : MonoBehaviour
     private void Die()
     {
         Debug.Log("аняя ядну мюуси");
+        areLasersActive = false;
+        isRotationActive = false;
     }
 }

@@ -17,12 +17,12 @@ public class BOSS : MonoBehaviour
 
     private void Update()
     {
-        if (deadPoints == 24) Die();
+        deadPoints = 0;
         for (int i = 0; i < weakPoints.Length;  i++)
         {
             if (weakPoints[i] == null) deadPoints++;
         }
-
+        if (deadPoints == 28) Die();
         if (isRotationActive && lasersPivot != null)
         {
             // Вращаем по оси Y (вокруг своей оси)

@@ -4502,8 +4502,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   timeBetweenWaves: 3
-  totalLevelTime: 10000
-  nextSceneName: Lvl1
+  totalLevelTime: 2
+  nextSceneName: bossFight
   sparkMessageDuration: 3
   notificationText: {fileID: 0}
 --- !u!4 &763129283
@@ -11594,9 +11594,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Adrenaline
   maxAdrenaline: 100
-  currentAdrenaline: 30
+  currentAdrenaline: 0
   decayRate: 2.5
-  killReward: 0
+  killReward: 15
   injectionBoost: 50
   syringeAmount: 10
   cooldown: 5

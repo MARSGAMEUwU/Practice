@@ -22,13 +22,13 @@ public class InventoryUI : MonoBehaviour
     [Header("Корневой объект UI")]
     [SerializeField] private GameObject rootPanel;
 
+    private CanvasGroup canvasGroup; // Новый компонент для управления видимостью
     private InventoryManager inventoryManager;
     private bool isOpen = false;
     private float previousTimeScale = 1f;
 
     private void Awake()
     {
-        if (rootPanel != null) rootPanel.SetActive(false);
         if (toggleAction != null) toggleAction.Enable();
 
         if (playerController == null)
@@ -36,6 +36,13 @@ public class InventoryUI : MonoBehaviour
 
         if (playerInventory == null)
             playerInventory = FindObjectOfType<PlayerWeaponInventory>();
+
+        // Получаем компонент CanvasGroup
+        if (rootPanel != null)
+        {
+            canvasGroup = rootPanel.GetComponent<CanvasGroup>();
+            if (canvasGroup == null) canvasGroup = rootPanel.AddComponent<CanvasGroup>();
+        }
     }
 
     private void Start()
@@ -43,7 +50,12 @@ public class InventoryUI : MonoBehaviour
         if (inventoryManager == null)
             inventoryManager = FindObjectOfType<InventoryManager>();
 
+        // Принудительно инициализируем и обновляем данные на старте
+        if (rootPanel != null) rootPanel.SetActive(true);
         RefreshAll();
+
+        // Скрываем инвентарь через CanvasGroup, оставляя объект КОРРЕКТНО АКТИВНЫМ
+        SetAlpha(false);
     }
 
     private void Update()
@@ -62,32 +74,50 @@ public class InventoryUI : MonoBehaviour
 
     private void OpenInventory()
     {
+        if (isOpen) return;
         isOpen = true;
+
+        previousTimeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
 
         if (playerController != null)
             playerController.LockControls();
 
-        previousTimeScale = Time.timeScale;
+        SetAlpha(true);
+        RefreshAll();
+        Canvas.ForceUpdateCanvases();
+
         Time.timeScale = 0f;
 
-        if (rootPanel != null) rootPanel.SetActive(true);
-
-        RefreshAll();
-        Debug.Log("[UI] Инвентарь открыт");
+        Debug.Log($"[UI] Инвентарь открыт. Время остановлено. Старая скорость была: {previousTimeScale}");
     }
 
     private void CloseInventory()
     {
+        if (!isOpen) return; // Защита от двойного вызова
         isOpen = false;
 
+        // 1. Скрываем интерфейс визуально
+        SetAlpha(false);
+
+        // 2. Возвращаем управление игроку
         if (playerController != null)
             playerController.UnlockControls();
 
-        Time.timeScale = previousTimeScale;
+        // 3. Возвращаем нормальный ход времени. 
+        // Если сохраненное значение сломалось, принудительно ставим 1f (100% скорость игры).
+        Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
 
-        if (rootPanel != null) rootPanel.SetActive(false);
+        Debug.Log($"[UI] Инвентарь закрыт. Время восстановлено: {Time.timeScale}");
+    }
 
-        Debug.Log("[UI] Инвентарь закрыт");
+    // Метод для мгновенного скрытия/показа UI без отключения GameObject
+    private void SetAlpha(bool visible)
+    {
+        if (canvasGroup == null) return;
+
+        canvasGroup.alpha = visible ? 1f : 0f;          // Прозрачность
+        canvasGroup.interactable = visible;             // Доступность кнопок для кликов
+        canvasGroup.blocksRaycasts = visible;          // Перехватывает ли UI мышь
     }
 
     public void RefreshAll()

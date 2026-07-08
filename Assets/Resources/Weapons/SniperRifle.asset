@@ -25,12 +25,12 @@ MonoBehaviour:
   tracerPrefab: {fileID: 0}
   grenadePrefab: {fileID: 0}
   throwForce: 20
-  explosionRadius: 5
+  explosionRadius: 20
   fuseTime: 3
   explosionEffectPrefab: {fileID: 0}
   statsByRarity:
   - damage: 50
-    fireRate: 0.1
+    fireRate: 0.5
     range: 200
     magazineSize: 5
     reloadTime: 2
@@ -42,23 +42,23 @@ MonoBehaviour:
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 70
+    fireRate: 0.7
     range: 100
-    magazineSize: 30
+    magazineSize: 4
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3
     maxRecoil: 8
     recoilRecovery: 5
-    baseSpread: 0.5
+    baseSpread: 0.3
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 100
+    fireRate: 0.8
     range: 100
-    magazineSize: 30
+    magazineSize: 3
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -73,15 +73,15 @@ MonoBehaviour:
     range: 1000
     magazineSize: 1
     reloadTime: 3
-    baseRecoil: 50
-    recoilPerShot: 50
-    maxRecoil: 50
+    baseRecoil: 10000000
+    recoilPerShot: 10000
+    maxRecoil: 1.11111e+9
     recoilRecovery: 5
     baseSpread: 0.1
     spreadPerShot: 0.1
     maxSpread: 0.1
     spreadRecovery: 3
-  muzzleFlashPrefab: {fileID: 0}
+  muzzleFlashPrefab: {fileID: 7529913218493613103, guid: bdfebbcc2e9b7e947a4268b16eb8c346, type: 3}
   impactDecals: []
   shootAnimatorController: {fileID: 0}
   shootTriggerName: Shoot
@@ -96,12 +96,30 @@ MonoBehaviour:
   - Epic
   - Legendary
   descriptionsByRarity:
-  - 
-  - 
-  - 
-  - 
-  purchaseRecipe: 01000000010000000100000001000000
+  - 'DMG 50
+
+    MAG 5
+
+    Fire Rate 0.5
+
+'
+  - 'DMG +20
+
+    Fire Rate +0.02
+
+    MAG -1'
+  - 'DMG +30
+
+    Fire Rate +0.01
+
+    MAG -1'
+  - 'DMG +100
+
+    Fire Rate +0.02
+
+    MAG -2'
+  purchaseRecipe: 03000000020000000400000001000000
   upgradeRecipes:
-  - costs: 00000000000000000000000000000000
-  - costs: 00000000000000000000000000000000
-  - costs: 00000000000000000000000000000000
+  - costs: 06000000040000000800000002000000
+  - costs: 0c000000080000001000000004000000
+  - costs: 100000000c0000001400000008000000

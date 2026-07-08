@@ -25,11 +25,11 @@ MonoBehaviour:
   tracerPrefab: {fileID: 0}
   grenadePrefab: {fileID: 1042915425289900098, guid: 80a67c7d46f023b4f912ee2d3b0bec43, type: 3}
   throwForce: 40
-  explosionRadius: 10
+  explosionRadius: 5
   fuseTime: 1.5
   explosionEffectPrefab: {fileID: 5344967403138647181, guid: 64babc5c22d668443b9eb8b834a176ae, type: 3}
   statsByRarity:
-  - damage: 15
+  - damage: 20
     fireRate: 0.5
     range: 100
     magazineSize: 6
@@ -40,44 +40,44 @@ MonoBehaviour:
     recoilRecovery: 5
     baseSpread: 5
     spreadPerShot: 0
-    maxSpread: 5.1
+    maxSpread: 5
     spreadRecovery: 3
-  - damage: 20
-    fireRate: 0.5
+  - damage: 30
+    fireRate: 0.45
     range: 100
     magazineSize: 8
-    reloadTime: 1.5
+    reloadTime: 4.5
     baseRecoil: 1
     recoilPerShot: 20
     maxRecoil: 0.5
     recoilRecovery: 25
-    baseSpread: 5
+    baseSpread: 4.5
     spreadPerShot: 0
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 40
+    fireRate: 0.4
     range: 100
-    magazineSize: 30
-    reloadTime: 2
+    magazineSize: 10
+    reloadTime: 4
     baseRecoil: 1
     recoilPerShot: 0.3
     maxRecoil: 8
     recoilRecovery: 5
-    baseSpread: 0.5
+    baseSpread: 4
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 50
+    fireRate: 0.35
     range: 100
-    magazineSize: 30
-    reloadTime: 2
+    magazineSize: 12
+    reloadTime: 3.5
     baseRecoil: 1
     recoilPerShot: 0.3
     maxRecoil: 8
     recoilRecovery: 5
-    baseSpread: 0.5
+    baseSpread: 3.5
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
@@ -96,20 +96,24 @@ MonoBehaviour:
   - Epic
   - Legendary
   descriptionsByRarity:
-  - 'Grenade Ammo
+  - "Grenade Ammo 6\nAoE Exploision Damage \nRigidBody Projectile Shot"
+  - 'Ammo +2
 
-    AoE Exploision Damage
+    ReloadTime -0.5
 
-    RigidBody Projectile Shot'
-  - 'Ammo+
+    DMG +10'
+  - 'Ammo +2
 
-    ReloadTime-
+    ReloadTime -0.5
 
-    DMG+'
-  - 
-  - 
-  purchaseRecipe: 01000000010000000100000001000000
+    DMG +10'
+  - 'Ammo +2
+
+    ReloadTime -0.5
+
+    DMG +10'
+  purchaseRecipe: 05000000040000000600000003000000
   upgradeRecipes:
-  - costs: 00000000000000000000000000000000
-  - costs: 00000000000000000000000000000000
-  - costs: 00000000000000000000000000000000
+  - costs: 0a000000080000000c00000006000000
+  - costs: 0f0000000d000000120000000b000000
+  - costs: 14000000120000001700000010000000

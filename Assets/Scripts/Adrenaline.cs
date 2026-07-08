@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class Adrenaline : MonoBehaviour
 {
@@ -159,6 +160,7 @@ public class Adrenaline : MonoBehaviour
         //Time.timeScale = 0f;
         UnityEngine.Debug.Log("Игрок погиб");
         if (WaveManager.Instance != null) WaveManager.Instance.GameOver();
+        SceneManager.LoadScene("GameOver");
     }
 
     public void TakeDamage(float damageAmount)

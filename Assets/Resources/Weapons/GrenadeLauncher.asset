@@ -24,35 +24,35 @@ MonoBehaviour:
   projectileLifetime: 3
   tracerPrefab: {fileID: 0}
   grenadePrefab: {fileID: 1042915425289900098, guid: 80a67c7d46f023b4f912ee2d3b0bec43, type: 3}
-  throwForce: 20
-  explosionRadius: 5
-  fuseTime: 2
+  throwForce: 40
+  explosionRadius: 10
+  fuseTime: 1.5
   explosionEffectPrefab: {fileID: 5344967403138647181, guid: 64babc5c22d668443b9eb8b834a176ae, type: 3}
   statsByRarity:
-  - damage: 25
+  - damage: 15
     fireRate: 0.5
     range: 100
     magazineSize: 6
     reloadTime: 5
-    baseRecoil: 1000
-    recoilPerShot: 0.1
-    maxRecoil: 1010
+    baseRecoil: 20
+    recoilPerShot: 0.5
+    maxRecoil: 25
     recoilRecovery: 5
-    baseSpread: 0.5
-    spreadPerShot: 0.2
-    maxSpread: 5
+    baseSpread: 5
+    spreadPerShot: 0
+    maxSpread: 5.1
     spreadRecovery: 3
-  - damage: 10
-    fireRate: 0.15
+  - damage: 20
+    fireRate: 0.5
     range: 100
-    magazineSize: 30
-    reloadTime: 2
+    magazineSize: 8
+    reloadTime: 1.5
     baseRecoil: 1
-    recoilPerShot: 0.3
-    maxRecoil: 8
-    recoilRecovery: 5
-    baseSpread: 0.5
-    spreadPerShot: 0.2
+    recoilPerShot: 20
+    maxRecoil: 0.5
+    recoilRecovery: 25
+    baseSpread: 5
+    spreadPerShot: 0
     maxSpread: 5
     spreadRecovery: 3
   - damage: 10
@@ -96,8 +96,16 @@ MonoBehaviour:
   - Epic
   - Legendary
   descriptionsByRarity:
-  - 
-  - 
+  - 'Grenade Ammo
+
+    AoE Exploision Damage
+
+    RigidBody Projectile Shot'
+  - 'Ammo+
+
+    ReloadTime-
+
+    DMG+'
   - 
   - 
   purchaseRecipe: 01000000010000000100000001000000

@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class LevelSpawnPoint : MonoBehaviour
 {
+    [Header("Настройки спавна")]
+    [Tooltip("Смещение по Y вверх, чтобы игрок не застрял в полу и не провалился под карту")]
+    [SerializeField] private float spawnHeightOffset = 0.5f;
+
     private void Start()
     {
         // Ищем нашего "бессмертного" игрока на сцене
@@ -9,16 +13,37 @@ public class LevelSpawnPoint : MonoBehaviour
 
         if (player != null)
         {
-            // Телепортируем игрока в точку спавна
-            player.transform.position = transform.position;
-            player.transform.rotation = transform.rotation;
+            // 1. Вычисляем глобальную позицию с небольшим смещением вверх
+            Vector3 spawnPos = transform.position + Vector3.up * spawnHeightOffset;
+            Quaternion spawnRot = transform.rotation;
 
-            // Сбрасываем скорость, если у игрока есть физика (чтобы он не инерциально летел дальше)
+            // 2. Полностью сбрасываем физику (Rigidbody), чтобы инерция не унесла игрока
             Rigidbody rb = player.GetComponent<Rigidbody>();
-            if (rb != null) rb.linearVelocity = Vector3.zero;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+            }
 
+            // 3. Правильно телепортируем CharacterController
             CharacterController cc = player.GetComponent<CharacterController>();
-            if (cc != null) cc.SimpleMove(Vector3.zero); // Сброс для CharacterController
+            if (cc != null)
+            {
+                // CharacterController глючит, если просто менять transform.position при коллизии.
+                // Стандартный фикс Unity: отключить контроллер, переместить объект, включить обратно.
+                cc.enabled = false;
+                player.transform.position = spawnPos;
+                player.transform.rotation = spawnRot;
+                cc.enabled = true;
+            }
+            else
+            {
+                // Если CharacterController нет, просто меняем позицию
+                player.transform.position = spawnPos;
+                player.transform.rotation = spawnRot;
+            }
+
+            Debug.Log($"<color=green>Игрок телепортирован в точку спавна: {spawnPos}</color>");
         }
         else
         {

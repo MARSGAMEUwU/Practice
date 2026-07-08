@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class InventoryUI : MonoBehaviour
 {
     [Header("Input")]
-    [SerializeField] private InputAction toggleAction; // Tab
+    [SerializeField] private InputAction toggleAction;
 
     [Header("Ссылки")]
     [SerializeField] private PlayerController playerController;

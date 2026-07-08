@@ -3618,7 +3618,7 @@ MonoBehaviour:
   - {fileID: 786385574}
   - {fileID: 888580100}
   timeBetweenWaves: 3
-  totalLevelTime: 100
+  totalLevelTime: 2
   nextSceneName: Lvl1
   sparkMessageDuration: 3
   notificationText: {fileID: 0}
@@ -7695,7 +7695,10 @@ PrefabInstance:
       propertyPath: weaponController
       value: 
       objectReference: {fileID: 1410276487}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4056917458842352190, guid: 799a0237b64039546a97a0bd18a82b8c, type: 3}
+    - {fileID: 3681295617152330634, guid: 799a0237b64039546a97a0bd18a82b8c, type: 3}
+    - {fileID: 4233063693514717226, guid: 799a0237b64039546a97a0bd18a82b8c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 2353346682043915275, guid: 799a0237b64039546a97a0bd18a82b8c, type: 3}

@@ -3619,7 +3619,7 @@ MonoBehaviour:
   - {fileID: 888580100}
   timeBetweenWaves: 3
   totalLevelTime: 2
-  nextSceneName: Lvl1
+  nextSceneName: bossFight
   sparkMessageDuration: 3
   notificationText: {fileID: 0}
 --- !u!4 &763129283

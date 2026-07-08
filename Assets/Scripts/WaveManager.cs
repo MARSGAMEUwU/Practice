@@ -57,9 +57,50 @@ public class WaveManager : MonoBehaviour
     {
         totalTimer = totalLevelTime;
 
-        // Скрываем текст в начале
+        // === АВТОМАТИЧЕСКИЙ ПОИСК UI (ЕСЛИ НЕ НАЗНАЧЕН В ИНСПЕКТОРЕ) ===
+        if (notificationText == null)
+        {
+            // 1. Пытаемся найти по точному пути в иерархии: Canvas -> NotificationPanel -> NotificationText
+            Transform canvas = GameObject.Find("Canvas")?.transform;
+            if (canvas != null)
+            {
+                Transform panel = canvas.Find("NotificationPanel");
+                if (panel != null)
+                {
+                    Transform textObj = panel.Find("NotificationText");
+                    if (textObj != null)
+                    {
+                        notificationText = textObj.GetComponent<TextMeshProUGUI>();
+                    }
+                }
+            }
+
+            // 2. Если по пути не нашли, пробуем глобальный поиск по имени объекта
+            if (notificationText == null)
+            {
+                GameObject foundObj = GameObject.Find("NotificationText");
+                if (foundObj != null)
+                {
+                    notificationText = foundObj.GetComponent<TextMeshProUGUI>();
+                }
+            }
+
+            // Выводим результат поиска в консоль для отладки
+            if (notificationText != null)
+            {
+                Debug.Log("<color=green>[WaveManager] ? UI таймера найден автоматически!</color>");
+            }
+            else
+            {
+                Debug.LogError("<color=red>[WaveManager] ? ОШИБКА: NotificationText не найден! Проверьте имена объектов в иерархии.</color>");
+            }
+        }
+
+        // Скрываем текст в начале игры
         if (notificationText != null)
+        {
             notificationText.gameObject.SetActive(false);
+        }
     }
 
     private void Update()
@@ -77,7 +118,7 @@ public class WaveManager : MonoBehaviour
             notificationText.gameObject.SetActive(true);
             int minutes = Mathf.FloorToInt(totalTimer / 60f);
             int seconds = Mathf.FloorToInt(totalTimer % 60f);
-            notificationText.text = $"{minutes:D2}:{seconds:D2}";
+            notificationText.text = $"{seconds}";
         }
 
         // Общий таймер истёк — запускаем финальную последовательность

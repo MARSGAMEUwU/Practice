@@ -9,11 +9,18 @@ public class BOSS : MonoBehaviour
     [SerializeField] private Transform lasersPivot;
     [SerializeField] private Damageable[] weakPoints;
     [SerializeField] private LaserGrid[] grid;
+    [SerializeField] private float movingDuration = 3f;
+    [SerializeField] private float slowingDuration = 2;
+    [SerializeField] private float maxMovingSpeed = 20f;
+    [SerializeField] private Transform ring;
+    private bool isMovingUp = true;
+    private float currentMovingSpeed;
     public int deadPoints = 0;
     public bool isRotationActive = true;
     public bool areLasersActive = true;
     private float currentRotationSpeed;
     private bool isMovingForward = true;
+    private bool isMovingActive = true;
 
     private void Update()
     {
@@ -28,17 +35,19 @@ public class BOSS : MonoBehaviour
             // Вращаем по оси Y (вокруг своей оси)
             lasersPivot.Rotate(Vector3.up * currentRotationSpeed * Time.deltaTime);
         }
+        if (isMovingActive) { ring.position += Vector3.up * currentMovingSpeed * Time.deltaTime; ring.Rotate(Vector3.forward * 10f * Time.deltaTime); }
     }
 
     private void Start()
     {
         // Запускаем бесконечный цикл смены направления
         StartCoroutine(RotationPatternRoutine());
+        StartCoroutine(MovingRoutine());
     }
 
     private IEnumerator RotationPatternRoutine()
     {
-        while (deadPoints < 24)
+        while (deadPoints < 28)
         {
             // ШАГ 1: Крутимся на максимальной скорости заданное время
             currentRotationSpeed = isMovingForward ? maxRotationSpeed : -maxRotationSpeed;
@@ -81,10 +90,55 @@ public class BOSS : MonoBehaviour
         }
     }
 
+    private System.Collections.IEnumerator MovingRoutine()
+    {
+        while (deadPoints < 28)
+        {
+            currentMovingSpeed = isMovingUp ? maxMovingSpeed : -maxMovingSpeed;
+            yield return new WaitForSeconds(movingDuration);
+
+            float startSpeed = currentMovingSpeed;
+            float targetSpeed = 0f;
+            float elapsed = 0f;
+
+            while (elapsed < slowdownDuration)
+            {
+                elapsed += Time.deltaTime;
+                // Mathf.SmoothStep делает замедление мягким в конце
+                currentMovingSpeed = Mathf.SmoothStep(startSpeed, targetSpeed, elapsed / slowdownDuration);
+                yield return null; // Ждем один кадр
+            }
+
+            currentMovingSpeed = 0f;
+
+            // Небольшая драматическая пауза в полной остановке (например, 0.5 секунды)
+            yield return new WaitForSeconds(0.1f);
+
+            // МЕНЯЕМ НАПРАВЛЕНИЕ
+            isMovingUp = !isMovingUp;
+
+            // ШАГ 3: Плавно разгоняемся от 0 до максимальной скорости в другую сторону
+            startSpeed = 0f;
+            targetSpeed = isMovingUp ? maxMovingSpeed : -maxMovingSpeed;
+            elapsed = 0f;
+
+            while (elapsed < slowdownDuration)
+            {
+                elapsed += Time.deltaTime;
+                currentMovingSpeed = Mathf.SmoothStep(startSpeed, targetSpeed, elapsed / slowdownDuration);
+                yield return null;
+            }
+
+            currentMovingSpeed = targetSpeed;
+        }
+        
+    }
+
     private void Die()
     {
         Debug.Log("БОСС СДОХ НАХУЙ");
         areLasersActive = false;
         isRotationActive = false;
+        isMovingActive = false;
     }
 }

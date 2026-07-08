@@ -8566,6 +8566,54 @@ Camera:
   m_CorrespondingSourceObject: {fileID: 1480526547018978100, guid: 4e64754324feab14888e95c19b4742f4, type: 3}
   m_PrefabInstance: {fileID: 1321411318}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1245519782
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1245519784}
+  - component: {fileID: 1245519783}
+  m_Layer: 0
+  m_Name: TransitionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1245519783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245519782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72075c8c8b5ab394aa8c8b1c529f684a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TransitionManager
+  fadeColor: {r: 0.049261317, g: 0.084905684, b: 0.08248927, a: 1}
+  stepDuration: 0.12
+  transitionAudio: {fileID: 0}
+  stepSounds: []
+--- !u!4 &1245519784
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245519782}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -17.75269, y: 9.07253, z: -35.47711}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1288462824
 GameObject:
   m_ObjectHideFlags: 0
@@ -16926,3 +16974,4 @@ SceneRoots:
   - {fileID: 1778454079}
   - {fileID: 763129283}
   - {fileID: 1503004208}
+  - {fileID: 1245519784}

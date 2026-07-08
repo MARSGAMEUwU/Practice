@@ -183,7 +183,16 @@ public class WaveManager : MonoBehaviour
 
         // Загружаем следующую сцену
         Debug.Log($"<color=cyan> Загрузка сцены: {nextSceneName}</color>");
-        SceneManager.LoadScene(nextSceneName);
+        // === ЭФЕКТ ПЕРЕХОДА ===
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.TransitionToScene(nextSceneName);
+        }
+        else
+        {
+            // Запасной вариант, если менеджер переходов по какой-то причине не найден
+            SceneManager.LoadScene(nextSceneName);
+        }
     }
 
     /// <summary>

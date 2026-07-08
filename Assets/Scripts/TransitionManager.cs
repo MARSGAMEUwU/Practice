@@ -83,13 +83,13 @@ public class TransitionManager : MonoBehaviour
     private IEnumerator TransitionRoutine(string sceneName)
     {
         isTransitioning = true;
-
+        Time.timeScale = 0f;
         // 1. ЅЋќ »–ќ¬ ј √≈…ћѕЋ≈я
         if (playerController == null)
             playerController = FindObjectOfType<PlayerController>();
 
         if (playerController != null)
-            playerController.LockControls();
+            playerController.LockControlsWithoutMouse();
 
         fadeImage.raycastTarget = true; // Ѕлокируем клики
 
@@ -113,7 +113,7 @@ public class TransitionManager : MonoBehaviour
 
         // Ёкран полностью черный. «агружаем сцену.
         SceneManager.LoadScene(sceneName);
-
+        Time.timeScale = 0f;
         // ∆дем 2 кадра, чтобы нова€ сцена проинициализировалась
         yield return null;
         yield return null;
@@ -136,8 +136,8 @@ public class TransitionManager : MonoBehaviour
         // ==========================================
         fadeImage.raycastTarget = false;
         if (playerController != null)
-            playerController.UnlockControls();
-
+            playerController.UnlockControlsWhithoutMouse();
+        Time.timeScale = 1f;
         isTransitioning = false;
     }
 

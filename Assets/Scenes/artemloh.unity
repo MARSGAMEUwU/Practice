@@ -3389,7 +3389,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   timeBetweenWaves: 3
-  totalLevelTime: 10
+  totalLevelTime: 20
   nextSceneName: Lvl1
   sparkMessageDuration: 3
   notificationText: {fileID: 0}

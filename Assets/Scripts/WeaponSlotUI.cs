@@ -21,7 +21,7 @@ public class WeaponSlotUI : MonoBehaviour
 
     [Header("Настройки")]
     [SerializeField] private Color emptySlotColor = new Color(0.2f, 0.2f, 0.2f); // Чуть темнее для "пустого" состояния
-    [SerializeField] private float overlayAlpha = 0.4f;
+    [SerializeField] private float overlayAlpha = 0.5f;
 
     private InventoryManager inventoryManager;
     private WeaponData currentWeaponData;
@@ -58,7 +58,7 @@ public class WeaponSlotUI : MonoBehaviour
         // 1. ФОН СЛОТА
         if (background != null)
         {
-            background.color = hasWeapon ? new Color(0.35f, 0.35f, 0.35f, 1f) : emptySlotColor;
+            background.color = hasWeapon ? new Color(0.35f, 0.35f, 0.35f, 0f) : emptySlotColor;
         }
 
         // 2. ОВЕРЛЕЙ РЕДКОСТИ

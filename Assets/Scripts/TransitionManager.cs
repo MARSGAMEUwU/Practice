@@ -155,7 +155,7 @@ public class TransitionManager : MonoBehaviour
             AudioClip clip = stepSounds[stepIndex % stepSounds.Length];
             if (clip != null)
             {
-                transitionAudio.PlayOneShot(clip);
+                transitionAudio.PlayOneShot(clip, 0.3f);
             }
         }
     }

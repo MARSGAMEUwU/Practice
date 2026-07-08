@@ -4503,7 +4503,7 @@ MonoBehaviour:
   - {fileID: 0}
   timeBetweenWaves: 3
   totalLevelTime: 2
-  nextSceneName: bossFight
+  nextSceneName: Lvl1
   sparkMessageDuration: 3
   notificationText: {fileID: 0}
 --- !u!4 &763129283
@@ -9655,7 +9655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72075c8c8b5ab394aa8c8b1c529f684a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TransitionManager
-  fadeColor: {r: 0.049261317, g: 0.084905684, b: 0.08248927, a: 1}
+  fadeColor: {r: 0.015352439, g: 0.14150941, b: 0.12749197, a: 1}
   stepDuration: 0.4
   transitionAudio: {fileID: 0}
   stepSounds:

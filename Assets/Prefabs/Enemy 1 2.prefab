@@ -778,7 +778,7 @@ MonoBehaviour:
   animator: {fileID: 6622853138276986623}
   agent: {fileID: 0}
   detectionRange: 1000
-  attackRange: 2.5
+  attackRange: 5
   stopDistance: 1.2
   attackCooldown: 1.5
   damage: 10

@@ -13,7 +13,7 @@ public class Adrenaline : MonoBehaviour
 
     [Header("Шприцы")]
     [SerializeField] private float injectionBoost = 50f;
-    [SerializeField] private int syringeAmount = 1;
+    [SerializeField] private int syringeAmount = 4;
     [SerializeField] private float cooldown = 5f;
     [SerializeField] private InputAction useSyringe;
 
@@ -177,6 +177,7 @@ public class Adrenaline : MonoBehaviour
     public void GetSyringe()
     {
         syringeAmount++;
+        syringeAmount = Mathf.Clamp(syringeAmount, 0, 4);
         UnityEngine.Debug.Log("+ syringe");
     }
 }

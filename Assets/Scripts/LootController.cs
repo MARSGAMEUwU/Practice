@@ -12,12 +12,14 @@ public class LootController : MonoBehaviour
     [SerializeField] private GameObject lootTextUI;
     [SerializeField] private Image progressBar;
     [SerializeField] private Image progressBarBG;
+    
 
     [Header("Настройки")]
     [SerializeField] private float lootTime = 3f;
 
     private List<GameObject> corpsesInRange = new List<GameObject>();
     private float lootProgress = 0f;
+    //private Adrenaline playerAdrenaline;
 
     private void Awake()
     {
@@ -134,11 +136,12 @@ public class LootController : MonoBehaviour
         {
             for (int i = 0; i < corpseCount; i++)
             {
-                inventoryManager.AddResource(0, 1);
-                inventoryManager.AddResource(1, 1);
-                inventoryManager.AddResource(2, 1);
-                inventoryManager.AddResource(3, 1);
+                inventoryManager.AddResource(0, Random.RandomRange(1, 5));
+                inventoryManager.AddResource(1, Random.RandomRange(1, 5));
+                inventoryManager.AddResource(2, Random.RandomRange(1, 5));
+                inventoryManager.AddResource(3, Random.RandomRange(1, 5));
             }
+            gameObject.GetComponent<Adrenaline>().GetSyringe();
             Debug.Log($"<color=green>✅ Обобрано трупов: {corpseCount}. Ресурсы добавлены.</color>");
         }
 

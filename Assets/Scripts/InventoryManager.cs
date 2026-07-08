@@ -7,7 +7,7 @@ public class InventoryManager : MonoBehaviour
 
     [Header("Ресурсы")]
     [Tooltip("Порядок: [0]Ствол, [1]Магазин, [2]Рукоять, [3]Прицел")]
-    private int[] materialsAmount = new int[4] {1000, 1000, 1000, 1000 };
+    private int[] materialsAmount = new int[4];
 
     [Header("Иконки ресурсов для UI")]
     public Sprite barrelIcon;

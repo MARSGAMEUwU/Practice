@@ -58,7 +58,7 @@ MonoBehaviour:
   - damage: 20
     fireRate: 0.15
     range: 100
-    magazineSize: 30
+    magazineSize: 12
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3
@@ -71,7 +71,7 @@ MonoBehaviour:
   - damage: 25
     fireRate: 0.1
     range: 100
-    magazineSize: 30
+    magazineSize: 14
     reloadTime: 2
     baseRecoil: 1
     recoilPerShot: 0.3

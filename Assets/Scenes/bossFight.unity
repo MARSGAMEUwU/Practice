@@ -1610,6 +1610,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 88668135575208155, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 88668135575208155, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -1617,6 +1621,10 @@ PrefabInstance:
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 239276607259221792, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 239276607259221792, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -1629,6 +1637,10 @@ PrefabInstance:
       propertyPath: m_Intensity
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 407672545978070490, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 415256724798236418, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 1
@@ -1638,6 +1650,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 484516589954981011, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 484516589954981011, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -1646,9 +1662,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
     - target: {fileID: 557195443894316560, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 557195443894316560, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 97cf3388bf806184f8bbc1f83cb9d57c, type: 3}
+    - target: {fileID: 561786075475422603, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 679783569924050299, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 0.5
@@ -1661,14 +1685,26 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1338047277866878363, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 1344732343133181010, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1376236733417262228, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 1465698045563825141, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 1465698045563825141, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 1465698045563825141, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -1692,6 +1728,10 @@ PrefabInstance:
     - target: {fileID: 1573214149737386177, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1635754930601949814, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 1662511218354925074, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
@@ -1738,6 +1778,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 2093808568243429748, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2093808568243429748, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -1754,12 +1798,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 2188995196004751076, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2188995196004751076, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
     - target: {fileID: 2467505186997165816, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2684282329770293105, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 2731071663256746422, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
@@ -1786,12 +1838,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
     - target: {fileID: 2929308073464198711, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2929308073464198711, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 97cf3388bf806184f8bbc1f83cb9d57c, type: 3}
     - target: {fileID: 2975533010448701831, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3083244939090563759, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 3150020768460805529, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 3156308083510889160, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
@@ -1802,6 +1866,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 3250644601152899132, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3250644601152899132, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -1809,9 +1877,17 @@ PrefabInstance:
       propertyPath: m_Intensity
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 3328512651508017472, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 3357695499605484429, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3448264748392151462, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 3469567922760561694, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: ring
@@ -1954,6 +2030,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
     - target: {fileID: 3513968341971286998, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3513968341971286998, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 97cf3388bf806184f8bbc1f83cb9d57c, type: 3}
@@ -1962,9 +2042,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 3560216496973083836, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3560216496973083836, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
+    - target: {fileID: 3665091345320024326, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 3667607381209496748, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1973,9 +2061,17 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3728856210637961849, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 3834643940746033900, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3885650365038301801, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 3954430278769791945, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
@@ -2002,12 +2098,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 4295891597515828275, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4295891597515828275, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
     - target: {fileID: 4452097203450971568, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4458344052044100841, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 4485348685425879946, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
@@ -2017,10 +2121,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4679564925612282505, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 4725938743078645360, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 4725938743078645360, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 4725938743078645360, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2028,6 +2140,10 @@ PrefabInstance:
     - target: {fileID: 4800133957026904656, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4970675981572229801, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 5017720470658998513, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
@@ -2050,6 +2166,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 5234629713437061843, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5234629713437061843, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -2062,6 +2182,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 5296040237338952441, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 5296040237338952441, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -2073,10 +2197,18 @@ PrefabInstance:
       propertyPath: m_Intensity
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5515186455488502398, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 5534449838383402175, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
+    - target: {fileID: 5534449838383402175, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 5534449838383402175, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2089,10 +2221,18 @@ PrefabInstance:
       propertyPath: m_Intensity
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5781065028102923803, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 5803138987713181365, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 5803138987713181365, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 5803138987713181365, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2110,6 +2250,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 6229734981302849253, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6229734981302849253, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -2126,6 +2270,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 6465871656528487387, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6465871656528487387, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -2138,6 +2286,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 6680526049662580438, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6680526049662580438, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -2145,6 +2297,10 @@ PrefabInstance:
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
+    - target: {fileID: 6766095801774668393, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6766095801774668393, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2166,6 +2322,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 6870234683899093367, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6870234683899093367, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
@@ -2173,6 +2333,10 @@ PrefabInstance:
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 6913591576928064339, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6913591576928064339, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2182,13 +2346,25 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 6917414672411896044, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6917414672411896044, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 4ce362a0cd3740d4d86d49e38be41518, type: 3}
+    - target: {fileID: 6991620100750381100, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 7040409373811458652, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 7040409373811458652, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 7040409373811458652, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2204,6 +2380,14 @@ PrefabInstance:
     - target: {fileID: 7211330169337160126, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7265110047048788921, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 7267381942587433231, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 7294859361994819564, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
@@ -2226,12 +2410,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
     - target: {fileID: 7629514043213536518, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7629514043213536518, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: 97cf3388bf806184f8bbc1f83cb9d57c, type: 3}
     - target: {fileID: 7679593529474962751, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7703019417333798244, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 7805585228746049052, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
@@ -2248,6 +2440,14 @@ PrefabInstance:
     - target: {fileID: 7889515263231925638, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7972439967503632551, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 8048588092827587150, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 8105836084617066181, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_IsActive
@@ -2285,10 +2485,26 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8546476060384900485, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 8547026877903390560, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
+    - target: {fileID: 8599148218905898435, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 8732355336574528600, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: hitSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
+    - target: {fileID: 8732355336574528600, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 8732355336574528600, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
@@ -2338,12 +2554,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8300000, guid: c4ba796a839d3fa41b7006b315df8b6c, type: 3}
     - target: {fileID: 8938013100408548558, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: maxHealth
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 8938013100408548558, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: deathSound
       value: 
       objectReference: {fileID: 8300000, guid: c542715b8fd165d4097ef172b20ddbd2, type: 3}
     - target: {fileID: 9041789284207731666, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9123585617137214848, guid: a891e1948795c25468d8a13e187e7177, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 9148696098168750519, guid: a891e1948795c25468d8a13e187e7177, type: 3}
       propertyPath: m_Intensity

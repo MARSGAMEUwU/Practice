@@ -1,0 +1,88 @@
+using UnityEngine;
+using System.Collections;
+
+public class BOSS : MonoBehaviour
+{
+    [SerializeField] private float maxRotationSpeed = 10f;
+    [SerializeField] private float rotationDuration = 5f;    // Сколько секунд лазеры крутятся на макс. скорости
+    [SerializeField] private float slowdownDuration = 2f;
+    [SerializeField] private Transform lasersPivot;
+    [SerializeField] private Damageable[] weakPoints;
+    [SerializeField] private LaserGrid[] grid;
+    public int deadPoints = 0;
+    public bool isRotationActive = true;
+    public bool areLasersActive = true;
+    private float currentRotationSpeed;
+    private bool isMovingForward = true;
+
+    private void Update()
+    {
+        if (deadPoints == 24) Die();
+        for (int i = 0; i < weakPoints.Length;  i++)
+        {
+            if (weakPoints[i] == null) deadPoints++;
+        }
+
+        if (isRotationActive && lasersPivot != null)
+        {
+            // Вращаем по оси Y (вокруг своей оси)
+            lasersPivot.Rotate(Vector3.up * currentRotationSpeed * Time.deltaTime);
+        }
+    }
+
+    private void Start()
+    {
+        // Запускаем бесконечный цикл смены направления
+        StartCoroutine(RotationPatternRoutine());
+    }
+
+    private IEnumerator RotationPatternRoutine()
+    {
+        while (deadPoints < 24)
+        {
+            // ШАГ 1: Крутимся на максимальной скорости заданное время
+            currentRotationSpeed = isMovingForward ? maxRotationSpeed : -maxRotationSpeed;
+            yield return new WaitForSeconds(rotationDuration);
+
+            // ШАГ 2: Плавно замедляемся до 0
+            float startSpeed = currentRotationSpeed;
+            float targetSpeed = 0f;
+            float elapsed = 0f;
+
+            while (elapsed < slowdownDuration)
+            {
+                elapsed += Time.deltaTime;
+                // Mathf.SmoothStep делает замедление мягким в конце
+                currentRotationSpeed = Mathf.SmoothStep(startSpeed, targetSpeed, elapsed / slowdownDuration);
+                yield return null; // Ждем один кадр
+            }
+
+            currentRotationSpeed = 0f;
+
+            // Небольшая драматическая пауза в полной остановке (например, 0.5 секунды)
+            yield return new WaitForSeconds(0.5f);
+
+            // МЕНЯЕМ НАПРАВЛЕНИЕ
+            isMovingForward = !isMovingForward;
+
+            // ШАГ 3: Плавно разгоняемся от 0 до максимальной скорости в другую сторону
+            startSpeed = 0f;
+            targetSpeed = isMovingForward ? maxRotationSpeed : -maxRotationSpeed;
+            elapsed = 0f;
+
+            while (elapsed < slowdownDuration)
+            {
+                elapsed += Time.deltaTime;
+                currentRotationSpeed = Mathf.SmoothStep(startSpeed, targetSpeed, elapsed / slowdownDuration);
+                yield return null;
+            }
+
+            currentRotationSpeed = targetSpeed;
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("БОСС СДОХ НАХУЙ");
+    }
+}

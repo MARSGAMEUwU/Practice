@@ -3314,13 +3314,37 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: healRate
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: decayRate
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: syringeUI
       value: 
       objectReference: {fileID: 1585428372}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: killReward
+      value: 33
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: minContrast
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: adrenalineUI
       value: 
       objectReference: {fileID: 1585428374}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: injectionBoost
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: currentAdrenaline
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3622679483922953709, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.21

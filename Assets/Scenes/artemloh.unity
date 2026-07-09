@@ -777,9 +777,25 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: decayRate
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: syringeUI
+      value: 
+      objectReference: {fileID: 4284613573624728867}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: killReward
+      value: 33
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: adrenalineUI
       value: 
       objectReference: {fileID: 965374548}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: currentAdrenaline
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2953351857645469391, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: staminaBarImage
       value: 
@@ -970,6 +986,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}
+--- !u!114 &4284613573624728867 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1502833409471750718, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}
+  m_PrefabInstance: {fileID: 4284613573624728866}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30471d003dd230340b1eeea823caefd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SyringeUI
 --- !u!114 &4564952710573793682 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3848109208264700120, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}

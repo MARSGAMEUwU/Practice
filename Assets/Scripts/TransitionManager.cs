@@ -20,11 +20,13 @@ public class TransitionManager : MonoBehaviour
 
     [Tooltip("Массив звуков. Если назначен 1 звук - он будет повторяться на каждом шаге. Если 4 - они проиграются по очереди (щелчок, щелчок, щелчок, УДАР).")]
     [SerializeField] private AudioClip[] stepSounds;
+    [SerializeField] private Sprite[] lightningSprites;
 
     private Canvas canvas;
     private Image fadeImage;
     private bool isTransitioning = false;
     private PlayerController playerController;
+    private Image lightningImage;
 
     // Массивы шагов прозрачности (от 0 до 1 и обратно)
     // 4 шага затемнения: 0.25 -> 0.5 -> 0.75 -> 1.0
@@ -53,6 +55,21 @@ public class TransitionManager : MonoBehaviour
         SetupCanvas();
     }
 
+    private IEnumerator ShowLightningRoutine()
+    {
+        if (lightningSprites == null || lightningSprites.Length == 0)
+            yield break;
+
+        lightningImage.sprite =
+            lightningSprites[Random.Range(0, lightningSprites.Length)];
+
+        lightningImage.enabled = true;
+
+        yield return new WaitForSecondsRealtime(0.05f);
+
+        lightningImage.enabled = false;
+    }
+
     private void SetupCanvas()
     {
         GameObject canvasObj = new GameObject("TransitionCanvas");
@@ -66,6 +83,19 @@ public class TransitionManager : MonoBehaviour
         fadeImage = imageObj.AddComponent<Image>();
         fadeImage.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, 0f); // Изначально прозрачный
         fadeImage.raycastTarget = false;
+
+        GameObject lightningObj = new GameObject("LightningImage");
+        lightningObj.transform.SetParent(canvas.transform, false);
+
+        lightningImage = lightningObj.AddComponent<Image>();
+        lightningImage.raycastTarget = false;
+        lightningImage.enabled = false;
+
+        RectTransform lightningRt = lightningObj.GetComponent<RectTransform>();
+        lightningRt.anchorMin = Vector2.zero;
+        lightningRt.anchorMax = Vector2.one;
+        lightningRt.offsetMin = Vector2.zero;
+        lightningRt.offsetMax = Vector2.zero;
 
         RectTransform rt = imageObj.GetComponent<RectTransform>();
         rt.anchorMin = Vector2.zero;
@@ -106,7 +136,7 @@ public class TransitionManager : MonoBehaviour
 
             // Резко меняем прозрачность
             fadeImage.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, fadeOutSteps[i]);
-
+            StartCoroutine(ShowLightningRoutine());
             // Ждем перед следующим щелчком (Realtime, чтобы работало на паузе/при смерти)
             yield return new WaitForSecondsRealtime(stepDuration);
         }
@@ -127,7 +157,7 @@ public class TransitionManager : MonoBehaviour
             PlayStepSound(fadeOutSteps.Length + i);
 
             fadeImage.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, fadeInSteps[i]);
-
+            StartCoroutine(ShowLightningRoutine());
             yield return new WaitForSecondsRealtime(stepDuration);
         }
 

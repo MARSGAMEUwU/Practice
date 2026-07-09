@@ -31,7 +31,7 @@ public class InventoryUI : MonoBehaviour
     [Header("Настройки")]
 
     [SerializeField] private GameObject settingsbutton;
-    [SerializeField] private GameObject settings;
+    [SerializeField] private GameObject settingslayer;
 
     private void Awake()
     {
@@ -94,8 +94,8 @@ public class InventoryUI : MonoBehaviour
 
         Time.timeScale = 0f;
         settingsbutton.SetActive(true);
+        if (settingslayer != null) settingslayer.SetActive(false);
 
-        
         Debug.Log($"[UI] Инвентарь открыт. Время остановлено. Старая скорость была: {previousTimeScale}");
 
 
@@ -119,7 +119,7 @@ public class InventoryUI : MonoBehaviour
 
         Debug.Log($"[UI] Инвентарь закрыт. Время восстановлено: {Time.timeScale}");
         settingsbutton.SetActive(false);
-        settings.SetActive(false);
+        if (settingslayer != null) settingslayer.SetActive(false);
     }
 
     // Метод для мгновенного скрытия/показа UI без отключения GameObject

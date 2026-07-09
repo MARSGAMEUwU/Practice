@@ -8,7 +8,7 @@ public class Adrenaline : MonoBehaviour
 {
     [Header("Основные настройки")]
     [SerializeField] private float maxAdrenaline = 100f;
-    [SerializeField] private float currentAdrenaline = 0f;
+    [SerializeField] private float currentAdrenaline = 4f;
     [SerializeField] private float decayRate = 1f;
     [SerializeField] private float killReward = 20f;
 
@@ -45,6 +45,7 @@ public class Adrenaline : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private AdrenalineUI adrenalineUI;
+    [SerializeField] private SyringeUI syringeUI;
 
     public float AdrenalinePercentage => currentAdrenaline / maxAdrenaline;
 
@@ -129,7 +130,6 @@ public class Adrenaline : MonoBehaviour
         // После задержки запускаем плавное восстановление адреналина
         StartCoroutine(SmoothHealRoutine(injectionBoost));
     }
-
     public void UseSyringe()
     {
         // 1. СРАЗУ запускаем 3D анимацию укола
@@ -144,6 +144,7 @@ public class Adrenaline : MonoBehaviour
         syringeAmount--;
         UnityEngine.Debug.Log($"+{injectionBoost} adrenaline (начнется через {injectionDelay} сек)");
         nextInjTime = Time.time + cooldown;
+
     }
 
     public void KillReward()
@@ -181,5 +182,8 @@ public class Adrenaline : MonoBehaviour
         syringeAmount++;
         syringeAmount = Mathf.Clamp(syringeAmount, 0, 4);
         UnityEngine.Debug.Log("+ syringe");
+
     }
+
+    public int GetSyringeAmount() => syringeAmount;
 }

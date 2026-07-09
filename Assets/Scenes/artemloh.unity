@@ -556,7 +556,7 @@ MonoBehaviour:
   waves: []
   spawnPoints: []
   timeBetweenWaves: 3
-  totalLevelTime: 20
+  totalLevelTime: 2
   nextSceneName: Lvl1
   sparkMessageDuration: 3
   notificationText: {fileID: 1331587392}

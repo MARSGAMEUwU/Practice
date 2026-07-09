@@ -9,8 +9,8 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private WeaponRarity[] savedRarities = new WeaponRarity[2];
 
     [Header("Сохранение состояния игрока")]
-    public float savedAdrenaline = 0f;
-    public int savedSyringes = 0;
+    public float savedAdrenaline = 1f;
+    public int savedSyringes = 4;
 
     [Header("Ресурсы")]
     private int[] materialsAmount = new int[4];
@@ -177,8 +177,8 @@ public class InventoryManager : MonoBehaviour
     {
         for (int i = 0; i < savedWeapons.Length; i++) { savedWeapons[i] = null; savedRarities[i] = WeaponRarity.Common; }
         for (int i = 0; i < materialsAmount.Length; i++) materialsAmount[i] = 0;
-        savedAdrenaline = 0f;
-        savedSyringes = 0;
+        savedAdrenaline = 1f;
+        savedSyringes = 4;
         Debug.Log("<color=yellow>[InventoryManager] ✅ Прогресс забега сброшен.</color>");
     }
 

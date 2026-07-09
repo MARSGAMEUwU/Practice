@@ -2977,6 +2977,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2982592199892841939, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}
+      propertyPath: adrenalineSystem
+      value: 
+      objectReference: {fileID: 1018113015}
     - target: {fileID: 3560135770056355468, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}
       propertyPath: m_Pivot.x
       value: 0

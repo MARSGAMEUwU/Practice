@@ -153,12 +153,6 @@ public class WaveManager : MonoBehaviour
         {
             StartCoroutine(StartNextWave());
         }
-        else if (enemiesAlive == 0 && !isSpawning && currentWaveIndex >= waves.Length)
-        {
-            // ¬се волны зачищены досрочно Ч тоже запускаем финал
-            Debug.Log("<color=green> ¬се волны зачищены досрочно!</color>");
-            StartCoroutine(SparkSequence());
-        }
     }
 
     /// <summary>

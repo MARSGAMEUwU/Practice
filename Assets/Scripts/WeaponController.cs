@@ -7,116 +7,85 @@ public class WeaponController : MonoBehaviour
     [Header("Ссылки")]
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform weaponHolder;
-    public GameObject bloodHitEffectPrefab;
-    public GameObject holeHitEffectPrefab;
-    public GameObject dustEffectPrefab;
+    public GameObject bloodHitEffectPrefab, holeHitEffectPrefab, dustEffectPrefab;
 
     [Header("UI")]
     [SerializeField] private AmmoUI ammoUI;
 
     [Header("Input Actions")]
-    [SerializeField] private InputAction shootAction;
-    [SerializeField] private InputAction reloadAction;
-    [SerializeField] private InputAction switchWeapon1Action;
-    [SerializeField] private InputAction switchWeapon2Action;
+    [SerializeField] private InputAction shootAction, reloadAction, switchWeapon1Action, switchWeapon2Action;
 
     [Header("Оружие")]
     [SerializeField] private WeaponData[] weapons = new WeaponData[2];
     [SerializeField] private WeaponRarity[] weaponRarities = new WeaponRarity[2];
     [SerializeField] private int currentWeaponIndex = 0;
 
-    [Header("Декали")]
-    [SerializeField] private float decalSize = 0.5f;
-    [SerializeField] private float decalLifetime = 10f;
+    [Header("Декали и Прицел")]
     [SerializeField] private LayerMask impactLayers;
-
-    [Header("Прицел")]
     [SerializeField] private CrosshairController crosshairController;
-
-    [SerializeField] private AudioSource OneShotSound; //ONESHOT REFERENCE!!!11!11
+    [SerializeField] private AudioSource OneShotSound;
 
     // Состояние
     private RarityStats currentStats;
-    private float nextFireTime;
-    private float currentRecoil;
-    private float currentSpread;
+    private float nextFireTime, currentRecoil, currentSpread;
     private int currentAmmo;
     private bool isReloading;
-
-    // Хранение патронов для каждого оружия
     private int[] currentAmmoPerWeapon = new int[2];
     private bool[] weaponInitialized = new bool[2];
     private GameObject[] weaponInstances = new GameObject[2];
     private Animator[] weaponAnimators = new Animator[2];
 
-    // Singleton
-    private static WeaponController instance;
-    private bool isInitialized = false;
-
     private void Awake()
     {
-        if (instance != null && instance != this)
-        {
-            // ВНИМАНИЕ: Убрали Destroy(gameObject), чтобы не убить всего игрока!
-            // Уничтожаем только дублирующийся компонент
-            Destroy(this);
-            return;
-        }
-        instance = this;
-
-        // ВНИМАНИЕ: Убрали DontDestroyOnLoad(gameObject).
-        // Теперь этим занимается PersistentManager для всего корневого объекта Player.
-
         if (cameraTransform == null) cameraTransform = Camera.main.transform;
+
         currentStats = new RarityStats();
         currentAmmo = 0;
         currentRecoil = 0f;
         currentSpread = 0f;
         isReloading = false;
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        isInitialized = true;
+
         UpdateAmmoUIVisibility();
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void Start()
     {
-        RestoreWeapons();
+        // === ГЛАВНАЯ ФИШКА: Синхронизация с глобальным инвентарем при спавне ===
+        SyncWithGlobalInventory();
     }
 
-    private void OnDestroy()
+    private void SyncWithGlobalInventory()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        if (instance == this) instance = null;
-        for (int i = 0; i < weaponInstances.Length; i++)
+        if (InventoryManager.Instance == null) return;
+
+        WeaponData[] globalWeapons = InventoryManager.Instance.GetSavedWeapons();
+        WeaponRarity[] globalRarities = InventoryManager.Instance.GetSavedRarities();
+
+        for (int i = 0; i < globalWeapons.Length; i++)
         {
-            if (weaponInstances[i] != null)
-                Destroy(weaponInstances[i]);
+            if (globalWeapons[i] != null)
+            {
+                SetWeapon(i, globalWeapons[i], globalRarities[i]);
+            }
         }
+        Debug.Log("<color=cyan>[WeaponController] Статы синхронизированы с глобальным инвентарем!</color>");
     }
 
     private void OnEnable()
     {
-        if (shootAction != null) shootAction.Enable();
-        if (reloadAction != null) reloadAction.Enable();
-        if (switchWeapon1Action != null) switchWeapon1Action.Enable();
-        if (switchWeapon2Action != null) switchWeapon2Action.Enable();
+        shootAction?.Enable(); reloadAction?.Enable();
+        switchWeapon1Action?.Enable(); switchWeapon2Action?.Enable();
     }
 
     private void OnDisable()
     {
-        if (shootAction != null) shootAction.Disable();
-        if (reloadAction != null) reloadAction.Disable();
-        if (switchWeapon1Action != null) switchWeapon1Action.Disable();
-        if (switchWeapon2Action != null) switchWeapon2Action.Disable();
+        shootAction?.Disable(); reloadAction?.Disable();
+        switchWeapon1Action?.Disable(); switchWeapon2Action?.Disable();
     }
 
     private void Update()
     {
-        if (!isInitialized) return;
-        HandleWeaponSwitch();
-        HandleReload();
-        HandleShooting();
-        UpdateRecoilAndSpread();
+        HandleWeaponSwitch(); HandleReload(); HandleShooting(); UpdateRecoilAndSpread();
     }
 
     private void UpdateAmmoUI()
@@ -585,12 +554,7 @@ public class WeaponController : MonoBehaviour
     {
         if (slotIndex < 0 || slotIndex >= weaponRarities.Length) return;
         weaponRarities[slotIndex] = rarity;
-
-        // Если апгрейднули то оружие, которое сейчас в руках, обновляем его статы и патроны
-        if (currentWeaponIndex == slotIndex)
-        {
-            RefreshCurrentWeaponStats();
-        }
+        if (currentWeaponIndex == slotIndex) RefreshCurrentWeaponStats();
     }
 
     // Новый метод для мгновенного обновления характеристик и патронов
@@ -641,6 +605,7 @@ public class WeaponController : MonoBehaviour
         currentStats = new RarityStats();
 
         UpdateAmmoUIVisibility();
+        InventoryManager.Instance?.ClearWeapon(currentWeaponIndex);
     }
 
     private void RestoreWeapons()

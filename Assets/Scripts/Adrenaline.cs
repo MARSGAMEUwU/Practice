@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -58,8 +57,32 @@ public class Adrenaline : MonoBehaviour
     {
         currentSaturation = 0.5f;
         currentContrast = 1f;
-        shader.SetFloat("_Saturation", currentSaturation);
-        shader.SetFloat("_Contrast", currentContrast);
+        if (shader != null)
+        {
+            shader.SetFloat("_Saturation", currentSaturation);
+            shader.SetFloat("_Contrast", currentContrast);
+        }
+
+        // === ФИКС МУЗЫКИ: СРАЗУ МЬЮТИМ ТРЕКИ ПРИ СПАВНЕ, ЧТОБЫ НЕ БЫЛО ВЗРЫВА ЗВУКА ===
+        if (track1 != null) track1.volume = 0f;
+        if (track2 != null) track2.volume = 0f;
+        if (track3 != null) track3.volume = 0f;
+        if (track4 != null) track4.volume = 0f;
+    }
+
+    private void Start()
+    {
+        // === СИНХРОНИЗАЦИЯ С ГЛОБАЛЬНЫМ ИНВЕНТАРЕМ ПРИ СПАВНЕ ===
+        if (InventoryManager.Instance != null)
+        {
+            currentAdrenaline = InventoryManager.Instance.savedAdrenaline;
+            syringeAmount = InventoryManager.Instance.savedSyringes;
+            Debug.Log($"<color=cyan>[Adrenaline] Загружено из глобала: Адреналин={currentAdrenaline}, Шприцы={syringeAmount}</color>");
+        }
+
+        // Сразу применяем эффекты и музыку, чтобы не ждать первого кадра Update
+        ApplyVisualEffects();
+        ApplyMusicVolumes();
     }
 
     private void OnEnable()
@@ -74,20 +97,22 @@ public class Adrenaline : MonoBehaviour
 
     void Update()
     {
+        // === ЖЕСТКАЯ ЗАЩИТА ОТ ПАУЗЫ ===
         if (Time.timeScale <= 0f) return;
 
-        if (currentAdrenaline > 0)
+        if (currentAdrenaline >= 0)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
-            currentAdrenaline = Mathf.Clamp(currentAdrenaline, 1f, maxAdrenaline);
 
-            currentSaturation = Mathf.Lerp(minSaturation, maxSaturation, AdrenalinePercentage);
-            currentContrast = Mathf.Lerp(minContrast, maxContrast, AdrenalinePercentage);
-            shader.SetFloat("_Saturation", currentSaturation);
-            shader.SetFloat("_Contrast", currentContrast);
+            // === ИСПРАВЛЕНИЕ №2: Clamp от 0f, а не от 1f! ===
+            currentAdrenaline = Mathf.Clamp(currentAdrenaline, 0f, maxAdrenaline);
 
-            currentFov = Mathf.Lerp(minFov, maxFov, AdrenalinePercentage);
-            mainCamera.fieldOfView = currentFov;
+            ApplyVisualEffects();
+        }
+        else
+        {
+            // Если адреналин упал в абсолютный ноль, вызываем смерть
+            GameOver();
         }
 
         if (useSyringe.IsPressed() && syringeAmount > 0 && Time.time >= nextInjTime)
@@ -95,41 +120,84 @@ public class Adrenaline : MonoBehaviour
             UseSyringe();
         }
 
+        ApplyMusicVolumes();
+
+        // Сохраняем текущее состояние в глобальный инвентарь каждый кадр
+        SyncToGlobal();
+    }
+
+    private void ApplyVisualEffects()
+    {
+        currentSaturation = Mathf.Lerp(minSaturation, maxSaturation, AdrenalinePercentage);
+        currentContrast = Mathf.Lerp(minContrast, maxContrast, AdrenalinePercentage);
+        if (shader != null)
+        {
+            shader.SetFloat("_Saturation", currentSaturation);
+            shader.SetFloat("_Contrast", currentContrast);
+        }
+
+        currentFov = Mathf.Lerp(minFov, maxFov, AdrenalinePercentage);
+        if (mainCamera != null) mainCamera.fieldOfView = currentFov;
+    }
+
+    private void ApplyMusicVolumes()
+    {
         if (track1 != null) track1.volume = volume;
         if (track2 != null) track2.volume = Mathf.InverseLerp(10f, 30f, currentAdrenaline) * volume;
         if (track3 != null) track3.volume = Mathf.InverseLerp(30f, 60f, currentAdrenaline) * volume;
         if (track4 != null) track4.volume = Mathf.InverseLerp(60f, 90f, currentAdrenaline) * volume;
     }
 
-    // Метод для плавного восстановления адреналина
+    private void SyncToGlobal()
+    {
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.savedAdrenaline = currentAdrenaline;
+            InventoryManager.Instance.savedSyringes = syringeAmount;
+        }
+    }
+
+    // === ИСПРАВЛЕННАЯ КОРУТИНА ЛЕЧЕНИЯ ===
     private System.Collections.IEnumerator SmoothHealRoutine(float amountToHeal)
     {
-        // 1. Вычисляем целевое значение адреналина
+        // 1. Вычисляем целевое значение
         float targetAdrenaline = Mathf.Clamp(currentAdrenaline + amountToHeal, 0f, maxAdrenaline);
 
-        // 2. Пока текущее меньше целевого, плавно повышаем...
+        // 2. Если уже на максимуме, выходим
+        if (currentAdrenaline >= targetAdrenaline) yield break;
+
+        // 3. Плавно повышаем
         while (currentAdrenaline < targetAdrenaline)
         {
-            // Mathf.MoveTowards плавно движется к цели
-            currentAdrenaline = Mathf.MoveTowards(currentAdrenaline, targetAdrenaline + 1, 50f * Time.deltaTime);
+            // === ИСПРАВЛЕНИЕ №1: Убрано "+ 1". Используем unscaledDeltaTime для работы даже на паузе ===
+            currentAdrenaline = Mathf.MoveTowards(currentAdrenaline, targetAdrenaline, 50f * Time.unscaledDeltaTime);
 
-            // 3. Ждем следующий кадр
+            // Если значение достигло цели, прерываем цикл, чтобы Update не успел его уменьшить и создать бесконечный цикл
+            if (currentAdrenaline >= targetAdrenaline)
+            {
+                break;
+            }
+
             yield return null;
         }
 
-        // На всякий случай жестко фиксируем финальное значение
+        // 4. Жестко фиксируем финальное значение
         currentAdrenaline = targetAdrenaline;
+        ApplyVisualEffects();
+        ApplyMusicVolumes();
+        SyncToGlobal();
     }
 
     // НОВАЯ КОРУТИНА: Ждет анимацию, затем лечит
     private System.Collections.IEnumerator DelayedHealRoutine()
     {
-        // Ждем указанное время (пока персонаж делает анимацию укола)
-        yield return new WaitForSeconds(injectionDelay);
+        // === ИСПРАВЛЕНИЕ №3: Используем Realtime, чтобы ждать даже если игра на паузе ===
+        yield return new WaitForSecondsRealtime(injectionDelay);
 
         // После задержки запускаем плавное восстановление адреналина
         StartCoroutine(SmoothHealRoutine(injectionBoost));
     }
+
     public void UseSyringe()
     {
         // 1. СРАЗУ запускаем 3D анимацию укола
@@ -145,6 +213,8 @@ public class Adrenaline : MonoBehaviour
         UnityEngine.Debug.Log($"+{injectionBoost} adrenaline (начнется через {injectionDelay} сек)");
         nextInjTime = Time.time + cooldown;
 
+        // Сохраняем сразу после использования
+        SyncToGlobal();
     }
 
     public void KillReward()
@@ -158,10 +228,21 @@ public class Adrenaline : MonoBehaviour
 
     public void GameOver()
     {
-        //Time.timeScale = 0f;
-        UnityEngine.Debug.Log("Игрок погиб");
-        if (WaveManager.Instance != null) WaveManager.Instance.GameOver();
-        SceneManager.LoadScene("GameOver");
+        UnityEngine.Debug.Log("<color=red>Игрок погиб. Переход в меню...</color>");
+
+        // Блокируем управление
+        PlayerController pc = GetComponent<PlayerController>();
+        if (pc != null) pc.LockControls();
+
+        // Красиво уходим в MainMenu через шторку
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.TransitionToScene("MainMenu");
+        }
+        else
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        }
     }
 
     public void TakeDamage(float damageAmount)
@@ -171,6 +252,10 @@ public class Adrenaline : MonoBehaviour
         {
             adrenalineUI.TriggerShake();
         }
+
+        // Сохраняем сразу после урона
+        SyncToGlobal();
+
         if (currentAdrenaline <= 0)
         {
             GameOver();
@@ -183,6 +268,8 @@ public class Adrenaline : MonoBehaviour
         syringeAmount = Mathf.Clamp(syringeAmount, 0, 4);
         UnityEngine.Debug.Log("+ syringe");
 
+        // Сохраняем сразу после подбора
+        SyncToGlobal();
     }
 
     public int GetSyringeAmount() => syringeAmount;

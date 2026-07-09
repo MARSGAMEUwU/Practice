@@ -4,57 +4,48 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(WeaponController))]
 public class PlayerWeaponInventory : MonoBehaviour
 {
-    [SerializeField] private InputAction pickupAction;
-    [SerializeField] private InputAction dropAction;
+    [SerializeField] private InputAction pickupAction, dropAction;
     protected WeaponController weaponController;
     private WeaponPickup currentPickup;
 
     private void Awake() => weaponController = GetComponent<WeaponController>();
 
-    private void OnEnable()
-    {
-        if (pickupAction != null) pickupAction.Enable();
-        if (dropAction != null) dropAction.Enable();
-    }
-
-    private void OnDisable()
-    {
-        if (pickupAction != null) pickupAction.Disable();
-        if (dropAction != null) dropAction.Disable();
-    }
+    private void OnEnable() { pickupAction?.Enable(); dropAction?.Enable(); }
+    private void OnDisable() { pickupAction?.Disable(); dropAction?.Disable(); }
 
     private void Update()
     {
-        if (pickupAction.WasPressedThisFrame() && currentPickup != null)
-        {
-            currentPickup.Pickup();
-            currentPickup = null;
-        }
+        if (pickupAction.WasPressedThisFrame() && currentPickup != null) { currentPickup.Pickup(); currentPickup = null; }
         if (dropAction.WasPressedThisFrame()) DropCurrentWeapon();
     }
 
     public void SetCurrentPickup(WeaponPickup pickup) => currentPickup = pickup;
-
-    public void ClearCurrentPickup(WeaponPickup pickup)
-    {
-        if (currentPickup == pickup) currentPickup = null;
-    }
+    public void ClearCurrentPickup(WeaponPickup pickup) { if (currentPickup == pickup) currentPickup = null; }
 
     public bool AddWeapon(WeaponData weapon, WeaponRarity rarity)
     {
         if (weapon == null) return false;
-
-        // Èùåì ñâîáîäíûé ñëîò
         for (int i = 0; i < 2; i++)
         {
             if (weaponController.GetWeaponInSlot(i) == null)
             {
                 weaponController.SetWeapon(i, weapon, rarity);
+                // === ÑÎÕĞÀÍßÅÌ Â ÃËÎÁÀËÜÍÎÅ ÕĞÀÍÈËÈÙÅ ===
+                InventoryManager.Instance?.SaveWeapon(i, weapon, rarity);
                 return true;
             }
         }
-
         return false;
+    }
+
+    public void SetWeaponFromGlobal(int slotIndex, WeaponData weapon, WeaponRarity rarity)
+    {
+        weaponController.SetWeapon(slotIndex, weapon, rarity);
+    }
+
+    public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)
+    {
+        weaponController.SetWeaponRarity(slotIndex, rarity);
     }
 
     public void SpawnWeaponPickup(WeaponData weapon, WeaponRarity rarity)
@@ -108,8 +99,4 @@ public class PlayerWeaponInventory : MonoBehaviour
     // Ìåòîäû äëÿ InventoryManager
     public WeaponData GetWeaponInSlot(int i) => weaponController.GetWeaponInSlot(i);
     public WeaponRarity GetRarityInSlot(int i) => weaponController.GetRarityInSlot(i);
-    public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)
-    {
-        weaponController.SetWeaponRarity(slotIndex, rarity);
-    }
 }

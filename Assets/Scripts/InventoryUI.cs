@@ -83,7 +83,7 @@ public class InventoryUI : MonoBehaviour
         if (isOpen) return;
         isOpen = true;
 
-        previousTimeScale = Time.timeScale > 0f ? Time.timeScale : 1f;
+        previousTimeScale = 1f;
 
         if (playerController != null)
             playerController.LockControls();
@@ -115,7 +115,7 @@ public class InventoryUI : MonoBehaviour
 
         // 3. Возвращаем нормальный ход времени. 
         // Если сохраненное значение сломалось, принудительно ставим 1f (100% скорость игры).
-        Time.timeScale = previousTimeScale > 0f ? previousTimeScale : 1f;
+        Time.timeScale = 1f;
 
         Debug.Log($"[UI] Инвентарь закрыт. Время восстановлено: {Time.timeScale}");
         settingsbutton.SetActive(false);

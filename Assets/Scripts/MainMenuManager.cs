@@ -4,21 +4,25 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     [Header("Настройки")]
-    [SerializeField] private string gameSceneName = "Scene2";
-
-    // Добавь в раздел [Header("Настройки")] или в начало:
+    [SerializeField] private string gameSceneName = "Scene2"; // Или LvL1
     [SerializeField] private SettingsUI settingsUI;
 
     public void StartGame()
     {
-        Debug.Log("[MainMenu] Запуск игры...");
-        SceneManager.LoadScene(gameSceneName);
+        Debug.Log("[MainMenu] Загрузка уровня...");
+
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.TransitionToScene(gameSceneName);
+        }
+        else
+        {
+            SceneManager.LoadScene(gameSceneName);
+        }
     }
+
     public void OpenSettings()
     {
-        if (settingsUI != null)
-        {
-            settingsUI.OpenSettings();
-        }
+        if (settingsUI != null) settingsUI.OpenSettings();
     }
 }

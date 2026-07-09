@@ -470,58 +470,6 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &535314267
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 535314269}
-  - component: {fileID: 535314268}
-  m_Layer: 0
-  m_Name: TransitionManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &535314268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 535314267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72075c8c8b5ab394aa8c8b1c529f684a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TransitionManager
-  fadeColor: {r: 0, g: 0, b: 0, a: 1}
-  stepDuration: 0.1
-  transitionAudio: {fileID: 0}
-  stepSounds:
-  - {fileID: 8300000, guid: 31d7506bec0a66d44bc88c3c0e1f4c48, type: 3}
-  - {fileID: 8300000, guid: 31d7506bec0a66d44bc88c3c0e1f4c48, type: 3}
-  - {fileID: 8300000, guid: 31d7506bec0a66d44bc88c3c0e1f4c48, type: 3}
-  - {fileID: 8300000, guid: 31d7506bec0a66d44bc88c3c0e1f4c48, type: 3}
---- !u!4 &535314269
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 535314267}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 351.00424, y: 872.3835, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &611298655
 GameObject:
   m_ObjectHideFlags: 0
@@ -1289,61 +1237,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1069192537}
   m_CullTransparentMesh: 1
---- !u!1 &1087971131
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1087971133}
-  - component: {fileID: 1087971132}
-  m_Layer: 0
-  m_Name: Inventory Manager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1087971132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1087971131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 438de08f34bfebb498273105cec58ebb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
-  savedWeapons:
-  - {fileID: 0}
-  - {fileID: 0}
-  savedRarities: 0000000000000000
-  barrelIcon: {fileID: 21300000, guid: 65a84cc8174acb944aba0da6dc9245d7, type: 3}
-  magazineIcon: {fileID: 21300000, guid: b68bb58e570d8be48bcf270fad8006a5, type: 3}
-  handleIcon: {fileID: 21300000, guid: e610db907c985304fba5383e50a8bbe0, type: 3}
-  scopeIcon: {fileID: 21300000, guid: af0ad23b1d8c3364ea19d7c63ff3bf17, type: 3}
-  resourceIcons: []
-  savedAdrenaline: 1
-  savedSyringes: 4
---- !u!4 &1087971133
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1087971131}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 351.00424, y: 872.3835, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1184576900
 GameObject:
   m_ObjectHideFlags: 0
@@ -1661,7 +1554,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuManager
   gameSceneName: artemloh
-  settingsUI: {fileID: 1913904044}
+  settingsUI: {fileID: 0}
 --- !u!4 &1302008175
 Transform:
   m_ObjectHideFlags: 0
@@ -2226,7 +2119,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 6c0bad9728ac2aa4b90e2959331ecc8e, type: 3}
+  m_Resource: {fileID: 8300000, guid: 2c67fbf21c224834094922ef1b5c121c, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.258
   m_Pitch: 1
@@ -3492,5 +3385,3 @@ SceneRoots:
   - {fileID: 981226580}
   - {fileID: 1302008175}
   - {fileID: 422207346}
-  - {fileID: 1087971133}
-  - {fileID: 535314269}

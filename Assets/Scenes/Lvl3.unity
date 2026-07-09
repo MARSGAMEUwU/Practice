@@ -2609,6 +2609,10 @@ PrefabInstance:
       propertyPath: currentAdrenaline
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2953351857645469391, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: staminaBarImage
+      value: 
+      objectReference: {fileID: 1740764324}
     - target: {fileID: 3622679483922953709, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: m_LocalPosition.x
       value: -72.42537
@@ -4805,6 +4809,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1734164329}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1740764324 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1762604379167672122, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}
+  m_PrefabInstance: {fileID: 1194005082}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!64 &1744534227
 MeshCollider:
   m_ObjectHideFlags: 0

@@ -8,7 +8,7 @@ public class Adrenaline : MonoBehaviour
 {
     [Header("Основные настройки")]
     [SerializeField] private float maxAdrenaline = 100f;
-    [SerializeField] private float currentAdrenaline = 4f;
+    [SerializeField] public float currentAdrenaline = 4f;
     [SerializeField] private float decayRate = 1f;
     [SerializeField] private float killReward = 20f;
 
@@ -37,11 +37,11 @@ public class Adrenaline : MonoBehaviour
     [SerializeField] private float maxFov = 100f;
 
     [Header("Music")]
-    [SerializeField] private AudioSource track1;
-    [SerializeField] private AudioSource track2;
-    [SerializeField] private AudioSource track3;
-    [SerializeField] private AudioSource track4;
-    [SerializeField] private float volume = 0.3f;
+    [SerializeField] public AudioSource track1;
+    [SerializeField] public AudioSource track2;
+    [SerializeField] public AudioSource track3;
+    [SerializeField] public AudioSource track4;
+    [SerializeField] public float volume = 0.3f;
 
     [Header("UI")]
     [SerializeField] private AdrenalineUI adrenalineUI;

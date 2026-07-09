@@ -187,17 +187,25 @@ public class Adrenaline : MonoBehaviour
     public void GameOver()
     {
         UnityEngine.Debug.Log("<color=red>����� �����. ������� � ����...</color>");
+
+        // === ����� ���� ������ ������ ===
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.ResetRunData();
+        }
+
+        // ��������� ����������, ����� ����� �� ��������
         PlayerController pc = GetComponent<PlayerController>();
         if (pc != null) pc.LockControls();
 
         // ������� ������ � MainMenu ����� ������
         if (TransitionManager.Instance != null)
         {
-            TransitionManager.Instance.TransitionToScene("GameOver");
+            TransitionManager.Instance.TransitionToScene("MainMenu");
         }
         else
         {
-            SceneManager.LoadScene("GameOver");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
         }
     }
 

@@ -174,4 +174,32 @@ public class InventoryManager : MonoBehaviour
         InventoryUI ui = FindObjectOfType<InventoryUI>();
         if (ui != null) ui.RefreshAll();
     }
+
+    public void ResetRunData()
+    {
+        // 1. Очищаем слоты оружия
+        if (savedWeapons != null)
+        {
+            for (int i = 0; i < savedWeapons.Length; i++)
+            {
+                savedWeapons[i] = null;
+                savedRarities[i] = WeaponRarity.Common;
+            }
+        }
+
+        // 2. Обнуляем ресурсы
+        if (materialsAmount != null)
+        {
+            for (int i = 0; i < materialsAmount.Length; i++)
+            {
+                materialsAmount[i] = 0;
+            }
+        }
+
+        // 3. Сбрасываем адреналин и шприцы до стартовых значений
+        savedAdrenaline = 0f; // Или 1f, если у тебя игра начинается с 1 HP
+        savedSyringes = 0;    // Или укажи стартовое количество шприцов (например, 1)
+
+        Debug.Log("<color=yellow>[InventoryManager] ✅ Прогресс забега сброшен. Инвентарь и статы очищены.</color>");
+    }
 }

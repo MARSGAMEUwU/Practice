@@ -197,21 +197,11 @@ public class Adrenaline : MonoBehaviour
         // ��������� ����������, ����� ����� �� ��������
         PlayerController pc = GetComponent<PlayerController>();
         if (pc != null) pc.LockControls();
-
-        // ������� ������ � MainMenu ����� ������
-        if (TransitionManager.Instance != null)
-        {
-            TransitionManager.Instance.TransitionToScene("MainMenu");
-        }
-        else
-        {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
-        }
+        SceneManager.LoadScene("GameOver");
     }
 
     public void TakeDamage(float damageAmount)
     {
-        // ��������� �������� ����. ��� ������� ��� ���� �� �������!
         currentAdrenaline -= damageAmount;
 
         if (adrenalineUI != null) adrenalineUI.TriggerShake();

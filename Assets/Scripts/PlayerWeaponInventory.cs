@@ -4,7 +4,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(WeaponController))]
 public class PlayerWeaponInventory : MonoBehaviour
 {
-    [SerializeField] private InputAction pickupAction, dropAction;
+    [SerializeField] private InputAction pickupAction;
+    [SerializeField] private InputAction dropAction;
+
     protected WeaponController weaponController;
     private WeaponPickup currentPickup;
 
@@ -15,32 +17,40 @@ public class PlayerWeaponInventory : MonoBehaviour
 
     private void Update()
     {
-        if (pickupAction.WasPressedThisFrame() && currentPickup != null) { currentPickup.Pickup(); currentPickup = null; }
-        if (dropAction.WasPressedThisFrame()) DropCurrentWeapon();
+        if (pickupAction.WasPressedThisFrame() && currentPickup != null)
+        {
+            currentPickup.Pickup();
+            currentPickup = null;
+        }
+
+        // Блокируем выбрасывание во время перезарядки
+        if (dropAction.WasPressedThisFrame() && !weaponController.IsReloading)
+        {
+            DropCurrentWeapon();
+        }
     }
 
     public void SetCurrentPickup(WeaponPickup pickup) => currentPickup = pickup;
     public void ClearCurrentPickup(WeaponPickup pickup) { if (currentPickup == pickup) currentPickup = null; }
 
+    /// <summary>
+    /// Пытается взять оружие в руки. Возвращает false, если слоты заняты.
+    /// </summary>
     public bool AddWeapon(WeaponData weapon, WeaponRarity rarity)
     {
         if (weapon == null) return false;
+
         for (int i = 0; i < 2; i++)
         {
             if (weaponController.GetWeaponInSlot(i) == null)
             {
                 weaponController.SetWeapon(i, weapon, rarity);
-                // === СОХРАНЯЕМ В ГЛОБАЛЬНОЕ ХРАНИЛИЩЕ ===
+                // Сообщаем глобальному инвентарю, что оружие подобрано
                 InventoryManager.Instance?.SaveWeapon(i, weapon, rarity);
                 return true;
             }
         }
-        return false;
-    }
-
-    public void SetWeaponFromGlobal(int slotIndex, WeaponData weapon, WeaponRarity rarity)
-    {
-        weaponController.SetWeapon(slotIndex, weapon, rarity);
+        return false; // Слоты заняты
     }
 
     public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)
@@ -48,55 +58,60 @@ public class PlayerWeaponInventory : MonoBehaviour
         weaponController.SetWeaponRarity(slotIndex, rarity);
     }
 
+    /// <summary>
+    /// Спавнит оружие на землю (используется при крафте, если руки заняты, или при выбрасывании).
+    /// </summary>
     public void SpawnWeaponPickup(WeaponData weapon, WeaponRarity rarity)
     {
         if (weapon == null) return;
 
-        Vector3 dropPos = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
+        GameObject prefabToSpawn = weapon.GetPickupPrefab();
+        if (prefabToSpawn == null)
+        {
+            Debug.LogError($"[WeaponPickup] У оружия {weapon.weaponName} не задан ни pickupPrefab, ни weaponPrefab!");
+            return;
+        }
 
+        Vector3 dropPos = transform.position + transform.forward * 1.5f + Vector3.up * 0.5f;
         GameObject droppedObj = new GameObject($"Pickup_{weapon.weaponName}");
-        droppedObj.tag = "WeaponPickup";
-        droppedObj.layer = LayerMask.NameToLayer("Default");
+
+        try { droppedObj.tag = "WeaponPickup"; } catch { }
 
         SphereCollider col = droppedObj.AddComponent<SphereCollider>();
         col.isTrigger = true;
         col.radius = 1f;
 
-        if (weapon.weaponPrefab != null)
-        {
-            GameObject model = Instantiate(weapon.pickupPrefab, droppedObj.transform);
-            model.transform.localPosition = Vector3.zero;
-            model.transform.localRotation = Quaternion.identity;
-
-            foreach (var collider in model.GetComponentsInChildren<Collider>())
-                Destroy(collider);
-        }
+        GameObject model = Instantiate(prefabToSpawn, droppedObj.transform);
+        model.transform.localPosition = Vector3.zero;
+        model.transform.localRotation = Quaternion.identity;
+        foreach (var collider in model.GetComponentsInChildren<Collider>()) Destroy(collider);
 
         WeaponPickup pickup = droppedObj.AddComponent<WeaponPickup>();
         pickup.SetWeaponData(weapon);
         pickup.SetRarity(rarity);
         pickup.SetPickUpUI();
-
         droppedObj.transform.position = dropPos;
     }
 
     protected void DropCurrentWeapon()
     {
-        WeaponData droppedWeapon = weaponController.GetCurrentWeapon();
-        WeaponRarity droppedRarity = weaponController.GetCurrentRarity();
+        int slotIndex = weaponController.GetCurrentWeaponIndex();
+        WeaponData droppedWeapon = weaponController.GetWeaponInSlot(slotIndex);
+        WeaponRarity droppedRarity = weaponController.GetRarityInSlot(slotIndex);
 
-        if (droppedWeapon == null)
-        {
-            Debug.Log("[Inventory] Нет оружия для выбрасывания");
-            return;
-        }
+        if (droppedWeapon == null) return;
 
+        // 1. Спавним пикап на землю
         SpawnWeaponPickup(droppedWeapon, droppedRarity);
+
+        // 2. Очищаем локальный контроллер
         weaponController.ClearCurrentWeapon();
-        Debug.Log($"Выброшено: {droppedWeapon.weaponName}");
+
+        // 3. Очищаем слот в ГЛОБАЛЬНОМ инвентаре
+        InventoryManager.Instance?.ClearWeapon(slotIndex);
     }
 
-    // Методы для InventoryManager
+    // Методы-прокладки для InventoryManager
     public WeaponData GetWeaponInSlot(int i) => weaponController.GetWeaponInSlot(i);
     public WeaponRarity GetRarityInSlot(int i) => weaponController.GetRarityInSlot(i);
 }

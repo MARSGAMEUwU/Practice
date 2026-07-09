@@ -4,9 +4,13 @@ public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
 
-    [Header("Глобальное хранилище оружия (Сохраняется между сценами)")]
+    [Header("Глобальное хранилище оружия")]
     [SerializeField] private WeaponData[] savedWeapons = new WeaponData[2];
     [SerializeField] private WeaponRarity[] savedRarities = new WeaponRarity[2];
+
+    [Header("Сохранение состояния игрока")]
+    public float savedAdrenaline = 0f;
+    public int savedSyringes = 0;
 
     [Header("Ресурсы")]
     private int[] materialsAmount = new int[4];
@@ -18,38 +22,23 @@ public class InventoryManager : MonoBehaviour
     public Sprite scopeIcon;
     public Sprite[] resourceIcons;
 
-    [Header("Сохранение состояния игрока (Адреналин и шприцы)")]
-    [Tooltip("Текущий уровень адреналина при переходе между сценами")]
-    public float savedAdrenaline = 0f;
-
-    [Tooltip("Количество шприцов при переходе между сценами")]
-    public int savedSyringes = 4;
-
     private void Awake()
     {
-        // === НАСТРОЙКА СИНГЛТОНА И DDOL ===
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject); // Живет вечно
-
         resourceIcons = new Sprite[] { barrelIcon, magazineIcon, handleIcon, scopeIcon };
     }
 
-    // === МЕТОДЫ ДЛЯ WEAPONCONTROLLER (Чтение данных при спавне) ===
+    // === ГЕТТЕРЫ И СЕТТЕРЫ ДЛЯ ГЛОБАЛЬНОГО ХРАНИЛИЩА ===
     public WeaponData[] GetSavedWeapons() => savedWeapons;
     public WeaponRarity[] GetSavedRarities() => savedRarities;
 
-    // === МЕТОДЫ ДЛЯ ИГРОКА (Запись данных при подборе/крафте) ===
     public void SaveWeapon(int slotIndex, WeaponData weapon, WeaponRarity rarity)
     {
         if (slotIndex < 0 || slotIndex >= savedWeapons.Length) return;
         savedWeapons[slotIndex] = weapon;
         savedRarities[slotIndex] = rarity;
-        Debug.Log($"[InventoryManager] Сохранено: {weapon.weaponName} ({rarity})");
         RefreshUI();
     }
 
@@ -68,15 +57,13 @@ public class InventoryManager : MonoBehaviour
         RefreshUI();
     }
 
-    // === Ресурсы ===
+    // === РЕСУРСЫ ===
     public void AddResource(int resourceIndex, int amount)
     {
         if (resourceIndex < 0 || resourceIndex >= materialsAmount.Length) return;
         materialsAmount[resourceIndex] += amount;
-        Debug.Log($"[Инвентарь] +{amount} ресурса #{resourceIndex}. Всего: {materialsAmount[resourceIndex]}");
         RefreshUI();
     }
-
     public int GetResource(int index) => (index >= 0 && index < materialsAmount.Length) ? materialsAmount[index] : 0;
     public int[] GetAllResources() => materialsAmount;
 
@@ -93,13 +80,15 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < 4; i++) materialsAmount[i] -= recipe[i];
     }
 
-    // === Проверки для UI ===
+    // === ПРОВЕРКИ (Теперь смотрят в глобальные массивы, а не в игрока!) ===
     public bool HasWeapon(WeaponType type)
     {
         for (int i = 0; i < savedWeapons.Length; i++)
             if (savedWeapons[i] != null && savedWeapons[i].weaponType == type) return true;
         return false;
     }
+
+    private bool HasWeaponOfType(WeaponType type) => HasWeapon(type);
 
     public WeaponRarity GetCurrentRarity(WeaponType type)
     {
@@ -108,28 +97,55 @@ public class InventoryManager : MonoBehaviour
         return WeaponRarity.Common;
     }
 
-    // === Крафт ===
+    private int FindWeaponSlot(WeaponType type)
+    {
+        for (int i = 0; i < savedWeapons.Length; i++)
+            if (savedWeapons[i] != null && savedWeapons[i].weaponType == type) return i;
+        return -1;
+    }
+
+    private int FindEmptySlot()
+    {
+        for (int i = 0; i < savedWeapons.Length; i++)
+            if (savedWeapons[i] == null) return i;
+        return -1;
+    }
+
+    // === КРАФТ (Поиск игрока "на лету") ===
     public void CraftPurchase(WeaponData weapon)
     {
-        if (weapon == null || !CanAfford(weapon.purchaseRecipe)) return;
-        if (HasWeaponOfType(weapon.weaponType)) return;
+        if (weapon == null || !CanAfford(weapon.purchaseRecipe) || HasWeaponOfType(weapon.weaponType)) return;
 
         SpendResources(weapon.purchaseRecipe);
 
-        // Ищем пустой слот в глобальном хранилище
-        int emptySlot = -1;
-        for (int i = 0; i < savedWeapons.Length; i++)
+        // Ищем локального игрока на сцене динамически
+        PlayerWeaponInventory localPlayer = FindObjectOfType<PlayerWeaponInventory>();
+        bool addedToHands = false;
+
+        if (localPlayer != null)
         {
-            if (savedWeapons[i] == null) { emptySlot = i; break; }
+            addedToHands = localPlayer.AddWeapon(weapon, WeaponRarity.Common);
         }
 
-        if (emptySlot != -1)
+        // Если в руки не взяли (слоты заняты) — спавним на землю
+        if (!addedToHands)
         {
-            SaveWeapon(emptySlot, weapon, WeaponRarity.Common);
-            // Пытаемся выдать оружие локальному игроку, если он есть на сцене
-            PlayerWeaponInventory localInv = FindObjectOfType<PlayerWeaponInventory>();
-            if (localInv != null) localInv.SetWeaponFromGlobal(emptySlot, weapon, WeaponRarity.Common);
+            if (localPlayer != null)
+            {
+                localPlayer.SpawnWeaponPickup(weapon, WeaponRarity.Common);
+                Debug.Log($"<color=yellow>[Крафт] Слоты заняты! {weapon.weaponName} упал на землю.</color>");
+            }
+            else
+            {
+                Debug.LogError("<color=red>[Крафт] Игрок не найден, а слоты заняты! Оружие потеряно.</color>");
+            }
         }
+
+        // Сохраняем факт покупки в глобальное хранилище
+        int slot = FindEmptySlot();
+        if (slot != -1) SaveWeapon(slot, weapon, WeaponRarity.Common);
+
+        RefreshUI();
     }
 
     public void CraftUpgrade(WeaponData weapon)
@@ -149,57 +165,26 @@ public class InventoryManager : MonoBehaviour
 
         UpdateWeaponRarity(slotIndex, nextRarity);
 
-        // Обновляем локальному игроку, если он есть
-        PlayerWeaponInventory localInv = FindObjectOfType<PlayerWeaponInventory>();
-        if (localInv != null) localInv.SetWeaponRarity(slotIndex, nextRarity);
+        // Обновляем локальному игроку, если он есть на сцене
+        PlayerWeaponInventory localPlayer = FindObjectOfType<PlayerWeaponInventory>();
+        if (localPlayer != null) localPlayer.SetWeaponRarity(slotIndex, nextRarity);
+
+        RefreshUI();
     }
 
-    // === Вспомогательные ===
-    private bool HasWeaponOfType(WeaponType type)
+    // === СБРОС ЗАБЕГА (При смерти или победе) ===
+    public void ResetRunData()
     {
-        for (int i = 0; i < savedWeapons.Length; i++)
-            if (savedWeapons[i] != null && savedWeapons[i].weaponType == type) return true;
-        return false;
-    }
-
-    private int FindWeaponSlot(WeaponType type)
-    {
-        for (int i = 0; i < savedWeapons.Length; i++)
-            if (savedWeapons[i] != null && savedWeapons[i].weaponType == type) return i;
-        return -1;
+        for (int i = 0; i < savedWeapons.Length; i++) { savedWeapons[i] = null; savedRarities[i] = WeaponRarity.Common; }
+        for (int i = 0; i < materialsAmount.Length; i++) materialsAmount[i] = 0;
+        savedAdrenaline = 0f;
+        savedSyringes = 0;
+        Debug.Log("<color=yellow>[InventoryManager] ✅ Прогресс забега сброшен.</color>");
     }
 
     private void RefreshUI()
     {
         InventoryUI ui = FindObjectOfType<InventoryUI>();
-        if (ui != null) ui.RefreshAll();
-    }
-
-    public void ResetRunData()
-    {
-        // 1. Очищаем слоты оружия
-        if (savedWeapons != null)
-        {
-            for (int i = 0; i < savedWeapons.Length; i++)
-            {
-                savedWeapons[i] = null;
-                savedRarities[i] = WeaponRarity.Common;
-            }
-        }
-
-        // 2. Обнуляем ресурсы
-        if (materialsAmount != null)
-        {
-            for (int i = 0; i < materialsAmount.Length; i++)
-            {
-                materialsAmount[i] = 0;
-            }
-        }
-
-        // 3. Сбрасываем адреналин и шприцы до стартовых значений
-        savedAdrenaline = 0f; // Или 1f, если у тебя игра начинается с 1 HP
-        savedSyringes = 0;    // Или укажи стартовое количество шприцов (например, 1)
-
-        Debug.Log("<color=yellow>[InventoryManager] ✅ Прогресс забега сброшен. Инвентарь и статы очищены.</color>");
+        if (ui != null) { ui.RefreshResources(); ui.RefreshSlots(); }
     }
 }

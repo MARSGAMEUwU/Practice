@@ -556,9 +556,9 @@ MonoBehaviour:
   waves: []
   spawnPoints: []
   timeBetweenWaves: 3
-  totalLevelTime: 2
+  totalLevelTime: 10
   nextSceneName: Lvl1
-  sparkMessageDuration: 3
+  sparkMessageDuration: 2
   notificationText: {fileID: 1331587392}
 --- !u!4 &763129283
 Transform:
@@ -777,6 +777,10 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: maxFov
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: decayRate
       value: 2
       objectReference: {fileID: 0}
@@ -792,6 +796,10 @@ PrefabInstance:
       propertyPath: adrenalineUI
       value: 
       objectReference: {fileID: 965374548}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: minSaturation
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: currentAdrenaline
       value: 1

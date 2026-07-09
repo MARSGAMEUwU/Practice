@@ -3782,6 +3782,10 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: maxFov
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: healRate
       value: 50
       objectReference: {fileID: 0}
@@ -3799,12 +3803,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: minContrast
-      value: 0.7
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: adrenalineUI
       value: 
       objectReference: {fileID: 1585428374}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: minSaturation
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: injectionBoost
       value: 50
@@ -7791,3 +7799,4 @@ SceneRoots:
   - {fileID: 303081463}
   - {fileID: 513164671}
   - {fileID: 1340253308}
+  - {fileID: 186629643}

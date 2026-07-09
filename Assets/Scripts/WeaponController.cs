@@ -579,9 +579,17 @@ public class WeaponController : MonoBehaviour
         // 5. Обновляем UI патронов (текст и шкалу)
         UpdateAmmoUI();
     }
-
+    public bool IsReloading => isReloading;
     public void ClearCurrentWeapon()
     {
+        // === ФИКС БАГА С ПОЛОСКОЙ ПЕРЕЗАРЯДКИ ===
+        // Если мы выбрасываем оружие во время перезарядки, корутина продолжает работать в фоне.
+        // При подборе оружия она ломает UI. Останавливаем все корутины!
+        StopAllCoroutines();
+        isReloading = false;
+        if (ammoUI != null) ammoUI.HideReloadProgress();
+
+        // --- Остальной стандартный код очистки ---
         if (weaponInstances[currentWeaponIndex] != null)
             Destroy(weaponInstances[currentWeaponIndex]);
 
@@ -603,9 +611,7 @@ public class WeaponController : MonoBehaviour
         currentWeaponIndex = 0;
         currentAmmo = 0;
         currentStats = new RarityStats();
-
         UpdateAmmoUIVisibility();
-        InventoryManager.Instance?.ClearWeapon(currentWeaponIndex);
     }
 
     private void RestoreWeapons()

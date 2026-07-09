@@ -2590,6 +2590,10 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: maxFov
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: decayRate
       value: 3
       objectReference: {fileID: 0}
@@ -2605,6 +2609,10 @@ PrefabInstance:
       propertyPath: adrenalineUI
       value: 
       objectReference: {fileID: 1194005093}
+    - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: minSaturation
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: currentAdrenaline
       value: 1

@@ -20,7 +20,7 @@ MonoBehaviour:
   weaponType: 2
   fireType: 1
   projectilePrefab: {fileID: 2221258214874630549, guid: ba06039b1a5bfae42a1f538ec1734323, type: 3}
-  projectileSpeed: 150
+  projectileSpeed: 75
   projectileLifetime: 3
   tracerPrefab: {fileID: 0}
   grenadePrefab: {fileID: 0}
@@ -30,7 +30,7 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   statsByRarity:
   - damage: 10
-    fireRate: 0.2
+    fireRate: 0.15
     range: 100
     magazineSize: 20
     reloadTime: 2
@@ -43,7 +43,7 @@ MonoBehaviour:
     maxSpread: 5
     spreadRecovery: 3
   - damage: 12
-    fireRate: 0.15
+    fireRate: 0.12
     range: 100
     magazineSize: 30
     reloadTime: 2

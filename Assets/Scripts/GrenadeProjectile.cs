@@ -84,11 +84,11 @@ public class GrenadeProjectile : MonoBehaviour
             Damageable damageable = hit.GetComponent<Damageable>();
             if (damageable != null)
             {
-                float distance = Vector3.Distance(transform.position, hit.transform.position);
-                float damageFalloff = 1f - (distance / explosionRadius);
-                float finalDamage = damage * Mathf.Max(0f, damageFalloff);
+                //float distance = Vector3.Distance(transform.position, hit.transform.position);
+                //float damageFalloff = 1f - (distance / explosionRadius);
+                //float finalDamage = damage * Mathf.Max(0f, damageFalloff);
 
-                damageable.TakeDamage(finalDamage);
+                damageable.TakeDamage(damage);
             }
         }
 

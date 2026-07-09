@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class BOSS : MonoBehaviour
 {
@@ -140,5 +141,6 @@ public class BOSS : MonoBehaviour
         areLasersActive = false;
         isRotationActive = false;
         isMovingActive = false;
+        SceneManager.LoadScene("Victory");
     }
 }

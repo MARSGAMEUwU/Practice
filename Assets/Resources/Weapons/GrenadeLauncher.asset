@@ -29,7 +29,7 @@ MonoBehaviour:
   fuseTime: 1.5
   explosionEffectPrefab: {fileID: 5344967403138647181, guid: 64babc5c22d668443b9eb8b834a176ae, type: 3}
   statsByRarity:
-  - damage: 20
+  - damage: 30
     fireRate: 0.5
     range: 100
     magazineSize: 6
@@ -42,7 +42,7 @@ MonoBehaviour:
     spreadPerShot: 0
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 30
+  - damage: 50
     fireRate: 0.5
     range: 100
     magazineSize: 5
@@ -55,7 +55,7 @@ MonoBehaviour:
     spreadPerShot: 0
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 40
+  - damage: 70
     fireRate: 0.5
     range: 100
     magazineSize: 4
@@ -68,7 +68,7 @@ MonoBehaviour:
     spreadPerShot: 0.2
     maxSpread: 5
     spreadRecovery: 3
-  - damage: 50
+  - damage: 90
     fireRate: 0.5
     range: 100
     magazineSize: 3

@@ -86,10 +86,10 @@ MonoBehaviour:
   shootAnimatorController: {fileID: 9100000, guid: dea2f1aa0dbcda4489bdf62e4bcab2aa, type: 2}
   shootTriggerName: Shoot
   rarityColors:
-  - {r: 0, g: 0.990566, b: 0.06394616, a: 1}
-  - {r: 0, g: 0.31740785, b: 1, a: 1}
-  - {r: 0.5114592, g: 0.1724813, b: 0.7169812, a: 1}
-  - {r: 1, g: 0.7170844, b: 0, a: 1}
+  - {r: 0.05731578, g: 0.5283019, b: 0.3184417, a: 0.6117647}
+  - {r: 0.0068084607, g: 0.15747593, b: 0.4811321, a: 0.6392157}
+  - {r: 0.38292396, g: 0.14702742, b: 0.5283019, a: 0.62352943}
+  - {r: 1, g: 0.7176471, b: 0, a: 0.6156863}
   rarityNames:
   - Common
   - Rare

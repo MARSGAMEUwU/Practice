@@ -172,7 +172,7 @@ public class WaveManager : MonoBehaviour
         // Показываем сообщение
         if (notificationText != null)
         {
-            notificationText.text = " Устройство искрится ";
+            notificationText.text = "";
             notificationText.gameObject.SetActive(true);
         }
 

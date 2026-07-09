@@ -6,19 +6,19 @@ using UnityEngine.SceneManagement;
 
 public class Adrenaline : MonoBehaviour
 {
-    [Header("Основные настройки")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     [SerializeField] private float maxAdrenaline = 100f;
     [SerializeField] public float currentAdrenaline = 4f;
     [SerializeField] private float decayRate = 2f;
     [SerializeField] private float killReward = 20f;
 
-    [Header("Шприцы")]
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅ")]
     [SerializeField] private float injectionBoost = 50f;
     [SerializeField] private int syringeAmount = 4;
     [SerializeField] private float cooldown = 5f;
     [SerializeField] private InputAction useSyringe;
 
-    [Header("3D Анимация и задержка инъекции")]
+    [Header("3D пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
     [SerializeField] private Animator injectorAnimator;
     [SerializeField] private string injectTriggerName = "Inject";
     [SerializeField] private float injectionDelay = 0.6f;
@@ -51,9 +51,9 @@ public class Adrenaline : MonoBehaviour
     private float currentContrast;
     private float currentFov;
 
-    // === ПУЛ ОТЛОЖЕННОГО ЛЕЧЕНИЯ ===
-    [Header("Система лечения")]
-    [Tooltip("Скорость постепенного лечения (единиц в секунду)")]
+    // === пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ===
+    [Header("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")]
+    [Tooltip("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)")]
     [SerializeField] private float healRate = 50f;
     private float pendingHealAmount = 0f;
 
@@ -91,24 +91,24 @@ public class Adrenaline : MonoBehaviour
     {
         if (Time.timeScale <= 0f) return;
 
-        // 1. Естественное убывание (только до 1 HP)
+        // 1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 1 HP)
         if (currentAdrenaline > 1f)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
             if (currentAdrenaline < 1f) currentAdrenaline = 1f;
         }
 
-        // 2. === ГРАДУАЛЬНОЕ ЛЕЧЕНИЕ (Из пула) ===
+        // 2. === пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅ) ===
         if (pendingHealAmount > 0f)
         {
-            // Сколько пула "сгорает" в этом кадре
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             float poolConsumption = healRate * Time.deltaTime;
 
-            // Уменьшаем САМ ПУЛ всегда (даже если здоровье на максимуме)
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
             pendingHealAmount -= poolConsumption;
             if (pendingHealAmount < 0f) pendingHealAmount = 0f;
 
-            // Считаем, сколько РЕАЛЬНО прибавится к HP (не больше максимума)
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ HP (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
             float actualHeal = Mathf.Min(poolConsumption, maxAdrenaline - currentAdrenaline);
 
             if (actualHeal > 0f)
@@ -117,7 +117,7 @@ public class Adrenaline : MonoBehaviour
             }
         }
 
-        // 3. Визуалы и музыка
+        // 3. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
         if (currentAdrenaline > 0f)
         {
             ApplyVisualEffects();
@@ -125,7 +125,7 @@ public class Adrenaline : MonoBehaviour
             ApplyMusicVolumes();
         }
 
-        // 4. Ввод
+        // 4. пїЅпїЅпїЅпїЅ
         if (useSyringe.IsPressed() && syringeAmount > 0 && Time.time >= nextInjTime)
         {
             UseSyringe();
@@ -186,17 +186,24 @@ public class Adrenaline : MonoBehaviour
 
     public void GameOver()
     {
-        UnityEngine.Debug.Log("<color=red>Игрок погиб. Переход в меню...</color>");
+        UnityEngine.Debug.Log("<color=red>пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ...</color>");
         PlayerController pc = GetComponent<PlayerController>();
         if (pc != null) pc.LockControls();
 
-        if (TransitionManager.Instance != null) TransitionManager.Instance.TransitionToScene("MainMenu");
-        else UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ MainMenu пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        if (TransitionManager.Instance != null)
+        {
+            TransitionManager.Instance.TransitionToScene("GameOver");
+        }
+        else
+        {
+            SceneManager.LoadScene("GameOver");
+        }
     }
 
     public void TakeDamage(float damageAmount)
     {
-        // Мгновенно вычитаем урон. Пул лечения при этом НЕ трогаем!
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!
         currentAdrenaline -= damageAmount;
 
         if (adrenalineUI != null) adrenalineUI.TriggerShake();

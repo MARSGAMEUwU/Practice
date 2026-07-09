@@ -253,7 +253,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &186629638
 AudioSource:
   m_ObjectHideFlags: 0
@@ -5687,6 +5687,10 @@ PrefabInstance:
       propertyPath: weaponController
       value: 
       objectReference: {fileID: 1227426166}
+    - target: {fileID: 7582528014250866259, guid: 147c086a2ffa4c84bb3fd15c658bfbea, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 16.699951
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

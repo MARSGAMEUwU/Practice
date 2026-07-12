@@ -21,11 +21,9 @@ public class WeaponData : ScriptableObject
 
     public WeaponType weaponType = WeaponType.Pistol;
 
-    // === ТИП СТРЕЛЬБЫ ===
     [Header("Тип стрельбы")]
     public WeaponFireType fireType = WeaponFireType.Raycast;
 
-    // === Для Projectile ===
     [Header("Настройки Projectile")]
     [Tooltip("Префаб пули (для автомата)")]
     public GameObject projectilePrefab;
@@ -39,7 +37,6 @@ public class WeaponData : ScriptableObject
     [Tooltip("Префаб трассера (LineRenderer)")]
     public GameObject tracerPrefab;
 
-    // === Для Grenade ===
     [Header("Настройки Grenade")]
     [Tooltip("Префаб гранаты")]
     public GameObject grenadePrefab;
@@ -92,7 +89,6 @@ public class WeaponData : ScriptableObject
     [Tooltip("Индекс 0: Common→Rare, 1: Rare→Epic, 2: Epic→Legendary")]
     public UpgradeRecipe[] upgradeRecipes = new UpgradeRecipe[3];
 
-    // === Методы ===
     public RarityStats GetStatsForRarity(WeaponRarity rarity)
     {
         int index = (int)rarity;

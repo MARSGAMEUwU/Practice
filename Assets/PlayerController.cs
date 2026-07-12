@@ -38,7 +38,6 @@ public class PlayerController : MonoBehaviour
     [Header("Настройки отдачи")]
     [SerializeField] private float recoilRecoverySpeed = 8f;
 
-    // Приватные переменные
     private CharacterController controller;
     private Vector3 velocity;
     private float xRotation;
@@ -51,7 +50,6 @@ public class PlayerController : MonoBehaviour
     private float currentRecoilX = 0f;
     private float currentRecoilY = 0f;
 
-    // Флаг блокировки управления
     private bool isControlsEnabled = true;
 
     private void Awake()
@@ -210,7 +208,6 @@ public class PlayerController : MonoBehaviour
         controller.Move(horizontalMove + verticalMove);
     }
 
-    // === Публичные методы для InventoryUI ===
 
     public void LockControls()
     {

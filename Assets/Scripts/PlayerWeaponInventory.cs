@@ -23,7 +23,6 @@ public class PlayerWeaponInventory : MonoBehaviour
             currentPickup = null;
         }
 
-        // Блокируем выбрасывание во время перезарядки
         if (dropAction.WasPressedThisFrame() && !weaponController.IsReloading)
         {
             DropCurrentWeapon();
@@ -33,9 +32,6 @@ public class PlayerWeaponInventory : MonoBehaviour
     public void SetCurrentPickup(WeaponPickup pickup) => currentPickup = pickup;
     public void ClearCurrentPickup(WeaponPickup pickup) { if (currentPickup == pickup) currentPickup = null; }
 
-    /// <summary>
-    /// Пытается взять оружие в руки. Возвращает false, если слоты заняты.
-    /// </summary>
     public bool AddWeapon(WeaponData weapon, WeaponRarity rarity)
     {
         if (weapon == null) return false;
@@ -45,22 +41,17 @@ public class PlayerWeaponInventory : MonoBehaviour
             if (weaponController.GetWeaponInSlot(i) == null)
             {
                 weaponController.SetWeapon(i, weapon, rarity);
-                // Сообщаем глобальному инвентарю, что оружие подобрано
                 InventoryManager.Instance?.SaveWeapon(i, weapon, rarity);
                 return true;
             }
         }
-        return false; // Слоты заняты
+        return false;
     }
 
     public void SetWeaponRarity(int slotIndex, WeaponRarity rarity)
     {
         weaponController.SetWeaponRarity(slotIndex, rarity);
     }
-
-    /// <summary>
-    /// Спавнит оружие на землю (используется при крафте, если руки заняты, или при выбрасывании).
-    /// </summary>
     public void SpawnWeaponPickup(WeaponData weapon, WeaponRarity rarity)
     {
         if (weapon == null) return;
@@ -101,17 +92,13 @@ public class PlayerWeaponInventory : MonoBehaviour
 
         if (droppedWeapon == null) return;
 
-        // 1. Спавним пикап на землю
         SpawnWeaponPickup(droppedWeapon, droppedRarity);
 
-        // 2. Очищаем локальный контроллер
         weaponController.ClearCurrentWeapon();
 
-        // 3. Очищаем слот в ГЛОБАЛЬНОМ инвентаре
         InventoryManager.Instance?.ClearWeapon(slotIndex);
     }
 
-    // Методы-прокладки для InventoryManager
     public WeaponData GetWeaponInSlot(int i) => weaponController.GetWeaponInSlot(i);
     public WeaponRarity GetRarityInSlot(int i) => weaponController.GetRarityInSlot(i);
 }

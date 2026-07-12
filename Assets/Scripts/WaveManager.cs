@@ -37,7 +37,6 @@ public class WaveManager : MonoBehaviour
     [Tooltip("TextMeshPro для отображения таймера и сообщения")]
     [SerializeField] private TextMeshProUGUI notificationText;
 
-    // === СОСТОЯНИЕ ===
     private int currentWaveIndex = 0;
     private int enemiesAlive = 0;
     private bool isSpawning = false;
@@ -57,10 +56,8 @@ public class WaveManager : MonoBehaviour
     {
         totalTimer = totalLevelTime;
 
-        // === АВТОМАТИЧЕСКИЙ ПОИСК UI (ЕСЛИ НЕ НАЗНАЧЕН В ИНСПЕКТОРЕ) ===
         if (notificationText == null)
         {
-            // 1. Пытаемся найти по точному пути в иерархии: Canvas -> NotificationPanel -> NotificationText
             Transform canvas = GameObject.Find("Canvas")?.transform;
             if (canvas != null)
             {
@@ -75,7 +72,6 @@ public class WaveManager : MonoBehaviour
                 }
             }
 
-            // 2. Если по пути не нашли, пробуем глобальный поиск по имени объекта
             if (notificationText == null)
             {
                 GameObject foundObj = GameObject.Find("NotificationText");
@@ -85,7 +81,6 @@ public class WaveManager : MonoBehaviour
                 }
             }
 
-            // Выводим результат поиска в консоль для отладки
             if (notificationText != null)
             {
                 Debug.Log("<color=green>[WaveManager] ? UI таймера найден автоматически!</color>");
@@ -96,7 +91,6 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // Скрываем текст в начале игры
         if (notificationText != null)
         {
             notificationText.gameObject.SetActive(false);
@@ -107,12 +101,8 @@ public class WaveManager : MonoBehaviour
     {
         if (isGameOver) return;
 
-        // ========================================
-        // 1. ОБЩИЙ ТАЙМЕР УРОВНЯ (обратный отсчёт)
-        // ========================================
         totalTimer -= Time.deltaTime;
 
-        // Показываем обратный отсчёт на UI
         if (notificationText != null)
         {
             notificationText.gameObject.SetActive(true);
@@ -121,7 +111,6 @@ public class WaveManager : MonoBehaviour
             notificationText.text = $"{seconds}";
         }
 
-        // Общий таймер истёк — запускаем финальную последовательность
         if (totalTimer <= 0f && !isVictorySequence)
         {
             StartCoroutine(SparkSequence());
@@ -130,14 +119,10 @@ public class WaveManager : MonoBehaviour
 
         if (isVictorySequence) return;
 
-        // ========================================
-        // 2. ТАЙМКОД ТЕКУЩЕЙ ВОЛНЫ
-        // ========================================
         if (!isSpawning && currentWaveIndex < waves.Length)
         {
             currentWaveTimer -= Time.deltaTime;
 
-            // Таймкод истёк — принудительно начинаем СЛЕДУЮЩУЮ волну (старые враги остаются!)
             if (currentWaveTimer <= 0f)
             {
                 Debug.Log($"<color=yellow> Таймкод волны {currentWaveIndex + 1} истёк! Живых врагов: {enemiesAlive}. Запускаем следующую!</color>");
@@ -146,24 +131,17 @@ public class WaveManager : MonoBehaviour
             }
         }
 
-        // ========================================
-        // 3. ОБЫЧНАЯ ПРОВЕРКА — все враги мертвы
-        // ========================================
         if (enemiesAlive == 0 && !isSpawning && currentWaveIndex < waves.Length)
         {
             StartCoroutine(StartNextWave());
         }
     }
 
-    /// <summary>
-    /// Финальная последовательность: "Устройство искрится" ? загрузка сцены
-    /// </summary>
     private IEnumerator SparkSequence()
     {
         isVictorySequence = true;
         isGameOver = true;
 
-        // Показываем сообщение
         if (notificationText != null)
         {
             notificationText.text = "";
@@ -172,26 +150,20 @@ public class WaveManager : MonoBehaviour
 
         Debug.Log("<color=red> Устройство искрится!</color>");
 
-        // Ждём указанное время
         yield return new WaitForSeconds(sparkMessageDuration);
 
-        // Загружаем следующую сцену
         Debug.Log($"<color=cyan> Загрузка сцены: {nextSceneName}</color>");
-        // === ЭФЕКТ ПЕРЕХОДА ===
+        
         if (TransitionManager.Instance != null)
         {
             TransitionManager.Instance.TransitionToScene(nextSceneName);
         }
         else
         {
-            // Запасной вариант, если менеджер переходов по какой-то причине не найден
             SceneManager.LoadScene(nextSceneName);
         }
     }
 
-    /// <summary>
-    /// Запускает спавн текущей волны (не убивает старых врагов!)
-    /// </summary>
     private IEnumerator StartNextWave()
     {
         if (currentWaveIndex >= waves.Length) yield break;
@@ -201,13 +173,10 @@ public class WaveManager : MonoBehaviour
         Wave wave = waves[currentWaveIndex];
         Debug.Log($"<color=cyan> Начинается: {wave.waveName} (живых врагов на карте: {enemiesAlive})</color>");
 
-        // Ставим таймкод для ЭТОЙ волны
         currentWaveTimer = wave.waveDuration;
 
-        // Пауза перед спавном
         yield return new WaitForSeconds(timeBetweenWaves);
 
-        // Спавним врагов
         for (int i = 0; i < wave.enemyCount; i++)
         {
             if (isGameOver) yield break;
@@ -230,19 +199,11 @@ public class WaveManager : MonoBehaviour
         enemiesAlive++;
     }
 
-    // === ПУБЛИЧНЫЕ МЕТОДЫ ===
-
-    /// <summary>
-    /// Враги вызывают это перед уничтожением
-    /// </summary>
     public void OnEnemyDeath()
     {
         enemiesAlive = Mathf.Max(0, enemiesAlive - 1);
     }
 
-    /// <summary>
-    /// Вызывается при смерти игрока
-    /// </summary>
     public void GameOver()
     {
         isGameOver = true;

@@ -34,10 +34,9 @@ public class Stormtrooper : Damageable
     [SerializeField] private string attackTrigger = "Attack";
     [SerializeField] private string deathTrigger = "Die";
 
-    // === НОВОЕ: Лут трупа (как в Enemy) ===
     [Header("Лут трупа")]
-    [SerializeField] private GameObject corpsePrefab; // Префаб трупа
-    [SerializeField] private float corpseSpawnHeight = 73f; // Смещение по Y
+    [SerializeField] private GameObject corpsePrefab;
+    [SerializeField] private float corpseSpawnHeight = 73f;
 
     private float nextStrafeTime;
     private int currentStrafeDirection = 1;
@@ -52,7 +51,7 @@ public class Stormtrooper : Damageable
         agent = GetComponent<NavMeshAgent>();
 
         agent.speed = moveSpeed;
-        agent.acceleration = 8f;      // Плавный разгон и торможение (вместо мгновенного старта)
+        agent.acceleration = 8f;
         agent.angularSpeed = 120f;
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
@@ -79,29 +78,21 @@ public class Stormtrooper : Damageable
     {
         if (player == null || firePoint == null) return;
 
-        // 1. Получаем МИРОВУЮ ось X (красную стрелку) объекта firePoint
-        // (Если ствол смотрит по Z, замени right на forward)
         Vector3 aimAxis = firePoint.right;
 
-        // 2. Проецируем на горизонтальную плоскость (убираем Y, чтобы не задирал голову)
         aimAxis.y = 0f;
-        if (aimAxis.sqrMagnitude < 0.001f) return; // Защита от нулевого вектора
+        if (aimAxis.sqrMagnitude < 0.001f) return;
         aimAxis.Normalize();
 
-        // 3. Получаем направление на игрока (тоже на горизонтальной плоскости)
         Vector3 targetDir = player.position - transform.position;
         targetDir.y = 0f;
         if (targetDir.sqrMagnitude < 0.001f) return;
         targetDir.Normalize();
 
-        // 4. Вычисляем разницу (поворот) между текущим направлением ствола и целью
         Quaternion deltaRotation = Quaternion.FromToRotation(aimAxis, targetDir);
 
-        // 5. Применяем этот поворот к корневому объекту персонажа
-        // deltaRotation — это мировой поворот, поэтому умножаем СЛЕВА
         Quaternion targetRotation = deltaRotation * transform.rotation;
 
-        // 6. Плавно интерполируем
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * aimSpeed);
     }
 
@@ -185,26 +176,21 @@ public class Stormtrooper : Damageable
         {
             if (Time.time >= nextFireBurst) Attack();
 
-            // === ИСПРАВЛЕННАЯ ЛОГИКА ДВИЖЕНИЯ (без конфликтов) ===
             if (distanceToPlayer > maxDistance)
             {
-                // Слишком далеко: просто бежим к игроку
                 ChasePlayer();
             }
             else if (distanceToPlayer < minDistance)
             {
-                // Слишком близко: убегаем назад (стрейф тут не нужен, чтобы не путать агента)
                 RunFromPlayer();
             }
             else
             {
-                // Идеальная дистанция (20-50м): стоим на месте по отношению к игроку, но активно стрейфимся влево/вправо
                 Strafe();
             }
         }
         else
         {
-            // Игрок за стеной: бежим к нему
             ChasePlayer();
         }
 
@@ -296,12 +282,10 @@ public class Stormtrooper : Damageable
 
         if (playerAdrenaline != null) playerAdrenaline.KillReward();
 
-        // === НОВОЕ: Спавн трупа и уничтожение объекта через 2 секунды (как в Enemy) ===
         Invoke(nameof(SpawnCorpse), 2f);
         Destroy(gameObject, 2f);
     }
 
-    // === НОВОЕ: Метод спавна трупа (полностью скопирован из Enemy) ===
     private void SpawnCorpse()
     {
         if (corpsePrefab == null)
@@ -309,7 +293,6 @@ public class Stormtrooper : Damageable
             Debug.LogWarning("Corpse prefab не назначен!");
             return;
         }
-        // Смещение по Y (например, -0.5 чтобы труп лежал на земле)
         float yOffset = 0.8f;
         Vector3 spawnPos = transform.position + Vector3.up * yOffset;
         Quaternion spawnRot = transform.rotation;

@@ -26,11 +26,10 @@ public class InventoryManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        DontDestroyOnLoad(gameObject); // Живет вечно
+        DontDestroyOnLoad(gameObject);
         resourceIcons = new Sprite[] { barrelIcon, magazineIcon, handleIcon, scopeIcon };
     }
 
-    // === ГЕТТЕРЫ И СЕТТЕРЫ ДЛЯ ГЛОБАЛЬНОГО ХРАНИЛИЩА ===
     public WeaponData[] GetSavedWeapons() => savedWeapons;
     public WeaponRarity[] GetSavedRarities() => savedRarities;
 
@@ -57,7 +56,6 @@ public class InventoryManager : MonoBehaviour
         RefreshUI();
     }
 
-    // === РЕСУРСЫ ===
     public void AddResource(int resourceIndex, int amount)
     {
         if (resourceIndex < 0 || resourceIndex >= materialsAmount.Length) return;
@@ -80,7 +78,6 @@ public class InventoryManager : MonoBehaviour
         for (int i = 0; i < 4; i++) materialsAmount[i] -= recipe[i];
     }
 
-    // === ПРОВЕРКИ (Теперь смотрят в глобальные массивы, а не в игрока!) ===
     public bool HasWeapon(WeaponType type)
     {
         for (int i = 0; i < savedWeapons.Length; i++)
@@ -111,14 +108,12 @@ public class InventoryManager : MonoBehaviour
         return -1;
     }
 
-    // === КРАФТ (Поиск игрока "на лету") ===
     public void CraftPurchase(WeaponData weapon)
     {
         if (weapon == null || !CanAfford(weapon.purchaseRecipe) || HasWeaponOfType(weapon.weaponType)) return;
 
         SpendResources(weapon.purchaseRecipe);
 
-        // Ищем локального игрока на сцене динамически
         PlayerWeaponInventory localPlayer = FindObjectOfType<PlayerWeaponInventory>();
         bool addedToHands = false;
 
@@ -127,7 +122,6 @@ public class InventoryManager : MonoBehaviour
             addedToHands = localPlayer.AddWeapon(weapon, WeaponRarity.Common);
         }
 
-        // Если в руки не взяли (слоты заняты) — спавним на землю
         if (!addedToHands)
         {
             if (localPlayer != null)
@@ -141,7 +135,6 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        // Сохраняем факт покупки в глобальное хранилище
         int slot = FindEmptySlot();
         if (slot != -1) SaveWeapon(slot, weapon, WeaponRarity.Common);
 
@@ -165,14 +158,12 @@ public class InventoryManager : MonoBehaviour
 
         UpdateWeaponRarity(slotIndex, nextRarity);
 
-        // Обновляем локальному игроку, если он есть на сцене
         PlayerWeaponInventory localPlayer = FindObjectOfType<PlayerWeaponInventory>();
         if (localPlayer != null) localPlayer.SetWeaponRarity(slotIndex, nextRarity);
 
         RefreshUI();
     }
 
-    // === СБРОС ЗАБЕГА (При смерти или победе) ===
     public void ResetRunData()
     {
         for (int i = 0; i < savedWeapons.Length; i++) { savedWeapons[i] = null; savedRarities[i] = WeaponRarity.Common; }

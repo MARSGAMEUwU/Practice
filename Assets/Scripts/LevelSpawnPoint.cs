@@ -8,16 +8,13 @@ public class LevelSpawnPoint : MonoBehaviour
 
     private void Start()
     {
-        // Ищем нашего "бессмертного" игрока на сцене
         GameObject player = GameObject.FindGameObjectWithTag("Player");
 
         if (player != null)
         {
-            // 1. Вычисляем глобальную позицию с небольшим смещением вверх
             Vector3 spawnPos = transform.position + Vector3.up * spawnHeightOffset;
             Quaternion spawnRot = transform.rotation;
 
-            // 2. Полностью сбрасываем физику (Rigidbody), чтобы инерция не унесла игрока
             Rigidbody rb = player.GetComponent<Rigidbody>();
             if (rb != null)
             {
@@ -25,12 +22,9 @@ public class LevelSpawnPoint : MonoBehaviour
                 rb.angularVelocity = Vector3.zero;
             }
 
-            // 3. Правильно телепортируем CharacterController
             CharacterController cc = player.GetComponent<CharacterController>();
             if (cc != null)
             {
-                // CharacterController глючит, если просто менять transform.position при коллизии.
-                // Стандартный фикс Unity: отключить контроллер, переместить объект, включить обратно.
                 cc.enabled = false;
                 player.transform.position = spawnPos;
                 player.transform.rotation = spawnRot;
@@ -38,7 +32,6 @@ public class LevelSpawnPoint : MonoBehaviour
             }
             else
             {
-                // Если CharacterController нет, просто меняем позицию
                 player.transform.position = spawnPos;
                 player.transform.rotation = spawnRot;
             }

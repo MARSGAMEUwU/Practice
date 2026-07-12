@@ -5,9 +5,9 @@ using TMPro;
 public class WeaponSlotUI : MonoBehaviour
 {
     [Header("Визуальные элементы слота")]
-    [SerializeField] private Image background;        // Фон слота
-    [SerializeField] private Image rarityOverlay;     // Цветная подложка (редкость)
-    [SerializeField] private Image weaponIcon;        // Иконка оружия
+    [SerializeField] private Image background;
+    [SerializeField] private Image rarityOverlay;
+    [SerializeField] private Image weaponIcon;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
 
@@ -20,7 +20,7 @@ public class WeaponSlotUI : MonoBehaviour
     [SerializeField] private RecipeDisplay purchaseRecipeDisplay;
 
     [Header("Настройки")]
-    [SerializeField] private Color emptySlotColor = new Color(0.2f, 0.2f, 0.2f); // Чуть темнее для "пустого" состояния
+    [SerializeField] private Color emptySlotColor = new Color(0.2f, 0.2f, 0.2f);
     [SerializeField] private float overlayAlpha = 0.5f;
 
     private InventoryManager inventoryManager;
@@ -48,30 +48,24 @@ public class WeaponSlotUI : MonoBehaviour
 
     private void UpdateVisuals()
     {
-        // Если WeaponData вообще не назначен (ошибка конфигурации), скрываем всё
         if (currentWeaponData == null)
         {
             SetSlotEmpty();
             return;
         }
 
-        // 1. ФОН СЛОТА
         if (background != null)
         {
             background.color = hasWeapon ? new Color(0.35f, 0.35f, 0.35f, 0f) : emptySlotColor;
         }
 
-        // 2. ОВЕРЛЕЙ РЕДКОСТИ
         if (rarityOverlay != null)
         {
-            // Если оружия нет, показываем цвет Common. Если есть - текущий цвет.
             WeaponRarity displayRarity = hasWeapon ? currentRarity : WeaponRarity.Common;
             Color rarityColor = currentWeaponData.GetRarityColor(displayRarity);
             rarityOverlay.color = new Color(rarityColor.r, rarityColor.g, rarityColor.b, overlayAlpha);
         }
 
-        // 3. ИКОНКА, НАЗВАНИЕ, ОПИСАНИЕ (Всегда активны, если есть WeaponData)
-        // Иконка
         if (weaponIcon != null)
         {
             if (currentWeaponData.weaponIcon != null)
@@ -85,15 +79,13 @@ public class WeaponSlotUI : MonoBehaviour
             }
         }
 
-        // Название
         if (weaponNameText != null)
         {
             weaponNameText.text = currentWeaponData.weaponName;
             weaponNameText.gameObject.SetActive(true);
-            weaponNameText.color = Color.white; // Белый текст для читаемости на темном фоне
+            weaponNameText.color = Color.white;
         }
 
-        // 4. ОПИСАНИЕ (Учитываем новую логику 4-х элементов)
         if (descriptionText != null)
         {
             string desc = "";
@@ -127,8 +119,6 @@ public class WeaponSlotUI : MonoBehaviour
             }
         }
 
-        // 4. РЕЦЕПТЫ (Логика взаимного исключения)
-        // Рецепт покупки: ТОЛЬКО если оружия НЕТ
         if (purchaseRecipeDisplay != null)
         {
             if (!hasWeapon)
@@ -138,11 +128,10 @@ public class WeaponSlotUI : MonoBehaviour
             }
             else
             {
-                purchaseRecipeDisplay.gameObject.SetActive(false); // СКРЫВАЕМ, если оружие уже есть
+                purchaseRecipeDisplay.gameObject.SetActive(false);
             }
         }
 
-        // Рецепт апгрейда: ТОЛЬКО если оружие ЕСТЬ и оно не максимального уровня
         if (upgradeRecipeDisplay != null)
         {
             if (hasWeapon && !isMaxRarity)
@@ -160,7 +149,6 @@ public class WeaponSlotUI : MonoBehaviour
 
     private void UpdateButtons()
     {
-        // Кнопка покупки: ТОЛЬКО если оружия НЕТ
         if (purchaseButton != null)
         {
             bool showPurchase = !hasWeapon;
@@ -173,7 +161,6 @@ public class WeaponSlotUI : MonoBehaviour
             }
         }
 
-        // Кнопка апгрейда: ТОЛЬКО если оружие ЕСТЬ и не максимального уровня
         if (upgradeButton != null)
         {
             bool showUpgrade = hasWeapon && !isMaxRarity;
@@ -188,7 +175,6 @@ public class WeaponSlotUI : MonoBehaviour
         }
     }
 
-    // Вспомогательный метод для полного скрытия (если WeaponData битый)
     private void SetSlotEmpty()
     {
         if (background != null) background.color = emptySlotColor;
@@ -202,7 +188,6 @@ public class WeaponSlotUI : MonoBehaviour
         if (upgradeButton != null) upgradeButton.gameObject.SetActive(false);
     }
 
-    // === Обработчики кнопок ===
     public void OnPurchaseClicked()
     {
         if (currentWeaponData != null && inventoryManager != null)
@@ -219,7 +204,6 @@ public class WeaponSlotUI : MonoBehaviour
         }
     }
 
-    // Обновление слота извне (например, при изменении ресурсов)
     public void Refresh()
     {
         if (inventoryManager != null && currentWeaponData != null)

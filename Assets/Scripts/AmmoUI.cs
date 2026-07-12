@@ -5,25 +5,21 @@ using TMPro;
 public class AmmoUI : MonoBehaviour
 {
     [Header("Ссылки на UI")]
-    [SerializeField] private TextMeshProUGUI ammoText;       // Текст "патроны / магазин"
-    [SerializeField] private Image reloadProgressImage;      // Заполняющийся прямоугольник
+    [SerializeField] private TextMeshProUGUI ammoText;
+    [SerializeField] private Image reloadProgressImage;
 
     private void Start()
     {
-        // Настраиваем шкалу прогресса на заполнение слева направо
         if (reloadProgressImage != null)
         {
             reloadProgressImage.type = Image.Type.Filled;
             reloadProgressImage.fillMethod = Image.FillMethod.Horizontal;
             reloadProgressImage.fillOrigin = (int)Image.OriginHorizontal.Left;
             reloadProgressImage.fillAmount = 0f;
-            reloadProgressImage.gameObject.SetActive(false); // Скрываем в начале
+            reloadProgressImage.gameObject.SetActive(false);
         }
     }
 
-    /// <summary>
-    /// Обновляет текст с патронами
-    /// </summary>
     public void UpdateAmmo(int current, int max)
     {
         if (ammoText != null)
@@ -33,9 +29,6 @@ public class AmmoUI : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// Устанавливает прогресс перезарядки (от 0 до 1)
-    /// </summary>
     public void SetReloadProgress(float progress)
     {
         if (reloadProgressImage != null)
@@ -45,9 +38,6 @@ public class AmmoUI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Скрывает шкалу прогресса перезарядки
-    /// </summary>
     public void HideReloadProgress()
     {
         if (reloadProgressImage != null)
@@ -58,13 +48,11 @@ public class AmmoUI : MonoBehaviour
     }
     public void SetAmmoUIActive(bool isActive)
     {
-        // Управляем активностью текста
         if (ammoText != null)
         {
             ammoText.gameObject.SetActive(isActive);
         }
 
-        // Управляем активностью полоски (Image)
         if (reloadProgressImage != null)
         {
             reloadProgressImage.gameObject.SetActive(isActive);

@@ -23,7 +23,7 @@ public class InventoryUI : MonoBehaviour
     [Header("Корневой объект UI")]
     [SerializeField] private GameObject rootPanel;
 
-    private CanvasGroup canvasGroup; // Новый компонент для управления видимостью
+    private CanvasGroup canvasGroup;
     private InventoryManager inventoryManager;
     private bool isOpen = false;
     private float previousTimeScale = 1f;
@@ -43,7 +43,6 @@ public class InventoryUI : MonoBehaviour
         if (playerInventory == null)
             playerInventory = FindObjectOfType<PlayerWeaponInventory>();
 
-        // Получаем компонент CanvasGroup
         if (rootPanel != null)
         {
             canvasGroup = rootPanel.GetComponent<CanvasGroup>();
@@ -56,11 +55,9 @@ public class InventoryUI : MonoBehaviour
         if (inventoryManager == null)
             inventoryManager = FindObjectOfType<InventoryManager>();
 
-        // Принудительно инициализируем и обновляем данные на старте
         if (rootPanel != null) rootPanel.SetActive(true);
         RefreshAll();
 
-        // Скрываем инвентарь через CanvasGroup, оставляя объект КОРРЕКТНО АКТИВНЫМ
         SetAlpha(false);
     }
 
@@ -103,18 +100,14 @@ public class InventoryUI : MonoBehaviour
 
     private void CloseInventory()
     {
-        if (!isOpen) return; // Защита от двойного вызова
+        if (!isOpen) return;
         isOpen = false;
 
-        // 1. Скрываем интерфейс визуально
         SetAlpha(false);
 
-        // 2. Возвращаем управление игроку
         if (playerController != null)
             playerController.UnlockControls();
 
-        // 3. Возвращаем нормальный ход времени. 
-        // Если сохраненное значение сломалось, принудительно ставим 1f (100% скорость игры).
         Time.timeScale = 1f;
 
         Debug.Log($"[UI] Инвентарь закрыт. Время восстановлено: {Time.timeScale}");
@@ -122,14 +115,13 @@ public class InventoryUI : MonoBehaviour
         if (settingslayer != null) settingslayer.SetActive(false);
     }
 
-    // Метод для мгновенного скрытия/показа UI без отключения GameObject
     private void SetAlpha(bool visible)
     {
         if (canvasGroup == null) return;
 
-        canvasGroup.alpha = visible ? 1f : 0f;          // Прозрачность
-        canvasGroup.interactable = visible;             // Доступность кнопок для кликов
-        canvasGroup.blocksRaycasts = visible;          // Перехватывает ли UI мышь
+        canvasGroup.alpha = visible ? 1f : 0f;
+        canvasGroup.interactable = visible;
+        canvasGroup.blocksRaycasts = visible;
     }
 
     public void RefreshAll()

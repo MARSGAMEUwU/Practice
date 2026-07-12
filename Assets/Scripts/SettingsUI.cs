@@ -16,13 +16,12 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private Button closeButton;
 
-    private bool isUpdatingUI = false; // Флаг для защиты от рекурсии
+    private bool isUpdatingUI = false;
 
     private void Start()
     {
         if (closeButton != null) closeButton.onClick.AddListener(CloseSettings);
 
-        // Настраиваем лимиты для слайдеров из менеджера
         if (SettingsManager.Instance != null)
         {
             sensitivitySlider.minValue = SettingsManager.Instance.GetMinSensitivity();
@@ -32,14 +31,13 @@ public class SettingsUI : MonoBehaviour
             volumeSlider.maxValue = 1f;
         }
 
-        // Подписываемся на изменения
         sensitivitySlider.onValueChanged.AddListener(OnSensitivitySliderChanged);
-        sensitivityInput.onEndEdit.AddListener(OnSensitivityInputChanged); // Срабатывает при нажатии Enter или потере фокуса
+        sensitivityInput.onEndEdit.AddListener(OnSensitivityInputChanged);
 
         volumeSlider.onValueChanged.AddListener(OnVolumeSliderChanged);
         volumeInput.onEndEdit.AddListener(OnVolumeInputChanged);
 
-        settingsPanel.SetActive(false); // Скрываем в начале
+        settingsPanel.SetActive(false);
     }
 
     public void OpenSettings()
@@ -70,7 +68,6 @@ public class SettingsUI : MonoBehaviour
         isUpdatingUI = false;
     }
 
-    // === Чувствительность ===
     private void OnSensitivitySliderChanged(float value)
     {
         if (isUpdatingUI) return;
@@ -88,7 +85,6 @@ public class SettingsUI : MonoBehaviour
         if (float.TryParse(text, out float value))
         {
             isUpdatingUI = true;
-            // Ограничиваем значение лимитами слайдера
             value = Mathf.Clamp(value, sensitivitySlider.minValue, sensitivitySlider.maxValue);
             sensitivitySlider.value = value;
             sensitivityInput.text = value.ToString("F2");
@@ -98,12 +94,10 @@ public class SettingsUI : MonoBehaviour
         }
         else
         {
-            // Если ввели буквы или мусор, возвращаем старое корректное значение
             UpdateUIValues();
         }
     }
 
-    // === Громкость ===
     private void OnVolumeSliderChanged(float value)
     {
         if (isUpdatingUI) return;

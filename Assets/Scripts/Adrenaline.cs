@@ -6,19 +6,19 @@ using UnityEngine.SceneManagement;
 
 public class Adrenaline : MonoBehaviour
 {
-    [Header("�������� ���������")]
+    [Header("AdrenlineStats")]
     [SerializeField] private float maxAdrenaline = 100f;
     [SerializeField] public float currentAdrenaline = 4f;
     [SerializeField] private float decayRate = 2f;
     [SerializeField] private float killReward = 20f;
 
-    [Header("������")]
+    [Header("InjectorStats")]
     [SerializeField] private float injectionBoost = 50f;
     [SerializeField] private int syringeAmount = 4;
     [SerializeField] private float cooldown = 5f;
     [SerializeField] private InputAction useSyringe;
 
-    [Header("3D �������� � �������� ��������")]
+    [Header("3D Injector")]
     [SerializeField] private Animator injectorAnimator;
     [SerializeField] private string injectTriggerName = "Inject";
     [SerializeField] private float injectionDelay = 0.6f;
@@ -51,9 +51,6 @@ public class Adrenaline : MonoBehaviour
     private float currentContrast;
     private float currentFov;
 
-    // === ��� ����������� ������� ===
-    [Header("������� �������")]
-    [Tooltip("�������� ������������ ������� (������ � �������)")]
     [SerializeField] private float healRate = 50f;
     private float pendingHealAmount = 0f;
 
@@ -91,24 +88,19 @@ public class Adrenaline : MonoBehaviour
     {
         if (Time.timeScale <= 0f) return;
 
-        // 1. ������������ �������� (������ �� 1 HP)
         if (currentAdrenaline > 1f)
         {
             currentAdrenaline -= decayRate * Time.deltaTime;
             if (currentAdrenaline < 1f) currentAdrenaline = 1f;
         }
 
-        // 2. === ����������� ������� (�� ����) ===
         if (pendingHealAmount > 0f)
         {
-            // ������� ���� "�������" � ���� �����
             float poolConsumption = healRate * Time.deltaTime;
 
-            // ��������� ��� ��� ������ (���� ���� �������� �� ���������)
             pendingHealAmount -= poolConsumption;
             if (pendingHealAmount < 0f) pendingHealAmount = 0f;
 
-            // �������, ������� ������� ���������� � HP (�� ������ ���������)
             float actualHeal = Mathf.Min(poolConsumption, maxAdrenaline - currentAdrenaline);
 
             if (actualHeal > 0f)
@@ -117,7 +109,6 @@ public class Adrenaline : MonoBehaviour
             }
         }
 
-        // 3. ������� � ������
         if (currentAdrenaline > 0f)
         {
             ApplyVisualEffects();
@@ -125,7 +116,6 @@ public class Adrenaline : MonoBehaviour
             ApplyMusicVolumes();
         }
 
-        // 4. ����
         if (useSyringe.IsPressed() && syringeAmount > 0 && Time.time >= nextInjTime)
         {
             UseSyringe();
@@ -186,15 +176,12 @@ public class Adrenaline : MonoBehaviour
 
     public void GameOver()
     {
-        UnityEngine.Debug.Log("<color=red>����� �����. ������� � ����...</color>");
 
-        // === ����� ���� ������ ������ ===
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.ResetRunData();
         }
 
-        // ��������� ����������, ����� ����� �� ��������
         PlayerController pc = GetComponent<PlayerController>();
         if (pc != null) pc.LockControls();
         SceneManager.LoadScene("GameOver");

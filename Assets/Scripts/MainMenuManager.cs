@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class MainMenuManager : MonoBehaviour
 {
     [Header("Настройки")]
-    [SerializeField] private string gameSceneName = "Scene2"; // Или LvL1
+    [SerializeField] private string gameSceneName = "Scene2";
     [SerializeField] private SettingsUI settingsUI;
 
     public void StartGame()

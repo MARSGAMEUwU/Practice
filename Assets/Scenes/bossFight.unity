@@ -1586,6 +1586,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1389588600877724639, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: 5bf51b623a6e5014e9a8f225ddff8a93, type: 3}
     - target: {fileID: 2751206750874545837, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: maxFov
       value: 95
@@ -1614,6 +1618,10 @@ PrefabInstance:
       propertyPath: currentAdrenaline
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2806157462815135469, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: 2c7d61f20e3681345bc81f2f4f6f456c, type: 3}
     - target: {fileID: 3622679483922953709, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 24.74156
@@ -1654,6 +1662,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6084539192148699423, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: 9f8f1101ca1aef94782cd028dd4399ba, type: 3}
     - target: {fileID: 7644832637209901452, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
       propertyPath: ammoUI
       value: 
@@ -1678,6 +1690,10 @@ PrefabInstance:
       propertyPath: progressBarBG
       value: 
       objectReference: {fileID: 1285672665}
+    - target: {fileID: 8514400726434600271, guid: ce36ec21b226cf14598cfeb6efc68fc5, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
